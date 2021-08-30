@@ -1,16 +1,60 @@
-# baloogo
+# Baloogo
 
-Application de vente de poids de bagage
+## Installation et configuration
 
-## Getting Started
+faire un ```npm install``` dans le dossier ```api```
+- run ```npx sequelize init:config```
+- edit ```config.json```
+- run ```npx sequelize db:create``` to create database with the ```config.json```
 
-This project is a starting point for a Flutter application.
+Création des tables:
+- dans ```api``` lancer ```npx sequelize db:migrate```
+- Si après le migrate il faut modifier, supprimer des columns, il faut d'abord supprimer l'ancien migrate: ```npx sequelize db:migrate:undo``` ou ```npx sequelize db:migrate:undo:all```
 
-A few resources to get you started if this is your first Flutter project:
+## Description
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Baloogo est une application mettant en relation une personne **A** qui prend un vol et veut vendre *x poids* de son 
+bagage et une personne **B** qui veut acheter *x poids* de bagage de **A**.
+L'application organise aussi la remise du colis par **A** à la personne **C** à qui le colis est destiné.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Architecture
+
+Le projet est organisé en 2 parties, il y a une API REST réalisée avec **NodeJS** et utilisant une base de donnée 
+**MySQL**. Et il y a un frontend réalisé avec **Flutter** qui est permet de créer une application native (mobile, web, 
+desktop).
+
+Ajouter :
+
+dans api un fichier :
+.env -> JWT_SECRET=
+
+dans api un dossier :
+config -> config.js
+
+{
+"development": {
+"username": "",
+"password": ,
+"database": "",
+"host": "",
+"dialect": ""
+},
+"test": {
+"username": "",
+"password": ,
+"database": "",
+"host": "",
+"dialect": ""
+},
+"production": {
+"username": "",
+"password": ,
+"database": "",
+"host": "",
+"dialect": ""
+}
+}
+
+## FIGMAS
+https://www.figma.com/file/TXyf2UF2fatYPIOdfgVLPW/wizzly?node-id=0%3A1
+
