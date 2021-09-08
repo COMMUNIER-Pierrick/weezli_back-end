@@ -29,7 +29,7 @@ dans api un fichier :
 .env -> JWT_SECRET=
 
 dans api un dossier :
-config -> config.js
+config -> config.json
 
 {
 "development": {
