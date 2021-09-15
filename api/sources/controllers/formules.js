@@ -1,4 +1,5 @@
 const db = require("../models");
+const log = require("../../log/logger")
 
 const add_formule = async (req, res) => {
 	const {name, description, price, } = req.body;
@@ -12,10 +13,14 @@ const add_formule = async (req, res) => {
 	return res.status(200).send("La formule a bien été créée");
 };
 
+/* Exemple de mise en place du logger */
 const get_all_formules = async (req, res) => {
 	let results = null;
 	results = await db.formule.findAll();
-	res.status(200).send(results);
+	if(results.length <= 0) {
+		log.error("il n'y a pas de formule enregistré");
+	}
+	return res.status(200).send(results);
 };
 
 const get_one_formule = async (req, res) => {
