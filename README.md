@@ -23,37 +23,27 @@ Le projet est organisé en 2 parties, il y a une API REST réalisée avec **Node
 **MySQL**. Et il y a un frontend réalisé avec **Flutter** qui est permet de créer une application native (mobile, web, 
 desktop).
 
-Ajouter :
+Ajouter dans api un fichier .env :
 
-dans api un fichier :
-.env -> JWT_SECRET=
+DB_HOST=
 
-dans api un dossier :
-config -> config.json
+DB_PORT=
 
-{
-"development": {
-"username": "",
-"password": ,
-"database": "",
-"host": "",
-"dialect": ""
-},
-"test": {
-"username": "",
-"password": ,
-"database": "",
-"host": "",
-"dialect": ""
-},
-"production": {
-"username": "",
-"password": ,
-"database": "",
-"host": "",
-"dialect": ""
-}
-}
+DB_USER=
+
+DB_PASSWORD=
+
+DB_NAME=
+
+TOKEN_SECRET=
+
+REFRESH_TOKEN_SECRET=
+
+FRONT_URL=
+
+BACK_URL=
+
+
 
 ## FIGMAS
 https://www.figma.com/file/TXyf2UF2fatYPIOdfgVLPW/wizzly?node-id=0%3A1

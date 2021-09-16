@@ -69,8 +69,8 @@ CREATE TABLE `size`(
 
 CREATE TABLE `final_price`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `proposition` DOUBLE NOT NULL,
-    `accept` BOOLEAN NOT NULL DEFAULT FALSE
+    `proposition` DOUBLE NULL,
+    `accept` BOOLEAN NULL DEFAULT FALSE
 )Engine = InnoDB;
 
 CREATE TABLE `check_user`(
