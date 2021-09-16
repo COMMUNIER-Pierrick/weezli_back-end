@@ -10,3 +10,17 @@ module.exports = class Package{
         this.sizes = sizes;
     }
 }
+
+module.exports = class PackageId{
+    constructor(id, addressDeparture, addressArrival, datetimeDeparture, datetimeArrival, kgAvailable, description, idTransport, sizes) {
+        this.id = id;
+        this.addressDeparture = addressDeparture;
+        this.addressArrival = addressArrival;
+        this.datetimeDeparture = datetimeDeparture;
+        this.datetimeArrival = datetimeArrival;
+        this.kgAvailable = kgAvailable;
+        this.description = description;
+        this.idTransport = idTransport;
+        this.sizes = sizes;
+    }
+}

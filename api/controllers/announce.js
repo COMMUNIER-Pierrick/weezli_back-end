@@ -20,15 +20,17 @@ const remove = async (req, res) => {
 };
 
 const getByType = async (req, res) => {
-
+    const { id_type } = req.params;
+    let announces = null;
+    announces = await announceDAO.getByType(id_type);
+    res.status(200).send( {"announces": announces} );
 };
 
 const getById = async (req, res) => {
     const {id} = req.params;
     let announce = null;
     announce = await announceDAO.getById(id);
-    console.log(announce)
-    res.status(200).send( {"annonce": announce} );
+    res.status(200).send( {"announce": announce} );
 };
 
 const getByUser = async (req, res) => {
