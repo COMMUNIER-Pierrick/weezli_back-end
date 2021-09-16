@@ -97,7 +97,7 @@ async function getById(id) {
     }
 }
 
-async function remove(){
+async function remove(id){
 
 }
 

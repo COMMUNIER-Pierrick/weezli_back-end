@@ -77,6 +77,10 @@ async function insertRelation(idPackage, idAddress){
     }
 }
 
+async function removeRelation(idPackage, idSize){
+
+}
+
 async function getByPackage(id, info){
     let con = null;
     try{
@@ -100,5 +104,6 @@ module.exports = {
     remove,
     insertRelation,
     getByIdWithInfo,
-    getByPackage
+    getByPackage,
+    removeRelation
 }

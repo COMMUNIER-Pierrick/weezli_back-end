@@ -40,6 +40,10 @@ async function insertRelation(idAnnounce, idUser){
     }
 }
 
+async function removeRelationAnnounce(idPackage, idSize){
+
+}
+
 
 async function insert(){
 
@@ -69,7 +73,8 @@ module.exports = {
     insert,
     update,
     remove,
-    login
+    login,
+    removeRelationAnnounce
 }
 
 /*

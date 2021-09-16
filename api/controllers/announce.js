@@ -16,7 +16,10 @@ const update = async (req, res) => {
 };
 
 const remove = async (req, res) => {
-
+    const { id } = req.params;
+    await announceDAO.remove(id);
+    const message = "Suppression réussie.";
+    res.status(200).send({ "message": message });
 };
 
 const getByType = async (req, res) => {
