@@ -105,7 +105,7 @@ async function insertRelation(idPackage, idSize){
         con = await database.getConnection();
         await con.execute(SQL_INSERT_RELATION, [idPackage, idSize]);
     }catch (error) {
-        log.error("Error sizeDAO insert : " + error);
+        log.error("Error sizeDAO insertRelation : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -140,7 +140,7 @@ async function getByPackage(id){
         }
         return [sizes];
     } catch (error) {
-        log.error("Error sizeDAO selectById : " + error);
+        log.error("Error sizeDAO selectByPackage : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {

@@ -12,7 +12,11 @@ const insert = async (req, res) => {
 };
 
 const update = async (req, res) => {
-
+    const {id} = req.params;
+    let announce = new Announce(id, req.body.announce.packages, req.body.announce.idType, req.body.announce.price, req.body.announce.transact, req.body.announce.imgUrl, req.body.announce.dateCreated, req.body.announce.userAnnounce);
+    const result = await announceDAO.update(announce);
+    const message = "L'annonce a bien été mis à jour.";
+    return res.status(200).send({"message": message , "announce": result});
 };
 
 const remove = async (req, res) => {

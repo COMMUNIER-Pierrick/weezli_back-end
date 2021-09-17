@@ -2,6 +2,7 @@ const database = require("../tools/database");
 const log = require("../../../log/logger");
 
 const SQL_INSERT = `INSERT INTO package SET datetime_departure = ?, datetime_arrival = ?, kg_available = ?, description_condition = ?, id_transport = ?`
+const SQL_UPDATE = `UPDATE package SET datetime_departure = ?, datetime_arrival = ?, kg_available = ?, description_condition = ?, id_transport = ? WHERE id = ?`;
 const SQL_DELETE = `DELETE FROM package WHERE  id = ?`
 const SELECT_BY_ID = `SELECT id, datetime_departure, datetime_arrival, kg_available, description_condition, id_transport 
                         FROM package 
@@ -28,8 +29,19 @@ async function insert(Package){
     }
 }
 
-async function update(){
-
+async function update(Package){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        await con.execute(SQL_UPDATE, [Package.datetimeDeparture, Package.datetimeArrival, Package.kgAvailable, Package.description, Package.transport.id, Package.id]);
+    }catch (error) {
+        log.error("Error packageDAO insert : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
 }
 
 async function remove(id){
@@ -63,12 +75,8 @@ async function getById(id){
     }
 }
 
-async function getAll(){
-
-}
 
 module.exports = {
-    getAll,
     insert,
     update,
     remove,

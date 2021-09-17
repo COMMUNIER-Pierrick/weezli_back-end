@@ -11,6 +11,7 @@ const userDAO = require("./userDAO");
 
 const SQL_DELETE = `DELETE FROM announce WHERE  id = ?`
 const SQL_INSERT_WITH_FINAL_PRICE = `INSERT INTO announce SET id_package = ?, id_final_price = ?, id_type = ?, price = ?, transact = ?, img_url = ?`;
+const SQL_UPDATE = `UPDATE announce SET id_type = ?, price = ?, transact = ?, img_url = ? WHERE id =?`;
 
 const SELECT_BY_ID = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact, 
         a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept
@@ -74,6 +75,33 @@ async function insert(announce){
     }
 }
 
+async function update(announce){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        /* NON FINI !!!!! */
+        /*Addresse de départ*/
+        await addressDAO.update(announce.packages.addressDeparture);
+        /*Addresse  d'arrivée*/
+        await addressDAO.update(announce.packages.addressArrival);
+        /* package */
+        await packageDAO.update(announce.packages);
+        /* annonce */
+        await con.execute(SQL_UPDATE, [announce.idType, announce.price, announce.transact,
+            announce.imgUrl, announce.id]);
+
+        const results = await getById(announce.id);
+        return results;
+    }catch (error) {
+        log.error("Error announceDAO update : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
 async function getById(id) {
     let con = null;
     try {
@@ -129,10 +157,6 @@ async function remove(id){
             con.end();
         }
     }
-}
-
-async function update(){
-
 }
 
 async function getByType(idType){

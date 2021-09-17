@@ -3,6 +3,7 @@ const log = require("../../../log/logger");
 
 const SQL_INSERT = `INSERT INTO address SET id_info = ?, number = ?, street = ?, additional_address = ?, zipcode = ?, city = ?, country = ?`;
 const SQL_DELETE = `DELETE FROM address WHERE id = ?`;
+const SQL_UPDATE = `UPDATE address SET number = ?, street = ?, additional_address = ?, zipcode = ?, city = ?, country = ? WHERE id = ?`;
 const SQL_INSERT_RELATION = `INSERT INTO rel_package_address SET id_package = ?, id_address = ?`;
 const SQL_REMOVE_RELATION = `DELETE FROM rel_package_address WHERE  id_package = ? AND id_address = ?`
 const SELECT_BY_ID_INFO = `SELECT a.id, i.name, a.number, a.street, a.additional_address, a.zipcode, a.city, a.country 
@@ -36,8 +37,19 @@ async function insert(Address){
     }
 }
 
-async function update(){
-
+async function update(Address){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        await con.execute(SQL_UPDATE, [Address.number, Address.street, Address.additionalAddress, Address.zipCode, Address.city, Address.country, Address.id]);
+    }catch (error) {
+        log.error("Error adressDAO update : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
 }
 
 async function remove(id){
@@ -69,10 +81,6 @@ async function getByIdWithInfo(id){
             con.end();
         }
     }
-}
-
-async function getAll(){
-
 }
 
 async function insertRelation(idPackage, idAddress){
@@ -122,7 +130,6 @@ async function getByPackage(id, info){
 }
 
 module.exports = {
-    getAll,
     insert,
     update,
     remove,
