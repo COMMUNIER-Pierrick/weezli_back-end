@@ -26,7 +26,7 @@ const update = async (req, res) => {
 const getById = async (req, res) => {
     const {id} = req.params;
     let result = null;
-    result = await transportDAO.getById({id});
+    result = await transportDAO.getById(id);
     res.status(200).send({"transport": result});
 }
 

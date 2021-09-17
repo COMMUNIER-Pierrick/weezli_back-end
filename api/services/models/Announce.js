@@ -11,9 +11,10 @@ module.exports = class Announce{
 }
 
 module.exports = class AnnounceId{
-    constructor(id,packages, idType, price, transact, imgUrl, dateCreated, userAnnounce) {
+    constructor(id,packages,views, idType, price, transact, imgUrl, dateCreated, userAnnounce) {
         this.id = id;
         this.packages = packages;
+        this.views = views;
         this.idType = idType;
         this.price = price;
         this.transact = transact;

@@ -75,7 +75,7 @@ async function remove({id}){
     }
 }
 
-async function getById({id}){
+async function getById(id){
     let con = null;
     try {
         con = await database.getConnection();

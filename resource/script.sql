@@ -178,7 +178,7 @@ ALTER TABLE `users` ADD CONSTRAINT `fk_user_rib` FOREIGN KEY (`id_rib`) REFERENC
 ALTER TABLE `users` ADD CONSTRAINT `fk_user_choice` FOREIGN KEY (`id_choice`) REFERENCES `choice`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFERENCES `check_user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_package` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_package` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_final_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_type` FOREIGN KEY (`id_type`) REFERENCES `types`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 

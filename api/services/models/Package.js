@@ -12,7 +12,7 @@ module.exports = class Package{
 }
 
 module.exports = class PackageId{
-    constructor(id, addressDeparture, addressArrival, datetimeDeparture, datetimeArrival, kgAvailable, description, idTransport, sizes) {
+    constructor(id, addressDeparture, addressArrival, datetimeDeparture, datetimeArrival, kgAvailable, description, transport, sizes) {
         this.id = id;
         this.addressDeparture = addressDeparture;
         this.addressArrival = addressArrival;
@@ -20,7 +20,7 @@ module.exports = class PackageId{
         this.datetimeArrival = datetimeArrival;
         this.kgAvailable = kgAvailable;
         this.description = description;
-        this.idTransport = idTransport;
+        this.transport = transport;
         this.sizes = sizes;
     }
 }

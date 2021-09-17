@@ -3,12 +3,13 @@ const log = require("../../../log/logger");
 const addressDAO = require("./addressDAO");
 const packageDAO = require("./packageDAO");
 const sizeDAO = require("./sizeDAO");
+const transportDAO = require("./transportDAO");
 const finalPriceDAO = require("./finalPriceDAO");
 const Package = require("../../models/Package");
 const Announce = require("../../models/Announce");
 const userDAO = require("./userDAO");
 
-const SQL_INSERT = `INSERT INTO announce SET id_package = ?, id_type = ?, price = ?, transact = ?, img_url = ?`;
+const SQL_DELETE = `DELETE FROM announce WHERE  id = ?`
 const SQL_INSERT_WITH_FINAL_PRICE = `INSERT INTO announce SET id_package = ?, id_final_price = ?, id_type = ?, price = ?, transact = ?, img_url = ?`;
 
 const SELECT_BY_ID = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact, 
@@ -84,8 +85,9 @@ async function getById(id) {
         const [address2] = await addressDAO.getByPackage(packageId, "arrival");
         const [sizes] = await sizeDAO.getByPackage(packageId);
         const [user] = await userDAO.getUserForAnnounceByAnnounce(id);
-        const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, packages.id_transport, sizes);
-        const newAnnonce = new Announce(announce[0].id, newPackage, announce[0].id_type, announce[0].price, announce[0].transact, announce[0].img_url, announce[0].date_created, user);
+        const [ transport ] = await transportDAO.getById(packages.id_transport);
+        const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
+        const newAnnonce = new Announce(announce[0].id, newPackage, announce[0].views, announce[0].id_type, announce[0].price, announce[0].transact, announce[0].img_url, announce[0].date_created, user);
         return newAnnonce;
     } catch (error) {
         log.error("Error announceDAO selectById : " + error);
@@ -98,7 +100,35 @@ async function getById(id) {
 }
 
 async function remove(id){
-
+    let con = null;
+    try{
+        con = await database.getConnection();
+        const announce = await getById(id);
+        //delete relation address
+        await addressDAO.removeRelation(announce.packages.id, announce.packages.addressDeparture.id);
+        await addressDAO.removeRelation(announce.packages.id, announce.packages.addressArrival.id);
+        // delete relation size
+        const size = announce.packages.sizes;
+        for(let i = 0; i < size.length; i++){
+            await sizeDAO.removeRelation(announce.packages.id, size[i]);
+        }
+        // delete relation user
+        await userDAO.removeRelationAnnounce(announce.id, announce.userAnnounce.id);
+        // delete address
+        await addressDAO.remove(announce.packages.addressDeparture.id);
+        await addressDAO.remove(announce.packages.addressArrival.id);
+        // delete package
+        await packageDAO.remove(announce.packages.id);
+        //delete announce
+        await con.execute(SQL_DELETE, [id]);
+    }catch (error) {
+        log.error("Error announceDAO remove : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
 }
 
 async function update(){
@@ -118,8 +148,9 @@ async function getByType(idType){
             const [address2] = await addressDAO.getByPackage(packageId, "arrival");
             const [sizes] = await sizeDAO.getByPackage(packageId);
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
-            const newPackage = new Package(packages.id,address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, packages.id_transport, sizes);
-            const announce = new Announce(announces[i].id, newPackage, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            const [ transport ] = await transportDAO.getById(packages.id_transport);
+            const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
+            const announce = new Announce(announces[0].id, newPackage, announces[0].views, announces[0].id_type, announces[0].price, announces[0].transact, announces[0].img_url, announces[0].date_created, user);
             newListAnnounce.push({announce});
         }
         return newListAnnounce;
@@ -133,19 +164,19 @@ async function getByType(idType){
     }
 }
 
-async function getByUser(){
-}
 
 module.exports = {
     insert,
     remove,
     update,
     getByType,
-    getById,
-    getByUser
+    getById
 }
 
-/*{   "announce":
+/*
+VERSION ENVOYER AU BACK
+
+{   "announce":
         {
             "packages":
                 {
@@ -188,6 +219,60 @@ module.exports = {
                 "lastname" : "terieur"
             }
         }
+}
+
+VERSION RECUPERER
+
+{
+    "announce": {
+        "id": 1,
+        "packages": {
+            "id": 1,
+            "addressDeparture": {
+                "id": 1,
+                "name": "depart",
+                "number": 45,
+                "street": "Orange St",
+                "additional_address": "3eme floor",
+                "zipcode": "SW1Y 4UR",
+                "city": "London",
+                "country": "England"
+            },
+            "addressArrival": {
+                "id": 3,
+                "name": "arrival",
+                "number": 28,
+                "street": "Avenue des Champs-Elysées",
+                "additional_address": "",
+                "zipcode": "75000",
+                "city": "Paris",
+                "country": "France"
+            },
+            "datetimeDeparture": null,
+            "datetimeArrival": "2021-11-27T23:00:00.000Z",
+            "kgAvailable": 6.5,
+            "description": "Maecenas consectetur, magna nec pretium faucibus, ipsum urna dapibus dolor, ac ornare est purus et velit",
+            "transport": {
+                "id": 1,
+                "name": "non-identifier"
+            },
+            "sizes": [
+                2,
+                3
+            ]
+        },
+        "views": 10,
+        "idType": 1,
+        "price": null,
+        "transact": 0,
+        "imgUrl": "picture15052021.png, picture15052021.png",
+        "dateCreated": "2021-10-31T23:00:00.000Z",
+        "userAnnounce": {
+            "id": 1,
+            "firstname": "alain",
+            "lastname": "terrieur"
+        }
+    }
 }
 * */
 

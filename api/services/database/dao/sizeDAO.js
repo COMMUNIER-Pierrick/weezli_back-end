@@ -8,6 +8,7 @@ const SQL_INSERT = `INSERT INTO size SET name = ?`;
 const SQL_UPDATE = `UPDATE size SET name = ? WHERE id = ?`;
 const SQL_DELETE = `DELETE FROM size WHERE id = ?`;
 const SQL_INSERT_RELATION = `INSERT INTO rel_package_sizes SET id_package = ?, id_size = ?`;
+const SQL_REMOVE_RELATION = `DELETE FROM rel_package_sizes WHERE  id_package = ? AND id_size = ?`
 const SELECT_BY_PACKAGE = `SELECT s.id, s.name 
                            FROM size s
                            INNER JOIN rel_package_sizes rps on s.id = rps.id_size
@@ -23,7 +24,7 @@ async function getAll(){
         const [rows] = await con.execute(SELECT_ALL);
         return rows;
     } catch (error) {
-        log.error("Error statusDAO selectAll : " + error);
+        log.error("Error sizeDAO selectAll : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -41,7 +42,7 @@ async function insert(Size){
         const [result] = await getById({id})
         return result;
     }catch (error) {
-        log.error("Error statusDAO insert : " + error);
+        log.error("Error sizeDAO insert : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -58,7 +59,7 @@ async function update(Size, id){
         const [result] = await getById({id})
         return result;
     }catch (error) {
-        log.error("Error statusDAO update : " + error);
+        log.error("Error sizeDAO update : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -73,7 +74,7 @@ async function remove({id}){
         con = await database.getConnection();
         await con.execute(SQL_DELETE, [id]);
     }catch (error) {
-        log.error("Error statusDAO delete : " + error);
+        log.error("Error sizeDAO delete : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -89,7 +90,7 @@ async function getById({id}){
         const [rows] = await con.execute(SELECT_BY_ID, [id]);
         return rows;
     } catch (error) {
-        log.error("Error statusDAO selectById : " + error);
+        log.error("Error sizeDAO selectById : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -104,7 +105,7 @@ async function insertRelation(idPackage, idSize){
         con = await database.getConnection();
         await con.execute(SQL_INSERT_RELATION, [idPackage, idSize]);
     }catch (error) {
-        log.error("Error statusDAO insert : " + error);
+        log.error("Error sizeDAO insert : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -114,7 +115,18 @@ async function insertRelation(idPackage, idSize){
 }
 
 async function removeRelation(idPackage, idSize){
-
+        let con = null;
+        try{
+            con = await database.getConnection();
+            await con.execute(SQL_REMOVE_RELATION, [idPackage, idSize])
+        }catch (error) {
+            log.error("Error sizeDAO removeRelation : " + error);
+            throw errorMessage;
+        } finally {
+            if (con !== null) {
+                con.end();
+            }
+        }
 }
 
 async function getByPackage(id){
@@ -128,7 +140,7 @@ async function getByPackage(id){
         }
         return [sizes];
     } catch (error) {
-        log.error("Error statusDAO selectById : " + error);
+        log.error("Error sizeDAO selectById : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {

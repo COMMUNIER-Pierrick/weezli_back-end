@@ -36,9 +36,6 @@ const getById = async (req, res) => {
     res.status(200).send( {"announce": announce} );
 };
 
-const getByUser = async (req, res) => {
-
-};
 const getByUserType = async (req, res) => {
 
 };
@@ -49,6 +46,5 @@ module.exports = {
     update,
     getByType,
     getById,
-    getByUser,
     getByUserType
 };

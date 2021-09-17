@@ -4,6 +4,7 @@ const log = require('../../../log/logger');
 const errorMessage = "Data access error";
 
 const SQL_INSERT_RELATION_ANNOUNCE = `INSERT INTO rel_user_announce SET id_announce = ?, id_user = ?`;
+const SQL_REMOVE_RELATION = `DELETE FROM rel_user_announce WHERE id_announce = ? AND id_user = ?`
 const SELECT_FOR_ANNOUNCE_BY_ANNOUNCE = `SELECT u.id, u.firstname, u.lastname 
                                         FROM users u 
                                         INNER JOIN rel_user_announce rua on u.id = rua.id_user
@@ -40,10 +41,20 @@ async function insertRelation(idAnnounce, idUser){
     }
 }
 
-async function removeRelationAnnounce(idPackage, idSize){
-
+async function removeRelationAnnounce(idAnnounce, idUser){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        await con.execute(SQL_REMOVE_RELATION, [idAnnounce, idUser])
+    }catch (error) {
+        log.error("Error addressDAO removeRelation : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
 }
-
 
 async function insert(){
 
@@ -64,7 +75,6 @@ async function update(){
 async function getById(){
 
 }
-
 
 module.exports = {
     getUserForAnnounceByAnnounce,
