@@ -9,7 +9,7 @@ const getAll = async (req, res) => {
 };
 
 const insert = async (req, res) => {
-	let choice = new Choice(req.body.name, req.body.description, req.body.price);
+	let choice = Choice.ChoiceInsert(req.body.name, req.body.description, req.body.price);
 	const result = await choiceDAO.insert(choice);
 	let message = "La formule a bien été créée";
 	return res.status(200).send( {"message": message , "choice": result});
@@ -17,7 +17,7 @@ const insert = async (req, res) => {
 
 const update = async (req, res) => {
 	const { id } = req.params;
-	let choice = new Choice(req.body.name, req.body.description, req.body.price);
+	let choice = Choice.ChoiceInsert(req.body.name, req.body.description, req.body.price);
 	let result = null;
 	result = await choiceDAO.update(choice, id);
 	let message = "La formule a bien été modifiée ";
@@ -27,7 +27,7 @@ const update = async (req, res) => {
 const getById = async (req, res) => {
 	const { id } = req.params;
 	let result = null;
-	formule = await choiceDAO.getById({id});
+	formule = await choiceDAO.getById(id);
 	res.status(200).send( {"choice": result} );
 };
 

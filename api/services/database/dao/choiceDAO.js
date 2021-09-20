@@ -31,7 +31,7 @@ async function insert(Choice){
         con = await database.getConnection();
         const [idCreated] = await con.execute(SQL_INSERT, [Choice.name, Choice.description, Choice.price]);
         const id = idCreated.insertId;
-        const [result] = await getById({id})
+        const [result] = await getById(id)
         return result;
     }catch (error) {
         log.error("Error ChoiceDAO insert : " + error);
@@ -75,7 +75,7 @@ async function remove({id}){
     }
 }
 
-async function getById({id}){
+async function getById(id){
     let con = null;
     try {
         con = await database.getConnection();

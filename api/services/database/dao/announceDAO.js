@@ -115,7 +115,7 @@ async function getById(id) {
         const [user] = await userDAO.getUserForAnnounceByAnnounce(id);
         const [ transport ] = await transportDAO.getById(packages.id_transport);
         const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-        const newAnnonce = new Announce(announce[0].id, newPackage, announce[0].views, announce[0].id_type, announce[0].price, announce[0].transact, announce[0].img_url, announce[0].date_created, user);
+        const newAnnonce = Announce.AnnounceId(announce[0].id, newPackage, announce[0].views, announce[0].id_type, announce[0].price, announce[0].transact, announce[0].img_url, announce[0].date_created, user);
         return newAnnonce;
     } catch (error) {
         log.error("Error announceDAO selectById : " + error);

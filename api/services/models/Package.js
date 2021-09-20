@@ -1,5 +1,6 @@
 module.exports = class Package{
-    constructor(addressDeparture, addressArrival, datetimeDeparture, datetimeArrival, kgAvailable, description, idTransport, sizes) {
+    constructor(id, addressDeparture, addressArrival, datetimeDeparture, datetimeArrival, kgAvailable, description, idTransport, sizes) {
+        this.id = id;
         this.addressDeparture = addressDeparture;
         this.addressArrival = addressArrival;
         this.datetimeDeparture = datetimeDeparture;
@@ -9,8 +10,12 @@ module.exports = class Package{
         this.idTransport = idTransport;
         this.sizes = sizes;
     }
-}
 
+    static PackageInsert(addressDeparture, addressArrival, datetimeDeparture, datetimeArrival, kgAvailable, description, idTransport, sizes){
+        return new Package(null, addressDeparture, addressArrival, datetimeDeparture, datetimeArrival, kgAvailable, description, idTransport, sizes)
+    }
+}
+/*
 module.exports = class PackageId{
     constructor(id, addressDeparture, addressArrival, datetimeDeparture, datetimeArrival, kgAvailable, description, transport, sizes) {
         this.id = id;
@@ -24,3 +29,4 @@ module.exports = class PackageId{
         this.sizes = sizes;
     }
 }
+*/

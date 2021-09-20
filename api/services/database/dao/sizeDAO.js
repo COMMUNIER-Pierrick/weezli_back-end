@@ -1,6 +1,5 @@
 const database = require('../tools/database');
 const log = require('../../../log/logger');
-const {string} = require("joi");
 
 const SELECT_ALL = `SELECT * from size`;
 const SELECT_BY_ID = `SELECT * from size WHERE id = ?`;

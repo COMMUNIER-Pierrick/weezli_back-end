@@ -9,12 +9,12 @@ CREATE TABLE `users`(
     `username` VARCHAR(150) NOT NULL,
     `password` VARCHAR(250) NOT NULL,
     `email` VARCHAR(150) NOT NULL,
-    `phone` VARCHAR(50) NOT NULL,
+    `phone` VARCHAR(50) NULL,
     `active` BOOLEAN NOT NULL DEFAULT true,
     `url_profile_img` VARCHAR(150) NULL,
     `average_opinion` DOUBLE NOT NULL DEFAULT 0,
-    `id_rib` INT NULL,
-    `id_choice` INT NULL,
+    `id_rib` INT NOT NULL,
+    `id_choice` INT NOT NULL,
     `id_check` INT NOT NULL
 )Engine = InnoDB;
 
@@ -78,20 +78,20 @@ CREATE TABLE `check_user`(
     `status_phone` BOOLEAN NOT NULL DEFAULT FALSE,
     `status_mail` BOOLEAN NOT NULL DEFAULT FALSE,
     `status_identity` BOOLEAN NOT NULL DEFAULT FALSE,
-    `img_identity` VARCHAR(150)
+    `img_identity` VARCHAR(150) NULL
 )Engine = InnoDB;
 
 CREATE TABLE `choice`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL,
-    `description` TEXT NOT NULL,
-    `price` DOUBLE NOT NULL
+    `description` TEXT NULL,
+    `price` DOUBLE NULL
 )Engine = InnoDB;
 
 CREATE TABLE `rib`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL,
-    `iban` VARCHAR(255) NOT NULL
+    `name` VARCHAR(255) NULL,
+    `iban` VARCHAR(255) NULL
 )Engine = InnoDB;
 
 CREATE TABLE `package`(

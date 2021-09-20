@@ -41,6 +41,7 @@ INSERT INTO `announce` SET id_package=4, views=8, id_final_price=4, id_order=2, 
 INSERT INTO `announce` SET id_package=5, views=1, id_final_price=5, id_order=3, id_type=2, price=5, transact=false, img_url='', date_created='2021-11-10T00:00:00';
 INSERT INTO `announce` SET id_package=6, views=0, id_final_price=6, id_order=0, id_type=2, price=125.90, transact=true, img_url='', date_created='2021-09-05T00:00:00';
 
+INSERT INTO `choice` SET name='no-formule', description='', price='';
 INSERT INTO `choice` SET name='formule1', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='5.5';
 INSERT INTO `choice` SET name='formule2', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='10';
 INSERT INTO `choice` SET name='formule3', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='14.9';

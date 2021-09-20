@@ -2,6 +2,27 @@ const joi = require("joi");
 
 const registerValidation = (data) => {
     const schema = joi.object().keys({
+        username: joi
+            .string()
+            .required()
+            .pattern(/^[-_'0-9a-zA-ZÀ-ÿ]{1,20}$/)
+            .messages({
+                "string.pattern.base": `Le Pseudo ne correspond pas au modèle demandé (max 20 caractères pouvant contenir : 1 lettre majuscule, 1 lettre minuscule ou 1 chiffre ou 1 caractère spécial (-, _))`,
+            }),
+        firstname: joi
+            .string()
+            .pattern(/^[-'a-zA-ZÀ-ÿ\s]{1,50}$/)
+            .required()
+            .messages({
+                "string.pattern.base": `Le Prénom ne correspond pas au modèle demandé (max 50 caractères pouvant contenir : des lettres majuscules, des lettres minuscules, des apostrophes ou 1 espace ou un tiret)`,
+            }),
+        lastname: joi
+            .string()
+            .pattern(/^[-'a-zA-ZÀ-ÿ\s]{1,50}$/)
+            .required()
+            .messages({
+                "string.pattern.base": `Le Nom ne correspond pas au modèle demandé (max 50 caractères pouvant contenir : des lettres majuscules, des lettres minuscules, des apostrophes ou 1 espace ou un tiret)`,
+            }),
         email: joi.string().required().email(),
         password: joi
             .string()
