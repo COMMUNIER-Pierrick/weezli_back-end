@@ -3,8 +3,8 @@ const log = require('../../../log/logger');
 
 const errorMessage = "Data access error";
 
-const SQL_INSERT = `INSERT INTO rib SET name = ?, iban = ? `;
-const SELECT_BY_ID = `SELECT * FROM rib WHERE id = ?`;
+const SQL_INSERT = `INSERT INTO payment SET name = ?, iban = ?, number_card = ?, expired_date_card = ? `;
+const SELECT_BY_ID = `SELECT * FROM payment WHERE id = ?`;
 
 async function insert(){
     let con = null;
@@ -14,7 +14,7 @@ async function insert(){
         const id =  idCreated.insertId;
         return id;
     }catch (error) {
-        log.error("Error sizeDAO insert : " + error);
+        log.error("Error paymentDAO insert : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -31,10 +31,10 @@ async function getById(id){
     let con = null;
     try{
         con = await database.getConnection();
-        const [rib] = await con.execute(SELECT_BY_ID, [id]);
-        return rib;
+        const [payment] = await con.execute(SELECT_BY_ID, [id]);
+        return payment;
     }catch (error) {
-        log.error("Error userDAO getById : " + error);
+        log.error("Error paymentDAO getById : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {

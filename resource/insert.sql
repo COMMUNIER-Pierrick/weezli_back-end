@@ -41,30 +41,30 @@ INSERT INTO `announce` SET id_package=4, views=8, id_final_price=4, id_order=2, 
 INSERT INTO `announce` SET id_package=5, views=1, id_final_price=5, id_order=3, id_type=2, price=5, transact=false, img_url='', date_created='2021-11-10T00:00:00';
 INSERT INTO `announce` SET id_package=6, views=0, id_final_price=6, id_order=0, id_type=2, price=125.90, transact=true, img_url='', date_created='2021-09-05T00:00:00';
 
-INSERT INTO `choice` SET name='no-formule', description='', price='';
+INSERT INTO `choice` SET name='no-formule';
 INSERT INTO `choice` SET name='formule1', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='5.5';
 INSERT INTO `choice` SET name='formule2', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='10';
 INSERT INTO `choice` SET name='formule3', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='14.9';
 
-INSERT INTO `rib` SET name='alain terieur', iban='FR0000000000000000000000001';
-INSERT INTO `rib` SET name='sarah croche', iban='FR0000000000000000000000002';
-INSERT INTO `rib` SET name='marc assin', iban='FR0000000000000000000000003';
+INSERT INTO `payment` SET name='alain terieur', iban='FR0000000000000000000000001', number_card='5698524587459685' , expired_date_card='2022-12-10T00:00:00';
+INSERT INTO `payment` SET name='sarah croche', iban='FR0000000000000000000000002', number_card='5245874596855698' , expired_date_card='2023-12-10T00:00:00';
+INSERT INTO `payment` SET name='marc assin', iban='FR0000000000000000000000003', number_card='8745968556985245' , expired_date_card='2024-12-10T00:00:00';
 
 INSERT INTO `check_user` SET status_phone=true, status_mail=false, status_identity=true, img_identity=null;
 INSERT INTO `check_user` SET status_phone=false, status_mail=true, status_identity=true, img_identity='pictureidentity1.jpg';
 INSERT INTO `check_user` SET status_phone=false, status_mail=false, status_identity=false, img_identity='';
 
 INSERT INTO `users` SET firstname='alain',lastname='terrieur', username='alainterieur', password='1§fdv54ùmsldc354sdvm^$5656m',
-                        email='alain@terrieur.com', phone='0707070707', active=1, url_profile_img='', average_opinion=4.5,
-                        id_rib=1, id_choice=1, id_check=1;
+                        email='alain@terrieur.com', phone='0707070707', date_of_birthday= '2000-12-10T00:00:00', active=1, url_profile_img='', average_opinion=4.5,
+                        id_payment=1, id_choice=1, id_check=1;
 
 INSERT INTO `users` SET firstname='sarah',lastname='croche', username='sarahcroche', password='1§fdv54ùmsldc354sdvm^$5656m',
-                        email='sarah@croche.com', phone='0606060606', active=1, url_profile_img='pictureprofile2.png', average_opinion=2.5,
-                        id_rib=2, id_choice=3, id_check=2;
+                        email='sarah@croche.com', phone='0606060606', date_of_birthday= '1989-12-10T00:00:00', active=1, url_profile_img='pictureprofile2.png', average_opinion=2.5,
+                        id_payment=2, id_choice=3, id_check=2;
 
 INSERT INTO `users` SET firstname='marc',lastname='assin', username='marcassin', password='1§fdv54ùmsldc354sdvm^$5656m',
-                        email='marc@assin.com', phone='0607070707', active=1, url_profile_img='pictureprofile3.png', average_opinion=0,
-                        id_rib=3, id_choice=2, id_check=3;
+                        email='marc@assin.com', phone='0607070707', date_of_birthday= '1989-12-10T00:00:00', active=1, url_profile_img='pictureprofile3.png', average_opinion=0,
+                        id_payment=3, id_choice=2, id_check=3;
 
 INSERT INTO `rel_user_announce` SET id_user=1, id_announce=1;
 INSERT INTO `rel_user_announce` SET id_user=1, id_announce=4;

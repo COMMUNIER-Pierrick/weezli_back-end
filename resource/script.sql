@@ -14,9 +14,11 @@ CREATE TABLE `users`(
     `active` BOOLEAN NOT NULL DEFAULT true,
     `url_profile_img` VARCHAR(150) NULL,
     `average_opinion` DOUBLE NOT NULL DEFAULT 0,
-    `id_rib` INT NOT NULL,
+    `id_payment` INT NOT NULL,
     `id_choice` INT NOT NULL,
-    `id_check` INT NOT NULL
+    `id_check` INT NOT NULL,
+    `choice_date_started` DATETIME NULL,
+    `choice_date_end` DATETIME NULL
 )Engine = InnoDB;
 
 ALTER TABLE `users` ADD UNIQUE (`username`);
@@ -86,15 +88,15 @@ CREATE TABLE `choice`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL,
     `description` TEXT NULL,
-    `price` DOUBLE NULL,
-    `date_started` DATETIME NULL,
-    `date_end` DATETIME NULL
+    `price` DOUBLE NULL
 )Engine = InnoDB;
 
-CREATE TABLE `rib`(
+CREATE TABLE `payment`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(255) NULL,
-    `iban` VARCHAR(255) NULL
+    `iban` VARCHAR(255) NULL,
+    `number_card` VARCHAR(20) NULL,
+    `expired_date_card` DATETIME NULL
 )Engine = InnoDB;
 
 CREATE TABLE `package`(
@@ -177,7 +179,7 @@ CREATE TABLE `rel_user_announce`(
 
 ALTER TABLE `rel_user_announce` ADD PRIMARY KEY (`id_user`,`id_announce`);
 
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_rib` FOREIGN KEY (`id_rib`) REFERENCES `rib`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_payment` FOREIGN KEY (`id_payment`) REFERENCES `payment`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `users` ADD CONSTRAINT `fk_user_choice` FOREIGN KEY (`id_choice`) REFERENCES `choice`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFERENCES `check_user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 

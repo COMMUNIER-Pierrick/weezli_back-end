@@ -1,4 +1,4 @@
-const {loginValidation, registerValidation} = require("../config/validation");
+const {loginValidation, registerValidation, updateValidation} = require("../config/validation");
 const User = require("../services/models/User");
 const log = require("../log/logger");
 const userDAO = require("../services/database/dao/userDAO");
@@ -51,14 +51,32 @@ const insert = async (req, res) => {
 };
 
 const update = async (req, res) => {
-
+	const {id} = req.params;
+	const {user} = req.body;
+	const { error } = updateValidation(user);
+	if(error){
+		log.error("Error update : " + error.details[0].message);
+		return res.status(400).send({ error: error.details[0].message });
+	}
+	try{
+		const newUser = await userDAO.update(user,id);
+		delete newUser.password;
+		const message = "mise à jour réussi.";
+		res.status(200).send( {"message": message, "user": newUser} );
+	}catch (error) {
+		log.error("Error user.js update");
+		throw error;
+	}
 };
-const updateRib = async (req, res) => {
+
+const updatePayment = async (req, res) => {
 
 }
+
 const updateChoice = async (req, res) => {
 
 }
+
 const remove = async (req, res) => {
 
 };
@@ -68,7 +86,6 @@ const getById = async (req, res) => {
 	let user = null;
 	user = await userDAO.getById(id);
 	res.status(200).send( {"user": user} );
-
 };
 
 const login = async (req, res) => {
@@ -129,15 +146,56 @@ const logout = (req, res) => {
 	res.status(204).send("delete complete");
 };
 
+const refresh = (req, res) => {
+	let refreshToken = req.cookies.refreshToken;
+
+	let payload;
+	try {
+		payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+	} catch (e) {
+		log.error("Error user.js refresh : " + e);
+		return res.status(403).send();
+	}
+
+	let newToken = jwt.sign({ id: payload.id }, process.env.TOKEN_SECRET, {
+		expiresIn: "30m",
+	});
+
+	res
+		.cookie("accessToken", newToken, {
+			httpOnly: true,
+			secure: false,
+			sameSite: "strict",
+		})
+		.json({ newToken });
+};
+
 module.exports = {
 	login,
 	getById,
 	insert,
 	update,
 	updateChoice,
-	updateRib,
+	updatePayment,
 	remove,
-	logout
+	logout,
+	refresh
 };
 
+/*UPDATE PROFILE
+
+*{
+    "user": {
+        "firstname": "paul",
+        "lastname": "position",
+        "email": "paul@pausition.com",
+        "phone": null,
+        "url_profile_img": null,
+        "check": {
+            "id": 13,
+            "imgIdentity": "picture789.png"
+        }
+    }
+}
+* */
 
