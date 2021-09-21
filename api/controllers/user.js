@@ -3,25 +3,24 @@ const User = require("../services/models/User");
 const log = require("../log/logger");
 const userDAO = require("../services/database/dao/userDAO");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 const insert = async (req, res) => {
 	const { firstname, lastname, username, password, email} = req.body.user;
-	const { error } = registerValidation(req.body);
-
+	const { error } = registerValidation(req.body.user);
 	if(error){
 		log.error("Error register : " + error.details[0].message);
 		return res.status(400).send({ error: error.details[0].message });
 	}
 	try {
-		const userControl = await userDAO.getControlUser(email);
-
+		const userControl = await userDAO.getControlUser(email, username);
 		if (userControl.length) {
 			return res.status(409).send({error: "L'email ou le username existe deja"});
 		}
 
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
-		const newUser = new User.UserInsert(firstname, lastname, username, hashedPassword, email);
+		const newUser = User.UserInsert(firstname, lastname, username, hashedPassword, email);
 
 		const user = await userDAO.insert(newUser);
 
@@ -54,7 +53,12 @@ const insert = async (req, res) => {
 const update = async (req, res) => {
 
 };
+const updateRib = async (req, res) => {
 
+}
+const updateChoice = async (req, res) => {
+
+}
 const remove = async (req, res) => {
 
 };
@@ -68,8 +72,8 @@ const getById = async (req, res) => {
 };
 
 const login = async (req, res) => {
-	const {email, password} = req.body;
-	const {error}  = loginValidation(req.body);
+	const {email, password} = req.body.user;
+	const {error}  = loginValidation(req.body.user);
 
 	if (error){
 		log.error("Error login : " + error.details[0].message );
@@ -77,38 +81,28 @@ const login = async (req, res) => {
 	}
 
 	try {
-		const [user] = await userDAO.getByLogin(email, password);
+		const user = await userDAO.getByLogin(email);
 		if (!user) {
-			return res
-				.status(401)
-				.send({ error: "L'identiant ou le mot de passe est erroné !" });
+			return res.status(401).send({ error: "L'identiant ou le mot de passe est erroné !" });
 		}
 
 		const validPassword = await bcrypt.compare(password, user.password);
 		if (!validPassword) {
-			return res
-				.status(401)
-				.send({ error: "L'identiant ou le mot de passe est erroné !" });
+			return res.status(401).send({ error: "Le mot de passe est erroné !" });
 		}
 
 		if (!user.active) {
-			return res
-				.status(403)
-				.send({ error: "Votre compte a été désactivé. Merci de contacter un administrateur." });
+			return res.status(403).send({ error: "Votre compte a été désactivé. Merci de contacter un administrateur." });
 		}
 
-		let payload = { id: user.id };
+		let playoad = {id: user.id};
 
-		const token = jwt.sign(payload, process.env.token, {
-			expiresIn: "30m",
-		});
-		let refreshToken = jwt.sign(payload, process.env.refreshToken, {
-			expiresIn: "1y",
-		});
+		const token = jwt.sign(playoad, process.env.TOKEN_SECRET, {expiresIn: "30m"});
+		let refreshToken = jwt.sign(playoad, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "1y"});
 
 		delete user.password;
 
-		res
+		return res
 			.cookie("accessToken", token, {
 				httpOnly: true,
 				secure: false,
@@ -120,7 +114,7 @@ const login = async (req, res) => {
 				sameSite: "strict",
 			})
 			.cookie("refTokenId", true)
-			.status(201).send({success: "Connection réussi. ", User: user});
+			.status(201).send({success: "Connection réusse", User: user});
 	} catch (error) {
 		log.error("Error user.js login : " + error);
 	}
@@ -140,6 +134,8 @@ module.exports = {
 	getById,
 	insert,
 	update,
+	updateChoice,
+	updateRib,
 	remove,
 	logout
 };

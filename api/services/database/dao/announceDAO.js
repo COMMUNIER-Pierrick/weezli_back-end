@@ -174,7 +174,7 @@ async function getByType(idType){
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[0].id, newPackage, announces[0].views, announces[0].id_type, announces[0].price, announces[0].transact, announces[0].img_url, announces[0].date_created, user);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({announce});
         }
         return newListAnnounce;

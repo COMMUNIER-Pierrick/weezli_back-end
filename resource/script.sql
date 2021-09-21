@@ -6,10 +6,11 @@ CREATE TABLE `users`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT ,
     `firstname` VARCHAR(150) NOT NULL,
     `lastname` VARCHAR(150) NOT NULL,
-    `username` VARCHAR(150) NOT NULL,
+    `username` VARCHAR(150) NOT NULL UNIQUE,
     `password` VARCHAR(250) NOT NULL,
-    `email` VARCHAR(150) NOT NULL,
+    `email` VARCHAR(150) NOT NULL UNIQUE,
     `phone` VARCHAR(50) NULL,
+    `date_of_birthday` DATETIME NOT NULL,
     `active` BOOLEAN NOT NULL DEFAULT true,
     `url_profile_img` VARCHAR(150) NULL,
     `average_opinion` DOUBLE NOT NULL DEFAULT 0,
@@ -85,7 +86,9 @@ CREATE TABLE `choice`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL,
     `description` TEXT NULL,
-    `price` DOUBLE NULL
+    `price` DOUBLE NULL,
+    `date_started` DATETIME NULL,
+    `date_end` DATETIME NULL
 )Engine = InnoDB;
 
 CREATE TABLE `rib`(
