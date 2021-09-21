@@ -23,23 +23,3 @@ module.exports = class User{
         return new User(null, firstname, lastname, username, password, email, null, null, null, null, null, null, null)
     }
 }
-/*
-module.exports = class UserAnnounce{
-    constructor(id, firstname, lastname) {
-        this.id = id;
-        this.firstname = firstname;
-        this.lastname = lastname;
-    }
-}
-
-module.exports = class UserInsert{
-    constructor(firstname, lastname, username, password, email) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
-}
-
-*/

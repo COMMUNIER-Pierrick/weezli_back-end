@@ -9,12 +9,3 @@ module.exports = class Rib{
         return new Rib(null, name, iban);
     }
 }
-
-/*
-module.exports = class insertRib{
-    constructor(name, iban) {
-        this.name = name;
-        this.iban = iban;
-    }
-}
-*/
