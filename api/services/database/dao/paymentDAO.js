@@ -10,7 +10,7 @@ async function insert(){
     let con = null;
     try{
         con = await database.getConnection();
-        const [idCreated] = await con.execute(SQL_INSERT, ['','']);
+        const [idCreated] = await con.execute(SQL_INSERT, ['','','','']);
         const id =  idCreated.insertId;
         return id;
     }catch (error) {

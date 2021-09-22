@@ -73,8 +73,13 @@ const updatePayment = async (req, res) => {
 
 }
 
-const updateChoice = async (req, res) => {
-
+const updateChoiceUser = async (req, res) => {
+	const {id} = req.params;
+	const { user } = req.body;
+	const updateUser = await userDAO.updateChoiceUser(user, id);
+	console.log(updateUser);
+	const message = "mise à jour de votre formule."
+	res.status(200).send({"message": message, "user": updateUser})
 }
 
 const remove = async (req, res) => {
@@ -175,7 +180,7 @@ module.exports = {
 	getById,
 	insert,
 	update,
-	updateChoice,
+	updateChoiceUser,
 	updatePayment,
 	remove,
 	logout,

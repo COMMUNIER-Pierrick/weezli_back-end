@@ -25,26 +25,19 @@ desktop).
 
 Ajouter dans api un fichier .env :
 
-DB_HOST=
-
-DB_PORT=
-
-DB_USER=
-
-DB_PASSWORD=
-
-DB_NAME=
-
-TOKEN_SECRET=
-
-REFRESH_TOKEN_SECRET=
-
-FRONT_URL=
-
+DB_HOST=<br>
+DB_PORT=<br>
+DB_USER=<br>
+DB_PASSWORD=<br>
+DB_NAME=<br>
+TOKEN_SECRET=<br>
+REFRESH_TOKEN_SECRET=<br>
+FRONT_URL=<br>
 BACK_URL=
-
-
 
 ## FIGMAS
 https://www.figma.com/file/TXyf2UF2fatYPIOdfgVLPW/wizzly?node-id=0%3A1
 
+## STRIPE SAVE CARD 
+https://stripe.com/docs/payments/save-during-payment
+https://stripe.com/docs/payments/sepa-debit/set-up-payment

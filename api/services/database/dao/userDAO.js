@@ -14,6 +14,7 @@ const SQL_INSERT_RELATION_ANNOUNCE = `INSERT INTO rel_user_announce SET id_annou
 const SQL_INSERT = `INSERT INTO users SET firstname = ?, lastname = ?, username = ?, password = ?, email = ?, id_payment = ?, id_choice = ?, id_check = ?`;
 const SQL_REMOVE_RELATION = `DELETE FROM rel_user_announce WHERE id_announce = ? AND id_user = ?`
 const SQL_UPDATE_PROFILE = `UPDATE users SET firstname = ?, lastname = ?, email = ?, phone = ?, url_profile_img = ? WHERE id = ?`;
+const SQL_UPDATE_CHOICE = `UPDATE users SET id_choice = ?, choice_date_started = ?, choice_date_end = ? WHERE id = ?`;
 const SELECT_BY_ID = `SELECT * FROM users u WHERE id = ? `;
 const SELECT_CONTROL_IDENTIFIER = `SELECT id, email, username FROM users WHERE email = ? OR username = ?`;
 const SELECT_ID = `SELECT id FROM users WHERE email = ?`;
@@ -74,8 +75,7 @@ async function insert(newUser){
         con = await database.getConnection();
         const idPayment = await paymentDAO.insert();
         const idCheck = await checkDAO.insert();
-        /* A Modifier choice: 1 pas 4*/
-        const [idCreated] =  await con.execute(SQL_INSERT, [newUser.firstname, newUser.lastname, newUser.username, newUser.password, newUser.email, idPayment, 4, idCheck]);
+        const [idCreated] =  await con.execute(SQL_INSERT, [newUser.firstname, newUser.lastname, newUser.username, newUser.password, newUser.email, idPayment, 1, idCheck]);
         const id = idCreated.insertId;
         const user = await getById(id);
         return user;
@@ -117,7 +117,7 @@ async function update(user, id){
         con = await database.getConnection();
         await con.execute(SQL_UPDATE_PROFILE, [user.firstname, user.lastname, user.email, user.phone, user.url_profile_img, id]);
         await checkDAO.update(user.check.imgIdentity, user.check.id);
-        const newUser = getById(id);
+        const newUser = await getById(id);
         return newUser;
     }catch (error) {
         log.error("Error userDAO update : " + error);
@@ -143,10 +143,13 @@ async function updatePayment(){
     }
 }
 
-async function updateChoice(){
+async function updateChoiceUser(user, id){
     let con = null;
     try{
-
+        con = await database.getConnection();
+        await con.execute(SQL_UPDATE_CHOICE, [user.Choice.id, user.choiceDateStarted, user.choiceDateEnd, id]);
+        const userUpdate = await getById(id);
+        return userUpdate;
     }catch (error) {
         log.error("Error userDAO update : " + error);
         throw errorMessage;
@@ -202,7 +205,7 @@ module.exports = {
     getById,
     insert,
     update,
-    updateChoice,
+    updateChoiceUser,
     updatePayment,
     remove,
     getByLogin,
