@@ -17,11 +17,11 @@ module.exports = class Announce{
         return new Announce(id,packages,views,null,null,idType,price, transact, imgUrl, dateCreated, userAnnounce);
     }
 
-    static AnnounceUpdate(id,packages, idType, price, transact, imgUrl, dateCreated, userAnnounce){
-        return new Announce(id,packages, null, null, null, idType, price, transact, imgUrl, dateCreated, userAnnounce);
+    static AnnounceUpdate(id,packages, idType, price, transact, imgUrl, userAnnounce){
+        return new Announce(id,packages, null, null, null, idType, price, transact, imgUrl, null, userAnnounce);
     }
 
-    static AnnounceInsert(packages, idType, price, transact, imgUrl, dateCreated, userAnnounce){
-        return new Announce(null, packages, null,null,null,idType, price, transact, imgUrl, dateCreated, userAnnounce);
+    static AnnounceInsert(packages, idType, price, transact, imgUrl, userAnnounce){
+        return new Announce(null, packages, null,null,null,idType, price, transact, imgUrl, null, userAnnounce);
     }
 }
