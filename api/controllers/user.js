@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 const insert = async (req, res) => {
-	const { firstname, lastname, username, password, email} = req.body.user;
+	const { firstname, lastname, username, password, email, dateOfBirthday} = req.body.user;
 	const { error } = registerValidation(req.body.user);
 	if(error){
 		log.error("Error register : " + error.details[0].message);
@@ -18,9 +18,13 @@ const insert = async (req, res) => {
 			return res.status(409).send({error: "L'email ou le username existe deja"});
 		}
 
+		if(compareDate(dateOfBirthday)){
+			return res.status(409).send({error: "Vous ne pouvez pas utilisez l'application car vous êtes mineur."});
+		}
+
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
-		const newUser = User.UserInsert(firstname, lastname, username, hashedPassword, email);
+		const newUser = User.UserInsert(firstname, lastname, username, hashedPassword, email, dateOfBirthday);
 
 		const user = await userDAO.insert(newUser);
 
@@ -186,6 +190,18 @@ module.exports = {
 	logout,
 	refresh
 };
+
+function compareDate(dateOfBirthday){
+	let dateBirthday = new Date(dateOfBirthday);
+	let today = new Date();
+	let year = today.getFullYear();
+	let month = today.getMonth();
+	let day = today.getDate();
+	let yearsBack18= new Date(year - 18, month, day);
+	if(yearsBack18 < dateBirthday ){
+		return true;
+	}
+}
 
 /*UPDATE PROFILE
 

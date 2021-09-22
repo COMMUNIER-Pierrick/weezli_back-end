@@ -1,5 +1,5 @@
 module.exports = class User{
-    constructor(id, firstname, lastname, username, password, email, phone, active, url_profile_img, average_opinion, Payment, Choice, Check, choiceDateStarted, choiceDateEnd) {
+    constructor(id, firstname, lastname, username, password, email, phone, dateOfBirthday,  active, url_profile_img, average_opinion, Payment, Choice, Check, choiceDateStarted, choiceDateEnd) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -7,6 +7,7 @@ module.exports = class User{
         this.email = email;
         this.password = password;
         this.phone = phone;
+        this.dateOfBirthday = dateOfBirthday;
         this.active = active;
         this.url_profile_img = url_profile_img;
         this.average_opinion = average_opinion;
@@ -18,10 +19,10 @@ module.exports = class User{
     }
 
     static UserAnnounce(id, firstname, lastname){
-        return new User(id, firstname, lastname, null, null, null, null, null, null, null, null, null, null);
+        return new User(id, firstname, lastname, null, null, null, null, null,null, null, null, null, null, null);
     }
 
-    static UserInsert(firstname, lastname, username, password, email){
-        return new User(null, firstname, lastname, username, password, email, null, null, null, null, null, null, null)
+    static UserInsert(firstname, lastname, username, password, email, dateOfBirthday){
+        return new User(null, firstname, lastname, username, password, email, null, dateOfBirthday,null, null, null, null, null, null)
     }
 }
