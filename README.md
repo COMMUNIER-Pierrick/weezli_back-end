@@ -23,38 +23,21 @@ Le projet est organisé en 2 parties, il y a une API REST réalisée avec **Node
 **MySQL**. Et il y a un frontend réalisé avec **Flutter** qui est permet de créer une application native (mobile, web, 
 desktop).
 
-Ajouter :
+Ajouter dans api un fichier .env :
 
-dans api un fichier :
-.env -> JWT_SECRET=
-
-dans api un dossier :
-config -> config.json
-
-{
-"development": {
-"username": "",
-"password": ,
-"database": "",
-"host": "",
-"dialect": ""
-},
-"test": {
-"username": "",
-"password": ,
-"database": "",
-"host": "",
-"dialect": ""
-},
-"production": {
-"username": "",
-"password": ,
-"database": "",
-"host": "",
-"dialect": ""
-}
-}
+DB_HOST=<br>
+DB_PORT=<br>
+DB_USER=<br>
+DB_PASSWORD=<br>
+DB_NAME=<br>
+TOKEN_SECRET=<br>
+REFRESH_TOKEN_SECRET=<br>
+FRONT_URL=<br>
+BACK_URL=
 
 ## FIGMAS
 https://www.figma.com/file/TXyf2UF2fatYPIOdfgVLPW/wizzly?node-id=0%3A1
 
+## STRIPE SAVE CARD 
+https://stripe.com/docs/payments/save-during-payment
+https://stripe.com/docs/payments/sepa-debit/set-up-payment
