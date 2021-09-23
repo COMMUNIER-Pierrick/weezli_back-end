@@ -314,6 +314,20 @@ VERSION RECUPERER
 }
 * */
 
+/*
+SELECT DISTINCT a.id as idAnnounce, p.id as idPackage, p.datetime_departure
+FROM announce a
+    INNER JOIN package p ON a.id = p.id
+    INNER JOIN rel_package_address rpa_depart ON p.id = rpa_depart.id_package
+    INNER JOIN rel_package_address rpa_arrival ON p.id = rpa_arrival.id_package
+    INNER JOIN address ad_depart ON rpa_depart.id_address = ad_depart.id and ad_depart.id_info = 1
+    INNER JOIN address ad_destination ON rpa_arrival.id_address = ad_destination.id and ad_destination.id_info = 2
+    INNER JOIN rel_package_sizes rps ON p.id = rps.id_package
+    INNER JOIN size s ON rps.id_size = s.id
+WHERE s.id in (1, 2, 3, 4) AND p.id_transport = 1 AND p.kg_available <= 6.5 AND ad_depart.city = 'London'
+                            AND ad_destination.city = 'Paris' AND datetime_departure < '2021-11-01T23:00:00'
+ */
+
 
 
 
