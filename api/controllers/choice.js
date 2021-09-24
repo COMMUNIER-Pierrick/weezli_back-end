@@ -3,39 +3,36 @@ const log = require('../log/logger');
 let Choice = require('../services/models/Choice');
 
 const getAll = async (req, res) => {
-	let results = null;
-	results = await choiceDAO.getAll();
-	res.status(200).send( {"choices": results} );
+	const results = await choiceDAO.getAll();
+	res.status(200).send( {"Choices": results} );
 };
 
 const insert = async (req, res) => {
-	let choice = Choice.ChoiceInsert(req.body.name, req.body.description, req.body.price);
+	const choice = Choice.ChoiceInsert(req.body.name, req.body.description, req.body.price);
 	const result = await choiceDAO.insert(choice);
-	let message = "La formule a bien été créée";
-	return res.status(200).send( {"message": message , "choice": result});
+	const message = "La formule a bien été créée";
+	return res.status(200).send( {"Message": message , "Choice": result});
 };
 
 const update = async (req, res) => {
 	const { id } = req.params;
-	let choice = Choice.ChoiceInsert(req.body.name, req.body.description, req.body.price);
-	let result = null;
-	result = await choiceDAO.update(choice, id);
-	let message = "La formule a bien été modifiée ";
-	res.status(200).send( {"message": message , "choice": result});
+	const choice = Choice.ChoiceInsert(req.body.name, req.body.description, req.body.price);
+	const result = await choiceDAO.update(choice, id);
+	const message = "La formule a bien été modifiée ";
+	res.status(200).send( {"Message": message , "Choice": result});
 };
 
 const getById = async (req, res) => {
 	const { id } = req.params;
-	let result = null;
-	formule = await choiceDAO.getById(id);
-	res.status(200).send( {"choice": result} );
+	const choice = await choiceDAO.getById(id);
+	res.status(200).send( {"Choice": choice} );
 };
 
 const remove = async (req, res) => {
 	const { id } = req.params;
 	await choiceDAO.remove({id});
-	let message = "La formule a bien été supprimée";
-	res.status(200).send({"message": message});
+	const message = "La formule a bien été supprimée";
+	res.status(200).send({"Message": message});
 };
 
 module.exports = {

@@ -3,39 +3,37 @@ const log = require('../log/logger');
 const Announce = require('../services/models/Announce');
 
 const insert = async (req, res) => {
-    let announce = Announce.AnnounceInsert(req.body.announce.packages, req.body.announce.idType, req.body.announce.price, req.body.announce.transact, req.body.announce.imgUrl, req.body.announce.userAnnounce);
+    const announce = Announce.AnnounceInsert(req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
     const result = await announceDAO.insert(announce);
     const message = "L'annonce a bien été créé.";
-    return res.status(200).send({"message": message , "announce": result});
+    return res.status(200).send({"Message": message , "Announce": result});
 };
 
 const update = async (req, res) => {
     const {id} = req.params;
-    let announce = Announce.AnnounceUpdate(id, req.body.announce.packages, req.body.announce.idType, req.body.announce.price, req.body.announce.transact, req.body.announce.imgUrl, req.body.announce.userAnnounce);
+    const announce = Announce.AnnounceUpdate(id, req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
     const result = await announceDAO.update(announce);
     const message = "L'annonce a bien été mis à jour.";
-    return res.status(200).send({"message": message , "announce": result});
+    return res.status(200).send({"Message": message , "Announce": result});
 };
 
 const remove = async (req, res) => {
     const { id } = req.params;
     await announceDAO.remove(id);
     const message = "Suppression réussie.";
-    res.status(200).send({ "message": message });
+    res.status(200).send({ "Message": message });
 };
 
 const getByType = async (req, res) => {
     const { id_type } = req.params;
-    let announces = null;
-    announces = await announceDAO.getByType(id_type);
-    res.status(200).send( {"announces": announces} );
+    const announces = await announceDAO.getByType(id_type);
+    res.status(200).send( {"Announces": announces} );
 };
 
 const getById = async (req, res) => {
     const {id} = req.params;
-    let announce = null;
-    announce = await announceDAO.getById(id);
-    res.status(200).send( {"announce": announce} );
+    const announce = await announceDAO.getById(id);
+    res.status(200).send( {"Announce": announce} );
 };
 
 const getByUserType = async (req, res) => {

@@ -1,5 +1,5 @@
 module.exports = class User{
-    constructor(id, firstname, lastname, username, password, email, phone, dateOfBirthday,  active, url_profile_img, average_opinion, Payment, Choice, Check, choiceDateStarted, choiceDateEnd) {
+    constructor(id, firstname, lastname, username, password, email, phone, dateOfBirthday,  active, url_profile_img, average_opinion, payment, choice, check, choiceDateStarted, choiceDateEnd) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -11,9 +11,9 @@ module.exports = class User{
         this.active = active;
         this.url_profile_img = url_profile_img;
         this.average_opinion = average_opinion;
-        this.Payment = Payment;
-        this.Choice = Choice;
-        this.Check = Check;
+        this.payment = payment;
+        this.choice = choice;
+        this.check = check;
         this.choiceDateStarted = choiceDateStarted;
         this.choiceDateEnd = choiceDateEnd;
     }

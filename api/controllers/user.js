@@ -47,7 +47,7 @@ const insert = async (req, res) => {
 				sameSite: "strict",
 			})
 			.cookie("refTokenId", true)
-			.status(201).send({"message": "Votre compte a bien été créée", "User": user});
+			.status(201).send({"Message": "Votre compte a bien été créée", "User": user});
 	}catch (error) {
 		log.error("Error user.js Register");
 		throw error;
@@ -66,7 +66,7 @@ const update = async (req, res) => {
 		const newUser = await userDAO.update(user,id);
 		delete newUser.password;
 		const message = "mise à jour réussi.";
-		res.status(200).send( {"message": message, "user": newUser} );
+		res.status(200).send( {"Message": message, "User": newUser} );
 	}catch (error) {
 		log.error("Error user.js update");
 		throw error;
@@ -81,9 +81,8 @@ const updateChoiceUser = async (req, res) => {
 	const {id} = req.params;
 	const { user } = req.body;
 	const updateUser = await userDAO.updateChoiceUser(user, id);
-	console.log(updateUser);
 	const message = "mise à jour de votre formule."
-	res.status(200).send({"message": message, "User": updateUser})
+	res.status(200).send({"Message": message, "User": updateUser})
 }
 
 const remove = async (req, res) => {
@@ -92,8 +91,7 @@ const remove = async (req, res) => {
 
 const getById = async (req, res) => {
 	const {id} = req.params;
-	let user = null;
-	user = await userDAO.getById(id);
+	const user = await userDAO.getById(id);
 	res.status(200).send( {"User": user} );
 };
 
@@ -140,7 +138,7 @@ const login = async (req, res) => {
 				sameSite: "strict",
 			})
 			.cookie("refTokenId", true)
-			.status(201).send({success: "Connection réusse", User: user});
+			.status(201).send({"Message": "Connection réussie", "User": user});
 	} catch (error) {
 		log.error("Error user.js login : " + error);
 	}
