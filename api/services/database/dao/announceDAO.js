@@ -188,13 +188,55 @@ async function getByType(idType){
     }
 }
 
+async function getSearch(condition, Search){
+    let con = null;
+    const SELECT_SEARCH = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact,
+                                           a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept 
+                            FROM announce a 
+                            INNER JOIN package p ON a.id = p.id
+                            INNER JOIN final_price fp ON a.id_final_price = fp.id    
+                            INNER JOIN rel_package_address rpa_depart ON p.id = rpa_depart.id_package 
+                            INNER JOIN rel_package_address rpa_arrival ON p.id = rpa_arrival.id_package 
+                            INNER JOIN address ad_depart ON rpa_depart.id_address = ad_depart.id and ad_depart.id_info = 1 
+                            INNER JOIN address ad_destination ON rpa_arrival.id_address = ad_destination.id and ad_destination.id_info = 2 
+                            INNER JOIN rel_package_sizes rps ON p.id = rps.id_package 
+                            INNER JOIN size s ON rps.id_size = s.id 
+                            ${condition} `;
+
+    try {
+        con = await database.getConnection();
+        const [announces] = await con.execute(SELECT_SEARCH, [Search.type, Search.transport, Search.departure, Search.arrival, Search.date, Search.kgAvailable]);
+        let newListAnnounce = [];
+        for(let i = 0; i < announces.length; i++){
+            let packageId = announces[i].id_package;
+            const [packages] = await packageDAO.getById(packageId);
+            const [address1] = await addressDAO.getByPackage(packageId, "depart");
+            const [address2] = await addressDAO.getByPackage(packageId, "arrival");
+            const [sizes] = await sizeDAO.getByPackage(packageId);
+            const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
+            const [ transport ] = await transportDAO.getById(packages.id_transport);
+            const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            newListAnnounce.push({"Announce": announce});
+        }
+        return newListAnnounce;
+    } catch (error) {
+        log.error("Error announceDAO search : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
 
 module.exports = {
     insert,
     remove,
     update,
     getByType,
-    getById
+    getById,
+    getSearch
 }
 
 /*
@@ -262,55 +304,64 @@ VERSION ENVOYER AU BACK
 VERSION RECUPERER
 
 {
-    "announce": {
-        "id": 1,
-        "packages": {
-            "id": 1,
-            "addressDeparture": {
-                "id": 1,
-                "name": "depart",
-                "number": 45,
-                "street": "Orange St",
-                "additional_address": "3eme floor",
-                "zipcode": "SW1Y 4UR",
-                "city": "London",
-                "country": "England"
-            },
-            "addressArrival": {
-                "id": 3,
-                "name": "arrival",
-                "number": 28,
-                "street": "Avenue des Champs-Elysées",
-                "additional_address": "",
-                "zipcode": "75000",
-                "city": "Paris",
-                "country": "France"
-            },
-            "datetimeDeparture": null,
-            "datetimeArrival": "2021-11-27T23:00:00.000Z",
-            "kgAvailable": 6.5,
-            "description": "Maecenas consectetur, magna nec pretium faucibus, ipsum urna dapibus dolor, ac ornare est purus et velit",
-            "transport": {
-                "id": 1,
-                "name": "non-identifier"
-            },
-            "sizes": [
-                2,
-                3
-            ]
-        },
-        "views": 10,
-        "idType": 1,
-        "price": null,
-        "transact": 0,
-        "imgUrl": "picture15052021.png, picture15052021.png",
-        "dateCreated": "2021-10-31T23:00:00.000Z",
-        "userAnnounce": {
-            "id": 1,
-            "firstname": "alain",
-            "lastname": "terrieur"
+    "Announces": [
+        {
+            "Announce": {
+                "id": 5,
+                "packages": {
+                    "id": 5,
+                    "addressDeparture": {
+                        "id": 2,
+                        "name": "depart",
+                        "number": 12,
+                        "street": "Lalana Delord",
+                        "additional_address": "",
+                        "zipcode": "105",
+                        "city": "Antananarivo",
+                        "country": "Madagascar"
+                    },
+                    "addressArrival": {
+                        "id": 4,
+                        "name": "arrival",
+                        "number": 55,
+                        "street": "Liberty St",
+                        "additional_address": "second door",
+                        "zipcode": "10005",
+                        "city": "Manhattan New York",
+                        "country": "United States of America"
+                    },
+                    "datetimeDeparture": "2021-12-19T23:00:00.000Z",
+                    "datetimeArrival": "2021-12-21T23:00:00.000Z",
+                    "kgAvailable": 4,
+                    "description": "",
+                    "transport": {
+                        "id": 5,
+                        "name": "bateau"
+                    },
+                    "sizes": [
+                        {
+                            "id": 2,
+                            "name": "moyen"
+                        }
+                    ]
+                },
+                "views": 1,
+                "finalPrice": null,
+                "order": null,
+                "idType": 2,
+                "price": 5,
+                "transact": 0,
+                "imgUrl": "",
+                "dateCreated": "2021-11-09T23:00:00.000Z",
+                "userAnnounce": {
+                    "id": 2,
+                    "firstname": "sarah",
+                    "lastname": "croche",
+                    "average_opinion": 2.5
+                }
+            }
         }
-    }
+    ]
 }
 * */
 
@@ -324,10 +375,20 @@ FROM announce a
     INNER JOIN address ad_destination ON rpa_arrival.id_address = ad_destination.id and ad_destination.id_info = 2
     INNER JOIN rel_package_sizes rps ON p.id = rps.id_package
     INNER JOIN size s ON rps.id_size = s.id
-WHERE s.id in (1, 2, 3, 4) AND p.id_transport = 1 AND p.kg_available <= 6.5 AND ad_depart.city = 'London'
-                            AND ad_destination.city = 'Paris' AND datetime_departure < '2021-11-01T23:00:00'
- */
+WHERE a.id_type = 2 AND p.id_transport = 5 AND p.kg_available <= 6.5 AND ad_depart.city = 'Antananarivo'
+                    AND ad_destination.city = 'Manhattan New York' AND p.datetime_departure < '2021-12-31T23:00:00' AND s.id in (1, 2, 3, 4) */
 
-
+/*
+* {
+    "Search": {
+        "departure": "Antananarivo",
+        "arrival": "Manhattan New York",
+        "date": "2021-12-31T23:00:00",
+        "sizes": "",
+        "kgAvailable": 6.5,
+        "transport": 5,
+        "type": 2
+    }
+}*/
 
 

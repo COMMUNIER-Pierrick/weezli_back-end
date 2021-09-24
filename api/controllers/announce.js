@@ -1,6 +1,7 @@
 const announceDAO = require('../services/database/dao/announceDAO');
 const log = require('../log/logger');
 const Announce = require('../services/models/Announce');
+const Search = require('../services/models/Search');
 
 const insert = async (req, res) => {
     const announce = Announce.AnnounceInsert(req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
@@ -40,11 +41,62 @@ const getByUserType = async (req, res) => {
 
 };
 
+const getSearch = async (req, res) => {
+    const {departure, arrival, date, sizes, kgAvailable, transport, type} = req.body.Search;
+    const newSearch = new Search(departure, arrival, date, sizes, kgAvailable, transport, type);
+    let condition = "WHERE ";
+    if(type){
+        condition += "a.id_type = ? ";
+    }else{
+        condition += ""
+    }
+
+    if(transport){
+        condition += "AND p.id_transport = ? ";
+    }else{
+        condition += ""
+    }
+
+    if(departure){
+        condition += "AND ad_depart.city = ? "
+    }else{
+        condition += ""
+    }
+
+    if(arrival){
+        condition += "AND ad_destination.city = ? ";
+    }else{
+        condition += ""
+    }
+
+    if(date){
+        condition += "AND p.datetime_departure <  ? ";
+    }else{
+        condition += ""
+    }
+
+    if(kgAvailable){
+        condition += "AND p.kg_available <= ? ";
+    }else{
+        condition += ""
+    }
+
+    if(sizes){
+        condition += "AND s.id in (1, 2, 3, 4) ";
+    }else{
+        condition += ""
+    }
+
+    const search = await announceDAO.getSearch(condition, newSearch)
+    res.status(200).send({"Announces": search});
+}
+
 module.exports = {
     insert,
     remove,
     update,
     getByType,
     getById,
-    getByUserType
+    getByUserType,
+    getSearch
 };
