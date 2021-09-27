@@ -44,50 +44,64 @@ const getByUserType = async (req, res) => {
 const getSearch = async (req, res) => {
     const {departure, arrival, date, sizes, kgAvailable, transport, type} = req.body.Search;
     const newSearch = new Search(departure, arrival, date, sizes, kgAvailable, transport, type);
+
     let condition = "WHERE ";
-    if(type){
-        condition += "a.id_type = ? ";
+
+    if(type && verifNumber(type)){
+        condition += "a.id_type = " + type + " ";
     }else{
-        condition += ""
+        res.status(400).send({"Error": "Les caractères spéciaux ne sont pas admis: type"});
+        throw new Error("Erreur caractère special");
     }
 
-    if(transport){
-        condition += "AND p.id_transport = ? ";
+    if(transport && verifNumber(transport)){
+        condition += "AND p.id_transport = " + transport + " ";
     }else{
-        condition += ""
+        res.status(400).send({"Error": "Les caractères spéciaux ne sont pas admis : transport"});
+        throw new Error("Erreur caractère special");
     }
 
-    if(departure){
-        condition += "AND ad_depart.city = ? "
+    if(departure && verifString(departure)){
+        condition += "AND ad_depart.city = '"+ departure +"' ";
     }else{
-        condition += ""
+        res.status(400).send({"Error": "Les caractères spéciaux ne sont pas admis : departure"});
+        throw new Error("Erreur caractère special");
     }
 
-    if(arrival){
-        condition += "AND ad_destination.city = ? ";
+    if(arrival && verifString(arrival)){
+        condition += "AND ad_destination.city = '" + arrival + "' ";
     }else{
-        condition += ""
+        res.status(400).send({"Error": "Les caractères spéciaux ne sont pas admis : arrival"});
+        throw new Error("Erreur caractère special");
     }
 
-    if(date){
-        condition += "AND p.datetime_departure <  ? ";
+    if(date && verifDate(date)){
+        condition += "AND p.datetime_departure < '" + date + "' ";
     }else{
-        condition += ""
+        res.status(400).send({"Error": "Les caractères spéciaux ne sont pas admis : date"});
+        throw new Error("Erreur caractère special");
     }
 
-    if(kgAvailable){
-        condition += "AND p.kg_available <= ? ";
+    if(kgAvailable && verifNumber(kgAvailable)){
+        condition += "AND p.kg_available <= " + kgAvailable + " ";
     }else{
-        condition += ""
+        res.status(400).send({"Error": "Les caractères spéciaux ne sont pas admis : kgAvailable"});
+        throw new Error("Erreur caractère special");
     }
 
     if(sizes){
-        condition += "AND s.id in (1, 2, 3, 4) ";
+        let nbSize = "";
+        const elem = ", ";
+        for(let i = 0; i < sizes.length; i++){
+            nbSize += sizes[i].size.id + elem;
+        }
+        let index = nbSize.lastIndexOf(elem);
+        let ids = nbSize.slice(0, index);
+        condition += `AND s.id in ( ${ids} ); `;
     }else{
-        condition += ""
+        res.status(400).send({"Error": "Les caractère spéciaux ne sont pas admis"})
     }
-
-    const search = await announceDAO.getSearch(condition, newSearch)
+    const search = await announceDAO.getSearch(condition)
     res.status(200).send({"Announces": search});
 }
 
@@ -100,3 +114,22 @@ module.exports = {
     getByUserType,
     getSearch
 };
+
+function verifString(str){
+    const pattern = new RegExp(/[`~!@#$%^&*()_|+=?;:'",.<>{}\[\]\\\/\d]/);
+    return !pattern.test(str);
+}
+
+function verifNumber(str){
+    const patLetter = /[a-zA-Z]/;
+    const patSpace = /\s/g;
+    const pattern = new RegExp(/[`~!@#$%^&*()_|+\-=?;:'",<>{}\[\]\\\/]/);
+    return (!pattern.test(str) && !patSpace.test(str) && !patLetter.test(str));
+}
+
+function verifDate(str){
+    const patDate = /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d/;
+    const patSpace = /\s/g;
+    const pattern = new RegExp(/[`~!@#$%^&*()_|+=?;'",.<>{}\[\]\\\/]/);
+    return !pattern.test(str) && patDate.test(str) && !patSpace.test(str);
+}

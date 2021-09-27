@@ -205,7 +205,8 @@ async function getSearch(condition, Search){
 
     try {
         con = await database.getConnection();
-        const [announces] = await con.execute(SELECT_SEARCH, [Search.type, Search.transport, Search.departure, Search.arrival, Search.date, Search.kgAvailable]);
+        const [announces] = await con.execute(SELECT_SEARCH);
+
         let newListAnnounce = [];
         for(let i = 0; i < announces.length; i++){
             let packageId = announces[i].id_package;

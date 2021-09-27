@@ -107,16 +107,16 @@ const login = async (req, res) => {
 	try {
 		const user = await userDAO.getByLogin(email);
 		if (!user) {
-			return res.status(401).send({ error: "L'identiant ou le mot de passe est erroné !" });
+			return res.status(401).send({ "Error": "L'identiant ou le mot de passe est erroné !" });
 		}
 
 		const validPassword = await bcrypt.compare(password, user.password);
 		if (!validPassword) {
-			return res.status(401).send({ error: "Le mot de passe est erroné !" });
+			return res.status(401).send({ "Error": "Le mot de passe est erroné !" });
 		}
 
 		if (!user.active) {
-			return res.status(403).send({ error: "Votre compte a été désactivé. Merci de contacter un administrateur." });
+			return res.status(403).send({ "Error": "Votre compte a été désactivé. Merci de contacter un administrateur." });
 		}
 
 		let playoad = {id: user.id};

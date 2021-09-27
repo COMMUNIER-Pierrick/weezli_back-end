@@ -135,7 +135,7 @@ async function getByPackage(id){
         const [rows] = await con.execute(SELECT_BY_PACKAGE, [id]);
         let sizes = [];
         for(let i = 0; i < rows.length; i++){
-            sizes.push(rows[i]);
+            sizes.push({"size": rows[i]});
         }
         return [sizes];
     } catch (error) {
