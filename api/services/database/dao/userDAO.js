@@ -94,6 +94,9 @@ async function getByLogin(email){
     try{
         con = await database.getConnection();
         const [userId] = await con.execute(SELECT_ID,[email]);
+        if(userId){
+            return null;
+        }
         const id = userId[0].id;
         const user = await getById(id);
         return user;

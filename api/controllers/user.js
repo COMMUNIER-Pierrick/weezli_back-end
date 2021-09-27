@@ -96,8 +96,8 @@ const getById = async (req, res) => {
 };
 
 const login = async (req, res) => {
-	const {email, password} = req.body.user;
-	const {error}  = loginValidation(req.body.user);
+	const {email, password} = req.body.User;
+	const {error}  = loginValidation(req.body.User);
 
 	if (error){
 		log.error("Error login : " + error.details[0].message );
