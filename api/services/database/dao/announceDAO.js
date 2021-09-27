@@ -385,7 +385,19 @@ WHERE a.id_type = 2 AND p.id_transport = 5 AND p.kg_available <= 6.5 AND ad_depa
         "departure": "Antananarivo",
         "arrival": "Manhattan New York",
         "date": "2021-12-31T23:00:00",
-        "sizes": "",
+        "sizes": [
+            {
+                "size": {
+                    "id": 2,
+                    "name": "moyen"
+                }
+            },{
+                "size": {
+                    "id": 3,
+                        "name": "grand"
+                }
+            }
+        ],
         "kgAvailable": 6.5,
         "transport": 5,
         "type": 2
