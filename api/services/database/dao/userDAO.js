@@ -15,7 +15,7 @@ const SQL_INSERT = `INSERT INTO users SET firstname = ?, lastname = ?, username 
 const SQL_REMOVE_RELATION = `DELETE FROM rel_user_announce WHERE id_announce = ? AND id_user = ?`
 const SQL_UPDATE_PROFILE = `UPDATE users SET firstname = ?, lastname = ?, email = ?, phone = ?, url_profile_img = ? WHERE id = ?`;
 const SQL_UPDATE_CHOICE = `UPDATE users SET id_choice = ?, choice_date_started = ?, choice_date_end = ? WHERE id = ?`;
-const SELECT_BY_ID = `SELECT * FROM users u WHERE id = ? `;
+const SELECT_BY_ID = `SELECT * FROM users WHERE id = ? `;
 const SELECT_CONTROL_IDENTIFIER = `SELECT id, email, username FROM users WHERE email = ? OR username = ?`;
 const SELECT_ID = `SELECT id FROM users WHERE email = ?`;
 const SELECT_FOR_ANNOUNCE_BY_ANNOUNCE = `SELECT u.id, u.firstname, u.lastname, u.average_opinion 
@@ -94,7 +94,7 @@ async function getByLogin(email){
     try{
         con = await database.getConnection();
         const [userId] = await con.execute(SELECT_ID,[email]);
-        if(userId){
+        if(!userId.length){
             return null;
         }
         const id = userId[0].id;
