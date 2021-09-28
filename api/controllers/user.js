@@ -56,14 +56,14 @@ const insert = async (req, res) => {
 
 const update = async (req, res) => {
 	const {id} = req.params;
-	const {user} = req.body;
-	const { error } = updateValidation(user);
+	const {User} = req.body;
+	const { error } = updateValidation(User);
 	if(error){
 		log.error("Error update : " + error.details[0].message);
 		return res.status(400).send({ error: error.details[0].message });
 	}
 	try{
-		const newUser = await userDAO.update(user,id);
+		const newUser = await userDAO.update(User,id);
 		delete newUser.password;
 		const message = "mise à jour réussi.";
 		res.status(200).send( {"Message": message, "User": newUser} );
