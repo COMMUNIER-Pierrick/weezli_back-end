@@ -7,6 +7,7 @@ const app = express();
 const port = process.env.port || 5000;
 
 const http = require("http").createServer(app);
+require("./config/socket")(http);
 
 app.use(express.json());
 app.use(cookieParser());
