@@ -5,13 +5,11 @@ const socket = (http) => {
             methods: ["*"],
         },
     });
-
-    console.log("test de connection");
-
+    console.log("Socket is connected ");
 
 
     io.on("connection", (socket) => {
-        console.log("connecté ");
+        console.log("test de connection");
         socket.on("create-item", ({type, data}) => {
             console.log("entrée dans create item : " + type + " " );
             if(type === "message") {

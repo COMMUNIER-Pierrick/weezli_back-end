@@ -4,10 +4,12 @@ const log = require("../log/logger");
 const userDAO = require("../services/database/dao/userDAO");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const mail = require("../config/mail");
+const checkDAO = require("../services/database/dao/checkUserDAO");
 
 const insert = async (req, res) => {
-	const { firstname, lastname, username, password, email, dateOfBirthday} = req.body.user;
-	const { error } = registerValidation(req.body.user);
+	const { firstname, lastname, username, password, email, dateOfBirthday} = req.body.User;
+	const { error } = registerValidation(req.body.User);
 	if(error){
 		log.error("Error register : " + error.details[0].message);
 		return res.status(400).send({ error: error.details[0].message });
@@ -32,6 +34,11 @@ const insert = async (req, res) => {
 
 		const token = jwt.sign(playoad, process.env.TOKEN_SECRET, {expiresIn: "30m"});
 		let refreshToken = jwt.sign(playoad, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "1y"});
+
+		const [check] = await checkDAO.updateCode(token, user.check.id)
+		console.log(check);
+		const emailSend = await mail.sendConfirmationEmail( user.lastname, user.email, check.confirm_code);
+		console.log(emailSend)
 
 		delete user.password;
 
@@ -108,6 +115,9 @@ const login = async (req, res) => {
 		const user = await userDAO.getByLogin(email);
 		if (!user) {
 			return res.status(401).send({ "Error": "L'identiant ou le mot de passe est erroné !" });
+		}
+		if(user.check.status !== "Active"){
+			return res.status(401).send({ "Error": "Votre compte est en attente, merci de verifier votre email !" });
 		}
 
 		const validPassword = await bcrypt.compare(password, user.password);

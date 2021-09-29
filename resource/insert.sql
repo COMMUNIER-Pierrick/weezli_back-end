@@ -50,9 +50,9 @@ INSERT INTO `payment` SET name='alain terieur', iban='FR000000000000000000000000
 INSERT INTO `payment` SET name='sarah croche', iban='FR0000000000000000000000002', number_card='5245874596855698' , expired_date_card='2023-12-10T00:00:00';
 INSERT INTO `payment` SET name='marc assin', iban='FR0000000000000000000000003', number_card='8745968556985245' , expired_date_card='2024-12-10T00:00:00';
 
-INSERT INTO `check_user` SET status_phone=true, status_mail=false, status_identity=true, img_identity=null;
-INSERT INTO `check_user` SET status_phone=false, status_mail=true, status_identity=true, img_identity='pictureidentity1.jpg';
-INSERT INTO `check_user` SET status_phone=false, status_mail=false, status_identity=false, img_identity='';
+INSERT INTO `check_user` SET status_phone=true, status_mail=false, status_identity=true, img_identity=null, status='Active';
+INSERT INTO `check_user` SET status_phone=false, status_mail=true, status_identity=true, img_identity='pictureidentity1.jpg', status='Active';
+INSERT INTO `check_user` SET status_phone=false, status_mail=false, status_identity=false, img_identity='', status='';
 
 INSERT INTO `users` SET firstname='alain',lastname='terrieur', username='alainterieur', password='1§fdv54ùmsldc354sdvm^$5656m',
                         email='alain@terrieur.com', phone='0707070707', date_of_birthday= '2000-12-10T00:00:00', active=1, url_profile_img='', average_opinion=4.5,

@@ -172,7 +172,7 @@ async function getById(id){
         const check = await checkDAO.getById(user[0].id_check);
         const choice = await choiceDAO.getById(user[0].id_choice);
         const newPayment = new Payment(payment[0].id, payment[0].name, payment[0].iban, payment[0].number_card, payment[0].expired_date_card);
-        const newCheck = new CheckUser(check[0].id, check[0].status_phone, check[0].status_mail, check[0].status_identity, check[0].img_identity);
+        const newCheck = new CheckUser(check[0].id, check[0].status_phone, check[0].status_mail, check[0].status_identity, check[0].img_identity, check[0].status, check[0].confirm_code);
         const newChoice = new Choice(choice[0].id, choice[0].name, choice[0].description, choice[0].price);
         const newUser = new User(user[0].id, user[0].firstname, user[0].lastname, user[0].username, user[0].password, user[0].email, user[0].phone, user[0].date_of_birthday, user[0].active, user[0].url_profile_img, user[0].average_opinion, newPayment, newChoice, newCheck, user[0].choice_date_started, user[0].choice_date_end);
         return newUser;
@@ -215,3 +215,17 @@ module.exports = {
     removeRelationAnnounce,
     getControlUser
 }
+
+/*
+* {
+    "User": {
+        "firstname": "vinc",
+        "lastname": "dev",
+        "username": "vincdev",
+        "password": "Azerty123!",
+        "email": "vinc.tigra@gmail.com",
+        "dateOfBirthday": "1980-12-10T00:00:00"
+
+    }
+}
+* */

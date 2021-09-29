@@ -81,7 +81,9 @@ CREATE TABLE `check_user`(
     `status_phone` BOOLEAN NOT NULL DEFAULT FALSE,
     `status_mail` BOOLEAN NOT NULL DEFAULT FALSE,
     `status_identity` BOOLEAN NOT NULL DEFAULT FALSE,
-    `img_identity` VARCHAR(150) NULL
+    `img_identity` VARCHAR(150) NULL,
+    `type` ENUM('Pending', 'Active') NOT NULL DEFAULT 'Pending',
+    `confirm_code` VARCHAR(50) NULL UNIQUE
 )Engine = InnoDB;
 
 CREATE TABLE `choice`(
@@ -179,9 +181,9 @@ CREATE TABLE `rel_user_announce`(
 
 ALTER TABLE `rel_user_announce` ADD PRIMARY KEY (`id_user`,`id_announce`);
 
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_payment` FOREIGN KEY (`id_payment`) REFERENCES `payment`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_choice` FOREIGN KEY (`id_choice`) REFERENCES `choice`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFERENCES `check_user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_payment` FOREIGN KEY (`id_payment`) REFERENCES `payment`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_choice` FOREIGN KEY (`id_choice`) REFERENCES `choice`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFERENCES `check_user`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION; /* Le on delete no action c'est pour refusé de supprimer le parent donc user*/
 
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_package` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_final_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

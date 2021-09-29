@@ -21,6 +21,7 @@ app.use("/choice", require("./routes/choice"));
 app.use("/size", require("./routes/size"));
 app.use("/status", require("./routes/status"));
 app.use("/transport", require("./routes/transport"));
+app.use("/api", require("./routes/verifyUser"));
 
 
 try{
