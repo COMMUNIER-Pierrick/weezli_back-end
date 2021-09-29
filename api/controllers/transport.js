@@ -1,6 +1,7 @@
 const transportDAO = require('../services/database/dao/transportDAO');
 const log = require('../log/logger');
 let Transport = require('../services/models/Transport');
+const fileDAO = require("../services/database/dao/fileDAO");
 
 const getAll = async (req, res) => {
     const transport = await transportDAO.getAll();
@@ -8,8 +9,13 @@ const getAll = async (req, res) => {
 }
 
 const insert = async (req, res) => {
-    const transport = new Transport(req.body.name);
-    const result = await transportDAO.insert(transport);
+    const transport = req.body.name;
+    let file = '';
+    if(req.file){
+        file = req.file.filename
+        await fileDAO.insert(file);
+    }
+    const result = await transportDAO.insert(transport, file);
     const message = "le moyen de transport a bien été créé.";
     return res.status(200).send({"Message": message, "Transport": result});
 }

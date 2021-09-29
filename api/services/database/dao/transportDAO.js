@@ -3,7 +3,7 @@ const log = require('../../../log/logger');
 
 const SELECT_ALL = `SELECT * from transport`;
 const SELECT_BY_ID = `SELECT * from transport WHERE id = ?`;
-const SQL_INSERT = `INSERT INTO transport SET name = ?`;
+const SQL_INSERT = `INSERT INTO transport SET name = ?, filename = ?`;
 const SQL_UPDATE = `UPDATE transport SET name = ? WHERE id = ?`;
 const SQL_DELETE = `DELETE FROM transport WHERE id = ?`;
 
@@ -25,13 +25,17 @@ async function getAll(){
     }
 }
 
-async function insert(Transport){
+async function insert(Transport, filename){
+    let file = '';
+    if(filename){
+        file = filename;
+    }
     let con = null;
     try{
         con = await database.getConnection();
-        const [idCreated] = await con.execute(SQL_INSERT, [Transport.name]);
+        const [idCreated] = await con.execute(SQL_INSERT, [Transport, file]);
         const id = idCreated.insertId;
-        const [result] = await getById({id})
+        const [result] = await getById(id)
         return result;
     }catch (error) {
         log.error("Error transportDAO insert : " + error);

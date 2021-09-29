@@ -10,8 +10,6 @@ const transport = nodemailer.createTransport({
 });
 
 async function sendConfirmationEmail(name, email, confirmCode){
-    console.log("Check");
-    console.log(confirmCode);
 
     const mailOptions = {
         from: process.env.GMAIL_USER,
@@ -27,11 +25,6 @@ async function sendConfirmationEmail(name, email, confirmCode){
     transport.sendMail(mailOptions, function(error, info){
         if (error) {
             log.error("Erreur lors de l'envoie du mail dans mail.js :  " + error);
-            //res.send({error: "Le serveur ne repond pas"});
-            console.log("erreur dans l'envoie du mail");
-        } else {
-            //res.send({succes: "envoie réussi"} )
-            console.log("envoie reussi");
         }
     });
 }

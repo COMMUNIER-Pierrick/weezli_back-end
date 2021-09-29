@@ -54,7 +54,7 @@ const insert = async (req, res) => {
 				sameSite: "strict",
 			})
 			.cookie("refTokenId", true)
-			.status(201).send({"Message": "Votre compte a bien été créée", "User": user});
+			.status(201).send({"Message": "Votre compte a bien été créé, merci de verifier vos mail pour confirmer votre email e ou vos spams", "User": user});
 	}catch (error) {
 		log.error("Error user.js Register");
 		throw error;

@@ -3,6 +3,8 @@ INSERT INTO `transport` SET name='avion';
 INSERT INTO `transport` SET name='voiture';
 INSERT INTO `transport` SET name='train';
 INSERT INTO `transport` SET name='bateau';
+INSERT INTO `transport` SET name='camion';
+INSERT INTO `transport` SET name='bus';
 
 INSERT INTO `types` SET name='expediteur';
 INSERT INTO `types` SET name='transporteur';
