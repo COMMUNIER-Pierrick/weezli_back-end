@@ -8,8 +8,7 @@ const SQL_UPDATE = `UPDATE size SET name = ?, filename = ? WHERE id = ?`;
 const SQL_DELETE = `DELETE FROM size WHERE id = ?`;
 const SQL_INSERT_RELATION = `INSERT INTO rel_package_sizes SET id_package = ?, id_size = ?`;
 const SQL_REMOVE_RELATION = `DELETE FROM rel_package_sizes WHERE  id_package = ? AND id_size = ?`
-const SELECT_BY_PACKAGE = `SELECT s.id, s.name 
-                           FROM size s
+const SELECT_BY_PACKAGE = `SELECT * FROM size s
                            INNER JOIN rel_package_sizes rps on s.id = rps.id_size
                            INNER JOIN package p ON rps.id_package = p.id
                            WHERE p.id = ?`;
