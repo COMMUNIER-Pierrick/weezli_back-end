@@ -24,15 +24,17 @@ const update = async (req, res) => {
     const {id} = req.params;
     const name = req.body.name;
     let file = '';
-
+    const [transport] = await transportDAO.getById(id);
     if(req.file){
         file = req.file.filename
-        const [transport] = await transportDAO.getById(id);
-
         if(transport.filename !== file){
-            await fileDAO.remove(transport.filename);
+            if(transport.filename !== ''){
+                await fileDAO.remove(transport.filename);
+            }
             await fileDAO.insert(file);
         }
+    }else if(!req.file && transport.filename){
+        await fileDAO.remove(transport.filename);
     }
 
     const result = await transportDAO.update(name, file, id);
@@ -49,8 +51,8 @@ const getById = async (req, res) => {
 const remove = async (req, res) => {
     const {id} = req.params;
     const [transport] = await transportDAO.getById(id);
-    await fileDAO.remove(transport.filename);
     await transportDAO.remove(id);
+    await fileDAO.remove(transport.filename);
     const message = "Le moyen de transport a bien été supprimé";
     return res.status(200).send({"Message": message});
 }

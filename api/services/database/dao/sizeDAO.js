@@ -3,8 +3,8 @@ const log = require('../../../log/logger');
 
 const SELECT_ALL = `SELECT * from size`;
 const SELECT_BY_ID = `SELECT * from size WHERE id = ?`;
-const SQL_INSERT = `INSERT INTO size SET name = ?`;
-const SQL_UPDATE = `UPDATE size SET name = ? WHERE id = ?`;
+const SQL_INSERT = `INSERT INTO size SET name = ?, filename = ?`;
+const SQL_UPDATE = `UPDATE size SET name = ?, filename = ? WHERE id = ?`;
 const SQL_DELETE = `DELETE FROM size WHERE id = ?`;
 const SQL_INSERT_RELATION = `INSERT INTO rel_package_sizes SET id_package = ?, id_size = ?`;
 const SQL_REMOVE_RELATION = `DELETE FROM rel_package_sizes WHERE  id_package = ? AND id_size = ?`
@@ -32,13 +32,17 @@ async function getAll(){
     }
 }
 
-async function insert(Size){
+async function insert(name, filename){
     let con = null;
+    let file = '';
+    if(filename){
+        file = filename;
+    }
     try{
         con = await database.getConnection();
-        const [idCreated] = await con.execute(SQL_INSERT, [Size.name]);
+        const [idCreated] = await con.execute(SQL_INSERT, [name, file]);
         const id =  idCreated.insertId;
-        const [result] = await getById({id})
+        const [result] = await getById(id)
         return result;
     }catch (error) {
         log.error("Error sizeDAO insert : " + error);
@@ -50,12 +54,16 @@ async function insert(Size){
     }
 }
 
-async function update(Size, id){
+async function update(name, filename, id){
     let con = null;
+    let file = '';
+    if(filename){
+        file = filename;
+    }
     try{
         con = await database.getConnection();
-        await con.execute(SQL_UPDATE, [Size.name, id]);
-        const [result] = await getById({id})
+        await con.execute(SQL_UPDATE, [name, file, id]);
+        const [result] = await getById(id)
         return result;
     }catch (error) {
         log.error("Error sizeDAO update : " + error);
@@ -67,7 +75,7 @@ async function update(Size, id){
     }
 }
 
-async function remove({id}){
+async function remove(id){
     let con = null;
     try{
         con = await database.getConnection();
@@ -82,7 +90,7 @@ async function remove({id}){
     }
 }
 
-async function getById({id}){
+async function getById(id){
     let con = null;
     try {
         con = await database.getConnection();
