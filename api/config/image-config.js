@@ -9,7 +9,8 @@ const storage = multer.diskStorage({
     filename: (req, file, callback) => {
         const espace = file.originalname.split(' ').join('_');
         const name = espace.split("'").join('_');
-        callback(null, Date.now() + name);
+        callback(null, name);
+        //callback(null, Date.now() + name);
     }
 });
 

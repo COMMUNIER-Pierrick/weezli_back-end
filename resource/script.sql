@@ -68,7 +68,7 @@ ALTER TABLE `rel_package_address` ADD PRIMARY KEY (`id_package`,`id_address`);
 CREATE TABLE `size`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(50) NOT NULL,
-    `filename` VARCHAR(250) NULL
+    `filename` VARCHAR(250) NULL UNIQUE
 )Engine = InnoDB;
 
 CREATE TABLE `final_price`(
@@ -113,7 +113,8 @@ CREATE TABLE `package`(
 
 CREATE TABLE `transport`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL
+    `name` VARCHAR(255) NOT NULL,
+    `filename` VARCHAR(250) NULL UNIQUE
 )Engine = InnoDB;
 
 CREATE TABLE `orders`(

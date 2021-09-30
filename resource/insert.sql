@@ -1,18 +1,18 @@
 INSERT INTO `transport` SET name='non-identifier';
-INSERT INTO `transport` SET name='avion';
-INSERT INTO `transport` SET name='voiture';
-INSERT INTO `transport` SET name='train';
-INSERT INTO `transport` SET name='bateau';
-INSERT INTO `transport` SET name='camion';
-INSERT INTO `transport` SET name='bus';
+INSERT INTO `transport` SET name='avion', filename='avion.png';
+INSERT INTO `transport` SET name='voiture', filename='voiture.png';
+INSERT INTO `transport` SET name='train', filename = 'train.png';
+INSERT INTO `transport` SET name='bateau', filename='bateau.png';
+INSERT INTO `transport` SET name='camion', filename = 'camion.png';
+INSERT INTO `transport` SET name='bus', filename = 'bus.png';
 
 INSERT INTO `types` SET name='expediteur';
 INSERT INTO `types` SET name='transporteur';
 
-INSERT INTO `size` SET name='petit';
-INSERT INTO `size` SET name='moyen';
-INSERT INTO `size` SET name='grand';
-INSERT INTO `size` SET name='très grand';
+INSERT INTO `size` SET name='petit', filename='petit.png';
+INSERT INTO `size` SET name='moyen', filename='moyen.png';
+INSERT INTO `size` SET name='grand', filename = 'grand.png';
+INSERT INTO `size` SET name='très grand', filename='tresgrand.png'`;
 
 INSERT INTO `info` SET name='depart';
 INSERT INTO `info` SET name='arrival';

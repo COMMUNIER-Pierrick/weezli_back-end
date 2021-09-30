@@ -9,21 +9,33 @@ const getAll = async (req, res) => {
 }
 
 const insert = async (req, res) => {
-    const transport = req.body.name;
+    const name = req.body.name;
     let file = '';
     if(req.file){
-        file = req.file.filename
+        file = req.file.filename;
         await fileDAO.insert(file);
     }
-    const result = await transportDAO.insert(transport, file);
+    const result = await transportDAO.insert(name, file);
     const message = "le moyen de transport a bien été créé.";
     return res.status(200).send({"Message": message, "Transport": result});
 }
 
 const update = async (req, res) => {
     const {id} = req.params;
-    const transport = new Transport(req.body.name);
-    const result = await transportDAO.update(transport, id);
+    const name = req.body.name;
+    let file = '';
+
+    if(req.file){
+        file = req.file.filename
+        const [transport] = await transportDAO.getById(id);
+
+        if(transport.filename !== file){
+            await fileDAO.remove(transport.filename);
+            await fileDAO.insert(file);
+        }
+    }
+
+    const result = await transportDAO.update(name, file, id);
     const message = "le moyen de transport a bien été mis à jour";
     return res.status(200).send({"Message": message, "Transport": result});
 }
@@ -36,7 +48,9 @@ const getById = async (req, res) => {
 
 const remove = async (req, res) => {
     const {id} = req.params;
-    await transportDAO.remove({id});
+    const [transport] = await transportDAO.getById(id);
+    await fileDAO.remove(transport.filename);
+    await transportDAO.remove(id);
     const message = "Le moyen de transport a bien été supprimé";
     return res.status(200).send({"Message": message});
 }
