@@ -16,13 +16,17 @@ module.exports = class User{
         this.check = check;
         this.choiceDateStarted = choiceDateStarted;
         this.choiceDateEnd = choiceDateEnd;
-    }
+    };
+
+    static UserUpdate (firstname, lastname, email, phone, check){
+        return new User(null, firstname, lastname, null, null, email, phone, null, null, null, null,null,null, check, null, null);
+    };
 
     static UserAnnounce(id, firstname, lastname){
         return new User(id, firstname, lastname, null, null, null, null, null,null, null, null, null, null, null, null, null);
-    }
+    };
 
     static UserInsert(firstname, lastname, username, password, email, dateOfBirthday){
         return new User(null, firstname, lastname, username, password, email, null, dateOfBirthday,null, null, null, null, null, null, null, null)
-    }
+    };
 }

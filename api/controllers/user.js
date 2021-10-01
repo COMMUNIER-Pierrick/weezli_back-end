@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const mail = require("../config/mail");
 const checkDAO = require("../services/database/dao/checkUserDAO");
+const fileDAO = require("../services/database/dao/fileDAO");
 
 const insert = async (req, res) => {
 	const { firstname, lastname, username, password, email, dateOfBirthday} = req.body.User;
@@ -36,9 +37,7 @@ const insert = async (req, res) => {
 		let refreshToken = jwt.sign(playoad, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "1y"});
 
 		const [check] = await checkDAO.updateCode(token, user.check.id)
-		console.log(check);
 		const emailSend = await mail.sendConfirmationEmail( user.lastname, user.email, check.confirm_code);
-		console.log(emailSend)
 
 		delete user.password;
 
@@ -54,7 +53,7 @@ const insert = async (req, res) => {
 				sameSite: "strict",
 			})
 			.cookie("refTokenId", true)
-			.status(201).send({"Message": "Votre compte a bien été créé, merci de verifier vos mail pour confirmer votre email e ou vos spams", "User": user});
+			.status(201).send({"Message": "Votre compte a bien été créé, merci de verifier vos mail pour confirmer votre email e ou vos spams", "User": user, "EmailSend": emailSend});
 	}catch (error) {
 		log.error("Error user.js Register");
 		throw error;
@@ -64,13 +63,48 @@ const insert = async (req, res) => {
 const update = async (req, res) => {
 	const {id} = req.params;
 	const {User} = req.body;
+	let file = '';
+	let filecheck = '';
+
+	for(let i = 0; i < req.files.length; i++){
+		if(req.files[i].fieldname === 'file'){
+			file = req.files[i];
+		}else{
+			filecheck = req.files[i];
+		}
+	}
+
 	const { error } = updateValidation(User);
 	if(error){
 		log.error("Error update : " + error.details[0].message);
 		return res.status(400).send({ error: error.details[0].message });
 	}
+	const userback = await userDAO.getById(id);
+
+	if(file){
+		if(userback.filename !== file.filename){
+			if(userback.filename !== ''){
+				await fileDAO.remove(userback.filename)
+			}
+			await fileDAO.insert(file.filename);
+		}
+	}else if(!file && userback.filename){
+		await fileDAO.remove(userback.filename);
+	}
+
+	if(filecheck){
+		if(userback.check.filename !== filecheck.filename){
+			if(userback.check.filename !== ''){
+				await fileDAO.remove(userback.check.filename)
+			}
+			await fileDAO.insert(filecheck.filename);
+		}
+	}else if(!filecheck && userback.check.filename){
+		await fileDAO.remove(userback.check.filename);
+	}
+
 	try{
-		const newUser = await userDAO.update(User,id);
+		const newUser = await userDAO.update(User, file.filename, filecheck.filename, id);
 		delete newUser.password;
 		const message = "mise à jour réussi.";
 		res.status(200).send( {"Message": message, "User": newUser} );
@@ -215,11 +249,11 @@ function compareDate(dateOfBirthday){
 
 *{
     "user": {
-        "firstname": "paul",
-        "lastname": "position",
-        "email": "paul@pausition.com",
-        "phone": null,
-        "url_profile_img": null,
+        "firstname": "vincent",
+        "lastname": "colas",
+        "email": "vinc.tigra@gmail.com",
+        "phone": 0707070707,
+        "url_profile_img": '',
         "check": {
             "id": 13,
             "imgIdentity": "picture789.png"

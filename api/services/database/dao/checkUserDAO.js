@@ -61,11 +61,15 @@ async function updateCode(token, id){
     }
 }
 
-async function update(img, id){
+async function update(filename, id){
     let con = null;
+    let file = '';
+    if(filename){
+        file = filename;
+    }
     try{
         con = await database.getConnection();
-        await con.execute(SQL_UPDATE, [img, id]);
+        await con.execute(SQL_UPDATE, [file, id]);
     }catch (error) {
         log.error("Error checkDAO update : " + error);
         throw errorMessage;

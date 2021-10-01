@@ -83,7 +83,7 @@ CREATE TABLE `check_user`(
     `status_mail` BOOLEAN NOT NULL DEFAULT FALSE,
     `status_identity` BOOLEAN NOT NULL DEFAULT FALSE,
     `img_identity` VARCHAR(150) NULL,
-    `type` ENUM('Pending', 'Active') NOT NULL DEFAULT 'Pending',
+    `status` ENUM('Pending', 'Active') NOT NULL DEFAULT 'Pending',
     `confirm_code` VARCHAR(50) NULL UNIQUE
 )Engine = InnoDB;
 

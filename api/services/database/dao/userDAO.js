@@ -114,12 +114,21 @@ async function remove(){
 
 }
 
-async function update(user, id){
+async function update(User,filename, filecheck, id){
+    console.log(User);
     let con = null;
+    let file = '';
+    let fileForCheck = '';
+    if(filename){
+        file = filename;
+    }
+    if(filecheck){
+        fileForCheck = filecheck;
+    }
     try{
         con = await database.getConnection();
-        await con.execute(SQL_UPDATE_PROFILE, [user.firstname, user.lastname, user.email, user.phone, user.url_profile_img, id]);
-        await checkDAO.update(user.check.imgIdentity, user.check.id);
+        await con.execute(SQL_UPDATE_PROFILE, [User.firstname, User.lastname, User.email, User.phone, file, id]);
+        await checkDAO.update(fileForCheck, User.check);
         const newUser = await getById(id);
         return newUser;
     }catch (error) {
