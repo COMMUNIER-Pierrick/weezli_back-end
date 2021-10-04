@@ -45,16 +45,11 @@ const update = async (req, res) => {
     const fieldname = [fileOne, fileTwo, fileThree, fileFour, fileFive];
 
     fieldname.forEach(el => imgAnnounceBack.forEach(fi => imageControl(el, fi)));
-
-    strFilesName += fileOne.filename + ", ";
-    strFilesName += fileTwo.filename + ", ";
-    strFilesName += fileThree.filename + ", ";
-    strFilesName += fileFour.filename + ", ";
-    strFilesName += fileFive.filename + ", ";
+    fieldname.forEach(el => {if(el){strFilesName += el.filename + ", "}});
 
     const indexEnd = strFilesName.lastIndexOf(',');
     if(indexEnd !== -1){ urlImages = strFilesName.slice(0, indexEnd)}
-
+    console.log(urlImages);
     const result = await announceDAO.update(announce, urlImages);
     const message = "L'annonce a bien été mis à jour.";
     return res.status(200).send({"Message": message , "Announce": result});

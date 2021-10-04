@@ -26,8 +26,10 @@ const SELECT_BY_TYPE = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.
 
 const errorMessage = "Data access error";
 
-async function insert(announce, arrayfilesName){
+async function insert(announce, filesName){
     let con = null;
+    let files = '';
+    if(filesName){ files = filesName;}
     try{
         con = await database.getConnection();
         /*Addresse de départ*/
@@ -56,7 +58,7 @@ async function insert(announce, arrayfilesName){
             finalPrice = await finalPriceDAO.insert(0, false);
         }*/
 
-        const [idCreated] = await con.execute(SQL_INSERT_WITH_FINAL_PRICE, [idPack, finalPrice.id, announce.idType, announce.price, announce.transact, arrayfilesName]);
+        const [idCreated] = await con.execute(SQL_INSERT_WITH_FINAL_PRICE, [idPack, finalPrice.id, announce.idType, announce.price, announce.transact, files]);
         const id = idCreated.insertId;
 
         /*insertion relation user annonce*/
@@ -77,6 +79,8 @@ async function insert(announce, arrayfilesName){
 
 async function update(announce, imgUrl){
     let con = null;
+    let files = '';
+    if(imgUrl){ files = imgUrl;}
     try{
         con = await database.getConnection();
         /* NON FINI !!!!! */
@@ -96,8 +100,7 @@ async function update(announce, imgUrl){
         announce.transact ? finalPrice = await finalPriceDAO.update(announce.price)  : finalPrice = null ;
 
         /* annonce */
-        await con.execute(SQL_UPDATE, [announce.idType, announce.price, announce.transact,
-            imgUrl, announce.id]);
+        await con.execute(SQL_UPDATE, [announce.idType, announce.price, announce.transact, files, announce.id]);
 
         const results = await getById(announce.id);
         return results;

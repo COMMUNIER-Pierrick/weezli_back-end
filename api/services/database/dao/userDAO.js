@@ -7,11 +7,12 @@ const Payment = require("../../models/Payment");
 const CheckUser = require("../../models/CheckUser");
 const Choice = require("../../models/Choice");
 const User = require("../../models/User");
+const addressDAO = require("./addressDAO");
 
 const errorMessage = "Data access error";
 
 const SQL_INSERT_RELATION_ANNOUNCE = `INSERT INTO rel_user_announce SET id_announce = ?, id_user = ?`;
-const SQL_INSERT = `INSERT INTO users SET firstname = ?, lastname = ?, username = ?, password = ?, email = ?, date_of_birthday = ?, id_payment = ?, id_choice = ?, id_check = ?`;
+const SQL_INSERT = `INSERT INTO users SET firstname = ?, lastname = ?, username = ?, password = ?, email = ?, date_of_birthday = ?, id_payment = ?, id_choice = ?, id_check = ?, id_address = ?`;
 const SQL_REMOVE_RELATION = `DELETE FROM rel_user_announce WHERE id_announce = ? AND id_user = ?`
 const SQL_UPDATE_PROFILE = `UPDATE users SET firstname = ?, lastname = ?, email = ?, phone = ?, url_profile_img = ? WHERE id = ?`;
 const SQL_UPDATE_CHOICE = `UPDATE users SET id_choice = ?, choice_date_started = ?, choice_date_end = ? WHERE id = ?`;
@@ -75,7 +76,8 @@ async function insert(newUser){
         con = await database.getConnection();
         const idPayment = await paymentDAO.insert();
         const idCheck = await checkDAO.insert();
-        const [idCreated] =  await con.execute(SQL_INSERT, [newUser.firstname, newUser.lastname, newUser.username, newUser.password, newUser.email, newUser.dateOfBirthday, idPayment, 1, idCheck]);
+        const address = await addressDAO.insert(newUser.address);
+        const [idCreated] =  await con.execute(SQL_INSERT, [newUser.firstname, newUser.lastname, newUser.username, newUser.password, newUser.email, newUser.dateOfBirthday, idPayment, 1, idCheck, address.id]);
         const id = idCreated.insertId;
         const user = await getById(id);
         return user;
@@ -129,6 +131,7 @@ async function update(User,filename, filecheck, id){
         con = await database.getConnection();
         await con.execute(SQL_UPDATE_PROFILE, [User.firstname, User.lastname, User.email, User.phone, file, id]);
         await checkDAO.update(fileForCheck, User.check);
+        await addressDAO.update(User.address);
         const newUser = await getById(id);
         return newUser;
     }catch (error) {
@@ -233,7 +236,16 @@ module.exports = {
         "username": "vincdev",
         "password": "Azerty123!",
         "email": "vinc.tigra@gmail.com",
-        "dateOfBirthday": "1980-12-10T00:00:00"
+        "dateOfBirthday": "1980-12-10T00:00:00",
+        "address" : {
+            "idInfo": 3,
+            "number" : 36,
+            "street": "rue crébillion",
+            "additionalAddress" : "",
+            "zipCode": 44000,
+            "city" : "Nantes",
+            "country": "France"
+        }
 
     }
 }

@@ -9,7 +9,7 @@ const checkDAO = require("../services/database/dao/checkUserDAO");
 const fileDAO = require("../services/database/dao/fileDAO");
 
 const insert = async (req, res) => {
-	const { firstname, lastname, username, password, email, dateOfBirthday} = req.body.User;
+	const { firstname, lastname, username, password, email, dateOfBirthday, address} = req.body.User;
 	const { error } = registerValidation(req.body.User);
 	if(error){
 		log.error("Error register : " + error.details[0].message);
@@ -27,7 +27,7 @@ const insert = async (req, res) => {
 
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
-		const newUser = User.UserInsert(firstname, lastname, username, hashedPassword, email, dateOfBirthday);
+		const newUser = User.UserInsert(firstname, lastname, username, hashedPassword, email, dateOfBirthday, address);
 
 		const user = await userDAO.insert(newUser);
 

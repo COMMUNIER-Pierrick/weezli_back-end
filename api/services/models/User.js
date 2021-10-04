@@ -1,5 +1,5 @@
 module.exports = class User{
-    constructor(id, firstname, lastname, username, password, email, phone, dateOfBirthday,  active, filename, average_opinion, payment, choice, check, choiceDateStarted, choiceDateEnd) {
+    constructor(id, firstname, lastname, username, password, email, phone, dateOfBirthday,  active, filename, average_opinion, payment, choice, check, choiceDateStarted, choiceDateEnd, address) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -16,17 +16,18 @@ module.exports = class User{
         this.check = check;
         this.choiceDateStarted = choiceDateStarted;
         this.choiceDateEnd = choiceDateEnd;
+        this.address = address;
     };
 
-    static UserUpdate (firstname, lastname, email, phone, check){
-        return new User(null, firstname, lastname, null, null, email, phone, null, null, null, null,null,null, check, null, null);
+    static UserUpdate (firstname, lastname, email, phone,filename, check, address){
+        return new User(null, firstname, lastname, null, null, email, phone, null, null, filename, null,null,null, check, null, null, address);
     };
 
     static UserAnnounce(id, firstname, lastname){
         return new User(id, firstname, lastname, null, null, null, null, null,null, null, null, null, null, null, null, null);
     };
 
-    static UserInsert(firstname, lastname, username, password, email, dateOfBirthday){
-        return new User(null, firstname, lastname, username, password, email, null, dateOfBirthday,null, null, null, null, null, null, null, null)
+    static UserInsert(firstname, lastname, username, password, email, dateOfBirthday, address){
+        return new User(null, firstname, lastname, username, password, email, null, dateOfBirthday,null, null, null, null, null, null, null, null, address)
     };
 }

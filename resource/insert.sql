@@ -8,7 +8,6 @@ INSERT INTO `transport` SET name='bus', filename = 'bus.png';
 
 INSERT INTO `types` SET name='expediteur';
 INSERT INTO `types` SET name='transporteur';
-INSERT INTO `types` SET name='personal';
 
 INSERT INTO `size` SET name='petit', filename='petit.png';
 INSERT INTO `size` SET name='moyen', filename='moyen.png';
@@ -17,6 +16,7 @@ INSERT INTO `size` SET name='très grand', filename='tresgrand.png';
 
 INSERT INTO `info` SET name='depart';
 INSERT INTO `info` SET name='arrival';
+INSERT INTO `info` SET name='personal';
 
 INSERT INTO `address` SET id_info=1, number=45, street='Orange St', additional_address='3eme floor', zipcode='SW1Y 4UR', city='London', country='England';
 INSERT INTO `address` SET id_info=1, number=12, street='Lalana Delord', additional_address='', zipcode='105', city='Antananarivo', country='Madagascar';
