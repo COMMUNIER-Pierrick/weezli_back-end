@@ -66,13 +66,7 @@ const update = async (req, res) => {
 	let file = '';
 	let filecheck = '';
 
-	for(let i = 0; i < req.files.length; i++){
-		if(req.files[i].fieldname === 'file'){
-			file = req.files[i];
-		}else{
-			filecheck = req.files[i];
-		}
-	}
+	req.files.forEach(el => el.fieldname === 'file' ? file = el : filecheck = el);
 
 	const { error } = updateValidation(User);
 	if(error){

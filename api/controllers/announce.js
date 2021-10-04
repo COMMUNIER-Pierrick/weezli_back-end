@@ -2,18 +2,60 @@ const announceDAO = require('../services/database/dao/announceDAO');
 const log = require('../log/logger');
 const Announce = require('../services/models/Announce');
 const Search = require('../services/models/Search');
+const fileDAO = require("../services/database/dao/fileDAO");
 
 const insert = async (req, res) => {
+    let fileOne = '';
+    let fileTwo = '';
+    let fileThree = '';
+    let fileFour = '';
+    let fileFive = '';
+    let strFilesName = '';
+    let urlImages = '';
     const announce = Announce.AnnounceInsert(req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
-    const result = await announceDAO.insert(announce);
+    req.files.forEach(el => el.fieldname === 'fileOne' ? fileOne = el : el.fieldname === 'fileTwo' ? fileTwo = el : el.fieldname === 'fileThree' ? fileThree = el : el.fieldname === 'fileFour' ? fileFour = el : fileFive = el);
+    if(fileOne){await fileDAO.insert(fileOne.filename); strFilesName += fileOne.filename + ", ";}
+    if(fileTwo){await fileDAO.insert(fileTwo.filename); strFilesName += fileTwo.filename + ", "; }
+    if(fileThree){await fileDAO.insert(fileThree.filename); strFilesName += fileThree.filename + ", ";}
+    if(fileFour){await fileDAO.insert(fileFour.filename); strFilesName += fileFour.filename + ", ";}
+    if(fileFive){await fileDAO.insert(fileFive.filename); strFilesName += fileFive.filename + ", ";}
+
+    const indexEnd = strFilesName.lastIndexOf(',');
+    if(indexEnd !== -1){ urlImages = strFilesName.slice(0, indexEnd)}
+
+    const result = await announceDAO.insert(announce, urlImages);
     const message = "L'annonce a bien été créé.";
     return res.status(200).send({"Message": message , "Announce": result});
 };
 
 const update = async (req, res) => {
     const {id} = req.params;
+    let fileOne = '';
+    let fileTwo = '';
+    let fileThree = '';
+    let fileFour = '';
+    let fileFive = '';
+    let strFilesName = '';
+    let urlImages = '';
     const announce = Announce.AnnounceUpdate(id, req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
-    const result = await announceDAO.update(announce);
+    req.files.forEach(el => el.fieldname === 'fileOne' ? fileOne = el : el.fieldname === 'fileTwo' ? fileTwo = el : el.fieldname === 'fileThree' ? fileThree = el : el.fieldname === 'fileFour' ? fileFour = el : fileFive = el);
+
+    const announceBack = await announceDAO.getById(id);
+    const imgAnnounceBack = announceBack.imgUrl.split(',');
+    const fieldname = [fileOne, fileTwo, fileThree, fileFour, fileFive];
+
+    fieldname.forEach(el => imgAnnounceBack.forEach(fi => imageControl(el, fi)));
+
+    strFilesName += fileOne.filename + ", ";
+    strFilesName += fileTwo.filename + ", ";
+    strFilesName += fileThree.filename + ", ";
+    strFilesName += fileFour.filename + ", ";
+    strFilesName += fileFive.filename + ", ";
+
+    const indexEnd = strFilesName.lastIndexOf(',');
+    if(indexEnd !== -1){ urlImages = strFilesName.slice(0, indexEnd)}
+
+    const result = await announceDAO.update(announce, urlImages);
     const message = "L'annonce a bien été mis à jour.";
     return res.status(200).send({"Message": message , "Announce": result});
 };
@@ -92,9 +134,10 @@ const getSearch = async (req, res) => {
     if(sizes){
         let nbSize = "";
         const elem = ", ";
-        for(let i = 0; i < sizes.length; i++){
+        sizes.forEach(el => nbSize += (el.size.id + elem));
+        /*for(let i = 0; i < sizes.length; i++){
             nbSize += sizes[i].size.id + elem;
-        }
+        }*/
         let index = nbSize.lastIndexOf(elem);
         let ids = nbSize.slice(0, index);
         condition += `AND s.id in ( ${ids} ); `;
@@ -132,4 +175,15 @@ function verifDate(str){
     const patSpace = /\s/g;
     const pattern = new RegExp(/[`~!@#$%^&*()_|+=?;'",.<>{}\[\]\\\/]/);
     return !pattern.test(str) && patDate.test(str) && !patSpace.test(str);
+}
+
+async function imageControl(fieldname, imgBack){
+        if(imgBack !== fieldname.filename){
+            if(imgBack !== ''){
+                await fileDAO.remove(imgBack)
+            }
+            await fileDAO.insert(fieldname.filename);
+        } else if(!fieldname.filename && imgBack){
+            await fileDAO.remove(imgBack);
+        }
 }

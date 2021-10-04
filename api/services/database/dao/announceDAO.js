@@ -26,7 +26,7 @@ const SELECT_BY_TYPE = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.
 
 const errorMessage = "Data access error";
 
-async function insert(announce){
+async function insert(announce, arrayfilesName){
     let con = null;
     try{
         con = await database.getConnection();
@@ -43,20 +43,20 @@ async function insert(announce){
         await addressDAO.insertRelation(idPack, idDepart);
         await addressDAO.insertRelation(idPack, idArrival);
         /* Insertion relation size */
-        const size = announce.packages.sizes;
-        for(let i = 0; i < size.length; i++){
-            await sizeDAO.insertRelation(idPack, size[i]);
-        }
+        const sizes = announce.packages.sizes;
+        sizes.forEach(el => sizeDAO.insertRelation(idPack, el.size.id));
 
         let finalPrice = null;
         /*Insertion annonce en fonction de si transact is true*/
-        if(announce.transact){
+        announce.transact ? finalPrice = await finalPriceDAO.insert(announce.price, true) : finalPrice = await finalPriceDAO.insert(0, false);
+
+        /*if(announce.transact){
             finalPrice = await finalPriceDAO.insert(announce.price, true);
         }else{
             finalPrice = await finalPriceDAO.insert(0, false);
-        }
+        }*/
 
-        const [idCreated] = await con.execute(SQL_INSERT_WITH_FINAL_PRICE, [idPack, finalPrice.id, announce.idType, announce.price, announce.transact, announce.imgUrl]);
+        const [idCreated] = await con.execute(SQL_INSERT_WITH_FINAL_PRICE, [idPack, finalPrice.id, announce.idType, announce.price, announce.transact, arrayfilesName]);
         const id = idCreated.insertId;
 
         /*insertion relation user annonce*/
@@ -75,7 +75,7 @@ async function insert(announce){
     }
 }
 
-async function update(announce){
+async function update(announce, imgUrl){
     let con = null;
     try{
         con = await database.getConnection();
@@ -86,9 +86,18 @@ async function update(announce){
         await addressDAO.update(announce.packages.addressArrival);
         /* package */
         await packageDAO.update(announce.packages);
+
+        /* Update relation size */
+        const sizes = announce.packages.sizes;
+        sizes.forEach(el => sizeDAO.updateRelation(announce.packages.id, el.size.id));
+
+        /*final price*/
+        let finalPrice = null;
+        announce.transact ? finalPrice = await finalPriceDAO.update(announce.price)  : finalPrice = null ;
+
         /* annonce */
         await con.execute(SQL_UPDATE, [announce.idType, announce.price, announce.transact,
-            announce.imgUrl, announce.id]);
+            imgUrl, announce.id]);
 
         const results = await getById(announce.id);
         return results;

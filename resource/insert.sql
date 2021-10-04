@@ -8,11 +8,12 @@ INSERT INTO `transport` SET name='bus', filename = 'bus.png';
 
 INSERT INTO `types` SET name='expediteur';
 INSERT INTO `types` SET name='transporteur';
+INSERT INTO `types` SET name='personal';
 
 INSERT INTO `size` SET name='petit', filename='petit.png';
 INSERT INTO `size` SET name='moyen', filename='moyen.png';
 INSERT INTO `size` SET name='grand', filename = 'grand.png';
-INSERT INTO `size` SET name='très grand', filename='tresgrand.png'`;
+INSERT INTO `size` SET name='très grand', filename='tresgrand.png';
 
 INSERT INTO `info` SET name='depart';
 INSERT INTO `info` SET name='arrival';

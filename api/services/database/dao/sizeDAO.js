@@ -7,6 +7,7 @@ const SQL_INSERT = `INSERT INTO size SET name = ?, filename = ?`;
 const SQL_UPDATE = `UPDATE size SET name = ?, filename = ? WHERE id = ?`;
 const SQL_DELETE = `DELETE FROM size WHERE id = ?`;
 const SQL_INSERT_RELATION = `INSERT INTO rel_package_sizes SET id_package = ?, id_size = ?`;
+const SQL_UPDATE_RELATION = `UPDATE rel_package_sizes SET id_size = ? WHERE id_package = ?`;
 const SQL_REMOVE_RELATION = `DELETE FROM rel_package_sizes WHERE  id_package = ? AND id_size = ?`
 const SELECT_BY_PACKAGE = `SELECT * FROM size s
                            INNER JOIN rel_package_sizes rps on s.id = rps.id_size
@@ -119,6 +120,20 @@ async function insertRelation(idPackage, idSize){
         }
     }
 }
+async function updateRelation(idPackage, idSize){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        await con.execute(SQL_UPDATE_RELATION, [idSize, idPackage]);
+    }catch (error) {
+        log.error("Error sizeDAO insertRelation : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
 
 async function removeRelation(idPackage, idSize){
         let con = null;
@@ -163,5 +178,6 @@ module.exports = {
     getById,
     insertRelation,
     getByPackage,
-    removeRelation
+    removeRelation,
+    updateRelation
 }
