@@ -5,7 +5,7 @@ const image = require("../controllers/image");
 
 router.post("/singleFile", upload.single('file'), image.singleFileUpload);
 
-router.post("/deleteFile", image.deleteFile);
+router.post("/deleteFile",  upload.single('file'), image.deleteFile);
 
 module.exports = router;
 

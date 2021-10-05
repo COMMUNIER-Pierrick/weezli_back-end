@@ -19,8 +19,7 @@ const singleFileUpload = async (req, res, next) => {
 }
 
 const deleteFile = async (req, res, next) => {
-    const filename = req.body.filename;
-    console.log(filename);
+    const filename = req.file.filename;
     try{
         if(filename){
             await fileDAO.remove(filename);

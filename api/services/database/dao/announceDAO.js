@@ -83,6 +83,8 @@ async function update(announce, imgUrl){
     if(imgUrl){ files = imgUrl;}
     try{
         con = await database.getConnection();
+        const oldAnnounce = await getById(announce.id);
+        const oldSize = oldAnnounce.packages.sizes;
         /* NON FINI !!!!! */
         /*Addresse de départ*/
         await addressDAO.update(announce.packages.addressDeparture);
@@ -93,11 +95,12 @@ async function update(announce, imgUrl){
 
         /* Update relation size */
         const sizes = announce.packages.sizes;
-        sizes.forEach(el => sizeDAO.updateRelation(announce.packages.id, el.size.id));
+        oldSize.forEach(el => sizeDAO.removeRelation(announce.packages.id, el.size.id));
+        sizes.forEach(el => sizeDAO.insertRelation(announce.packages.id, el.size.id));
 
         /*final price*/
         let finalPrice = null;
-        announce.transact ? finalPrice = await finalPriceDAO.update(announce.price)  : finalPrice = null ;
+        announce.transact ? finalPrice = await finalPriceDAO.update(announce.price, false, announce.finalPrice)  : finalPrice = null ;
 
         /* annonce */
         await con.execute(SQL_UPDATE, [announce.idType, announce.price, announce.transact, files, announce.id]);
@@ -255,35 +258,34 @@ module.exports = {
 /*
 VERSION ENVOYER AU BACK
 
-{   "announce":
-        {
+{"Announce" : {
             "packages":
                 {
                     "addressDeparture" :
                         {
                             "idInfo": 1,
-                            "number" : 4,
-                            "street": "rue de la soif",
+                            "number" : 9,
+                            "street": "rue de la biere",
                             "additionalAddress" : "",
-                            "zipCode": 35000,
-                            "city" : "Rennes",
+                            "zipCode": 25000,
+                            "city" : "Brest",
                             "country": "France"
                         },
                     "addressArrival" :
                         {
                             "idInfo": 2,
-                            "number" : 34,
-                            "street": "stade de la beaujoire",
-                            "additionalAddress" : "1er batiement",
-                            "zipCode": 44000,
-                            "city" : "Nantes",
+                            "number" : 1,
+                            "street": "rue du boulodrome",
+                            "additionalAddress" : "1er étage",
+                            "zipCode": 13000,
+                            "city" : "Marseille",
                             "country": "France"
                         },
-                    "datetimeDeparture" : "2021-10-19 03:14:07.999999",
-                    "datetimeArrival" : "2021-11-19 03:14:07.999999",
-                    "kgAvailable" : 46,
+                    "datetimeDeparture" : "2022-10-19 03:14:07.999999",
+                    "datetimeArrival" : "2022-11-19 03:14:07.999999",
+                    "kgAvailable" : 8,
                     "description" : "",
-                    "idTransport": 2,
+                    "idTransport": 4,
                     "sizes": [
                 {
                 "size":{
@@ -292,24 +294,23 @@ VERSION ENVOYER AU BACK
                     }
                 },{
                 "size": {
-                    "id": 2,
-                    "name": "moyen"
+                    "id": 3,
+                    "name": "grand"
                     }
              }
-            ]
-
-        },
+                    ]
                 },
+
             "idType" : 2,
-            "price" : 25,
+            "price" : 5,
             "transact" : true,
-            "imgUrl" : "picture15052021.png, picture15052022.png, picture15052023.png",
+            "imgUrl" : "",
             "dateCreated" : "",
             "userAnnounce":
             {
-                "id" : 1,
-                "firstname" : "alain",
-                "lastname" : "terieur"
+                "id" : 33,
+                "firstname" : "vinc",
+                "lastname" : "dev"
             }
         }
 }
@@ -317,64 +318,72 @@ VERSION ENVOYER AU BACK
 VERSION RECUPERER
 
 {
-    "Announces": [
-        {
-            "Announce": {
-                "id": 5,
-                "packages": {
-                    "id": 5,
-                    "addressDeparture": {
+    "Message": "L'annonce a bien été créé.",
+    "Announce": {
+        "id": 11,
+        "packages": {
+            "id": 10,
+            "addressDeparture": {
+                "id": 16,
+                "name": "depart",
+                "number": 9,
+                "street": "rue de la biere",
+                "additional_address": "",
+                "zipcode": "25000",
+                "city": "Brest",
+                "country": "France"
+            },
+            "addressArrival": {
+                "id": 17,
+                "name": "arrival",
+                "number": 1,
+                "street": "rue du boulodrome",
+                "additional_address": "1er étage",
+                "zipcode": "13000",
+                "city": "Marseille",
+                "country": "France"
+            },
+            "datetimeDeparture": "2022-10-19T01:14:08.000Z",
+            "datetimeArrival": "2022-11-19T02:14:08.000Z",
+            "kgAvailable": 13,
+            "description": "",
+            "transport": {
+                "id": 2,
+                "name": "avion",
+                "filename": "avion.png"
+            },
+            "sizes": [
+                {
+                    "size": {
                         "id": 2,
-                        "name": "depart",
-                        "number": 12,
-                        "street": "Lalana Delord",
-                        "additional_address": "",
-                        "zipcode": "105",
-                        "city": "Antananarivo",
-                        "country": "Madagascar"
-                    },
-                    "addressArrival": {
-                        "id": 4,
-                        "name": "arrival",
-                        "number": 55,
-                        "street": "Liberty St",
-                        "additional_address": "second door",
-                        "zipcode": "10005",
-                        "city": "Manhattan New York",
-                        "country": "United States of America"
-                    },
-                    "datetimeDeparture": "2021-12-19T23:00:00.000Z",
-                    "datetimeArrival": "2021-12-21T23:00:00.000Z",
-                    "kgAvailable": 4,
-                    "description": "",
-                    "transport": {
-                        "id": 5,
-                        "name": "bateau"
-                    },
-                    "sizes": [
-                        {
-                            "id": 2,
-                            "name": "moyen"
-                        }
-                    ]
+                        "name": "moyen",
+                        "filename": "moyen.png"
+                    }
                 },
-                "views": 1,
-                "finalPrice": null,
-                "order": null,
-                "idType": 2,
-                "price": 5,
-                "transact": 0,
-                "imgUrl": "",
-                "dateCreated": "2021-11-09T23:00:00.000Z",
-                "userAnnounce": {
-                    "id": 2,
-                    "firstname": "sarah",
-                    "lastname": "croche",
-                    "average_opinion": 2.5
+                {
+                    "size": {
+                        "id": 3,
+                        "name": "grand",
+                        "filename": "grand.png"
+                    }
                 }
-            }
+            ]
+        },
+        "views": 0,
+        "finalPrice": null,
+        "order": null,
+        "idType": 2,
+        "price": 25,
+        "transact": 1,
+        "imgUrl": "20201110_160614.jpg, Vincent-Colas-ski.JPG, Vincent-Colas-plage.JPG, 20191220_195101.jpg, Vincent-Colas-airsoft.jpg",
+        "dateCreated": "2021-10-05T07:37:43.000Z",
+        "userAnnounce": {
+            "id": 33,
+            "firstname": "vinc",
+            "lastname": "dev",
+            "average_opinion": 0
         }
-    ]
+    }
 }
 * */
 
@@ -414,6 +423,79 @@ WHERE a.id_type = 2 AND p.id_transport = 5 AND p.kg_available <= 6.5 AND ad_depa
         "transport": 5,
         "type": 2
     }
-}*/
+}
+*
+*UPDATE
+*
+* {
+    "Announce": {
+        "id": 11,
+        "packages": {
+            "id": 10,
+            "addressDeparture": {
+                "id": 16,
+                "name": "depart",
+                "number": 9,
+                "street": "rue de la biere",
+                "additionalAddress": "",
+                "zipCode": "25000",
+                "city": "Brest",
+                "country": "France"
+            },
+            "addressArrival": {
+                "id": 17,
+                "name": "arrival",
+                "number": 1,
+                "street": "rue du boulodrome",
+                "additionalAddress": "1er étage",
+                "zipCode": "13000",
+                "city": "Marseille",
+                "country": "France"
+            },
+            "datetimeDeparture": "2022-10-19T01:14:08.000Z",
+            "datetimeArrival": "2022-11-19T02:14:08.000Z",
+            "kgAvailable": 13,
+            "description": "",
+            "transport": {
+                "id": 2,
+                "name": "avion",
+                "filename": "avion.png"
+            },
+            "sizes": [
+                {
+                    "size": {
+                        "id": 2,
+                        "name": "moyen",
+                        "filename": "moyen.png"
+                    }
+                },
+                {
+                    "size": {
+                        "id": 3,
+                        "name": "grand",
+                        "filename": "grand.png"
+                    }
+                }
+            ]
+        },
+        "views": 0,
+        "finalPrice": null,
+        "order": null,
+        "idType": 2,
+        "price": 25,
+        "transact": 1,
+        "imgUrl": "",
+        "dateCreated": "2021-10-05T07:37:43.000Z",
+        "userAnnounce": {
+            "id": 33,
+            "firstname": "vinc",
+            "lastname": "dev",
+            "average_opinion": 0
+        }
+    }
+}
+*
+*
+* */
 
 
