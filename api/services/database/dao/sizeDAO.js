@@ -120,6 +120,7 @@ async function insertRelation(idPackage, idSize){
         }
     }
 }
+
 async function updateRelation(idPackage, idSize){
     let con = null;
     try{

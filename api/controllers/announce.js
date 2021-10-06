@@ -12,16 +12,13 @@ const insert = async (req, res) => {
     let fileFive = '';
     let strFilesName = '';
     let urlImages = '';
-    let announceParse = JSON.parse(req.body.Announce);
-    const announce = Announce.AnnounceInsert(announceParse.Announce.packages, announceParse.Announce.idType, announceParse.Announce.price, announceParse.Announce.transact, announceParse.Announce.imgUrl, announceParse.Announce.userAnnounce);
-    //const announce = Announce.AnnounceInsert(req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
+    //let announceParse = JSON.parse(req.body.Announce);
+    //const announce = Announce.AnnounceInsert(announceParse.Announce.packages, announceParse.Announce.idType, announceParse.Announce.price, announceParse.Announce.transact, announceParse.Announce.imgUrl, announceParse.Announce.userAnnounce);
+    const announce = Announce.AnnounceInsert(req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
     req.files.forEach(el => el.fieldname === 'fileOne' ? fileOne = el : el.fieldname === 'fileTwo' ? fileTwo = el : el.fieldname === 'fileThree' ? fileThree = el : el.fieldname === 'fileFour' ? fileFour = el : fileFive = el);
-    if(fileOne){await fileDAO.insert(fileOne.filename); strFilesName += fileOne.filename + ",";}
-    if(fileTwo){await fileDAO.insert(fileTwo.filename); strFilesName += fileTwo.filename + ","; }
-    if(fileThree){await fileDAO.insert(fileThree.filename); strFilesName += fileThree.filename + ",";}
-    if(fileFour){await fileDAO.insert(fileFour.filename); strFilesName += fileFour.filename + ",";}
-    if(fileFive){await fileDAO.insert(fileFive.filename); strFilesName += fileFive.filename + ",";}
 
+    const files = [fileOne, fileTwo, fileThree, fileFour, fileFive];
+    files.forEach(el => {if(el){fileDAO.insert(fileOne.filename); strFilesName += el.filename + ","}} );
     const indexEnd = strFilesName.lastIndexOf(',');
     if(indexEnd !== -1){ urlImages = strFilesName.slice(0, indexEnd)}
 
@@ -39,18 +36,21 @@ const update = async (req, res) => {
     let fileFive = '';
     let strFilesName = '';
     let urlImages = '';
-    let announceParse = JSON.parse(req.body.Announce);
-    const announce = Announce.AnnounceUpdate(id,announceParse.Announce.packages, announceParse.Announce.idType, announceParse.Announce.price, announceParse.Announce.transact, announceParse.Announce.imgUrl, announceParse.Announce.userAnnounce);
+    //let announceParse = JSON.parse(req.body.Announce);
+    //const announce = Announce.AnnounceUpdate(id,announceParse.Announce.packages, announceParse.Announce.idType, announceParse.Announce.price, announceParse.Announce.transact, announceParse.Announce.imgUrl, announceParse.Announce.userAnnounce);
+    const announce = Announce.AnnounceInsert(id, req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
+    //insertion de l'image dans sa variable si il y en a un
     req.files.forEach(el => el.fieldname === 'fileOne' ? fileOne = el : el.fieldname === 'fileTwo' ? fileTwo = el : el.fieldname === 'fileThree' ? fileThree = el : el.fieldname === 'fileFour' ? fileFour = el : fileFive = el);
 
+    //récupération des nom des fichier enregistré en back avec création d'un tableau des images et création d'un tableau des fichier recu
     const announceBack = await announceDAO.getById(id);
-
     let imgAnnounceBack = announceBack.imgUrl.split(',');
     const files = [fileOne, fileTwo, fileThree, fileFour, fileFive];
 
+    // je controle les index des 2 fichier et je fais le traitement nécéssaire
    for(let e = 0; e < files.length; e++){
         for(let i = 0; i < imgAnnounceBack.length; i++){
-            if(i === e) {
+            if(i === e) { // le traitement se fait uniquement sur le meme index
                 if (files[e] && imgAnnounceBack[i]) { // si j'ai un fichier envoyer et une variable an back
                     if (files[e].filename !== imgAnnounceBack[i]) { // si mon fichier est different de ma variable
                         if (imgAnnounceBack[i] !== '') { // si ma variable est different de rien
@@ -68,11 +68,11 @@ const update = async (req, res) => {
             }
         }
     }
-    //fieldname.forEach(el => imgAnnounceBack.forEach(fi => imageControl(el, fi)));
+    // reconstruction de la string de fichier pour le back et supprime la dernière virgule
     files.forEach(el => {if(el){ strFilesName += el.filename + ","}} );
     const indexEnd = strFilesName.lastIndexOf(',');
     if(indexEnd !== -1){ urlImages = strFilesName.slice(0, indexEnd)}
-    console.log(urlImages);
+
     const result = await announceDAO.update(announce, urlImages);
     const message = "L'annonce a bien été mis à jour.";
     return res.status(200).send({"Message": message , "Announce": result});

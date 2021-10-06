@@ -8,6 +8,7 @@ const finalPriceDAO = require("./finalPriceDAO");
 const Package = require("../../models/Package");
 const Announce = require("../../models/Announce");
 const userDAO = require("./userDAO");
+const fileDAO = require("./fileDAO");
 
 const SQL_DELETE = `DELETE FROM announce WHERE  id = ?`
 const SQL_INSERT_WITH_FINAL_PRICE = `INSERT INTO announce SET id_package = ?, id_final_price = ?, id_type = ?, price = ?, transact = ?, img_url = ?`;
@@ -47,23 +48,13 @@ async function insert(announce, filesName){
         /* Insertion relation size */
         const sizes = announce.packages.sizes;
         sizes.forEach(el => sizeDAO.insertRelation(idPack, el.size.id));
-
         let finalPrice = null;
         /*Insertion annonce en fonction de si transact is true*/
         announce.transact ? finalPrice = await finalPriceDAO.insert(announce.price, true) : finalPrice = await finalPriceDAO.insert(0, false);
-
-        /*if(announce.transact){
-            finalPrice = await finalPriceDAO.insert(announce.price, true);
-        }else{
-            finalPrice = await finalPriceDAO.insert(0, false);
-        }*/
-
         const [idCreated] = await con.execute(SQL_INSERT_WITH_FINAL_PRICE, [idPack, finalPrice.id, announce.idType, announce.price, announce.transact, files]);
         const id = idCreated.insertId;
-
         /*insertion relation user annonce*/
         await userDAO.insertRelation(id, announce.userAnnounce.id);
-
         const results = await getById(id);
         return results;
 
@@ -85,26 +76,21 @@ async function update(announce, imgUrl){
         con = await database.getConnection();
         const oldAnnounce = await getById(announce.id);
         const oldSize = oldAnnounce.packages.sizes;
-        /* NON FINI !!!!! */
         /*Addresse de départ*/
         await addressDAO.update(announce.packages.addressDeparture);
         /*Addresse  d'arrivée*/
         await addressDAO.update(announce.packages.addressArrival);
         /* package */
         await packageDAO.update(announce.packages);
-
         /* Update relation size */
         const sizes = announce.packages.sizes;
         oldSize.forEach(el => sizeDAO.removeRelation(announce.packages.id, el.size.id));
         sizes.forEach(el => sizeDAO.insertRelation(announce.packages.id, el.size.id));
-
         /*final price*/
         let finalPrice = null;
-        announce.transact ? finalPrice = await finalPriceDAO.update(announce.price, false, announce.finalPrice)  : finalPrice = null ;
-
+        announce.transact ? finalPrice = await finalPriceDAO.update(announce.price, false, announce.finalPrice)  : finalPrice = await finalPriceDAO.update(0, false, announce.finalPrice);
         /* annonce */
         await con.execute(SQL_UPDATE, [announce.idType, announce.price, announce.transact, files, announce.id]);
-
         const results = await getById(announce.id);
         return results;
     }catch (error) {
@@ -152,18 +138,19 @@ async function remove(id){
         await addressDAO.removeRelation(announce.packages.id, announce.packages.addressArrival.id);
         // delete relation size
         const size = announce.packages.sizes;
-        for(let i = 0; i < size.length; i++){
-            await sizeDAO.removeRelation(announce.packages.id, size[i]);
-        }
+        size.forEach(el => sizeDAO.removeRelation(announce.packages.id, el.size.id));
         // delete relation user
         await userDAO.removeRelationAnnounce(announce.id, announce.userAnnounce.id);
         // delete address
         await addressDAO.remove(announce.packages.addressDeparture.id);
         await addressDAO.remove(announce.packages.addressArrival.id);
-        // delete package
-        await packageDAO.remove(announce.packages.id);
         //delete announce
         await con.execute(SQL_DELETE, [id]);
+        // delete package
+        await packageDAO.remove(announce.packages.id);
+        //delete file
+        let imgAnnounceBack = announce.imgUrl.split(',');
+        imgAnnounceBack.forEach(el => fileDAO.remove(el));
     }catch (error) {
         log.error("Error announceDAO remove : " + error);
         throw errorMessage;
@@ -320,44 +307,44 @@ VERSION RECUPERER
 {
     "Message": "L'annonce a bien été créé.",
     "Announce": {
-        "id": 11,
+        "id": 14,
         "packages": {
-            "id": 10,
+            "id": 13,
             "addressDeparture": {
-                "id": 16,
+                "id": 22,
                 "name": "depart",
                 "number": 9,
                 "street": "rue de la biere",
-                "additional_address": "",
-                "zipcode": "25000",
+                "additionalAddress": "",
+                "zipCode": "25000",
                 "city": "Brest",
                 "country": "France"
             },
             "addressArrival": {
-                "id": 17,
+                "id": 23,
                 "name": "arrival",
                 "number": 1,
                 "street": "rue du boulodrome",
-                "additional_address": "1er étage",
-                "zipcode": "13000",
+                "additionalAddress": "1er étage",
+                "zipCode": "13000",
                 "city": "Marseille",
                 "country": "France"
             },
             "datetimeDeparture": "2022-10-19T01:14:08.000Z",
             "datetimeArrival": "2022-11-19T02:14:08.000Z",
-            "kgAvailable": 13,
+            "kgAvailable": 8,
             "description": "",
             "transport": {
-                "id": 2,
-                "name": "avion",
-                "filename": "avion.png"
+                "id": 4,
+                "name": "train",
+                "filename": "train.png"
             },
             "sizes": [
                 {
                     "size": {
-                        "id": 2,
-                        "name": "moyen",
-                        "filename": "moyen.png"
+                        "id": 1,
+                        "name": "petit",
+                        "filename": "petit.png"
                     }
                 },
                 {
@@ -373,10 +360,10 @@ VERSION RECUPERER
         "finalPrice": null,
         "order": null,
         "idType": 2,
-        "price": 25,
+        "price": 5,
         "transact": 1,
-        "imgUrl": "20201110_160614.jpg, Vincent-Colas-ski.JPG, Vincent-Colas-plage.JPG, 20191220_195101.jpg, Vincent-Colas-airsoft.jpg",
-        "dateCreated": "2021-10-05T07:37:43.000Z",
+        "imgUrl": "20191220_195101.jpg,Vincent-Colas-mer.jpg,Vincent-Colas-ski.JPG",
+        "dateCreated": "2021-10-06T08:27:26.000Z",
         "userAnnounce": {
             "id": 33,
             "firstname": "vinc",
