@@ -61,12 +61,14 @@ const insert = async (req, res) => {
 };
 
 const update = async (req, res) => {
-	const {id} = req.params;
-	const {User} = req.body;
 	let file = '';
 	let filecheck = '';
+	const {id} = req.params;
+	const {User} = req.body;
+	//let userParse = JSON.parse(req.body.User);
+	const user = User.UserUpdate(User.firstname, User.lastname, User.email, User.phone,User.check, User.address);
 
-	req.files.forEach(el => el.fieldname === 'file' ? file = el : filecheck = el);
+	req.files.forEach(el => el.fieldname === 'file' ? file = el : el.fieldname === 'filecheck' ? filecheck = el : '');
 
 	const { error } = updateValidation(User);
 	if(error){
@@ -98,7 +100,7 @@ const update = async (req, res) => {
 	}
 
 	try{
-		const newUser = await userDAO.update(User, file.filename, filecheck.filename, id);
+		const newUser = await userDAO.update(user, file.filename, filecheck.filename, id);
 		delete newUser.password;
 		const message = "mise à jour réussi.";
 		res.status(200).send( {"Message": message, "User": newUser} );
@@ -241,16 +243,24 @@ function compareDate(dateOfBirthday){
 
 /*UPDATE PROFILE
 
-*{
-    "user": {
+*{"User": {
         "firstname": "vincent",
         "lastname": "colas",
         "email": "vinc.tigra@gmail.com",
-        "phone": 0707070707,
-        "url_profile_img": '',
+        "phone": "0707070707",
         "check": {
-            "id": 13,
-            "imgIdentity": "picture789.png"
+            "id": 37,
+            "imgIdentity": ""
+        },
+        "address" : {
+            "id": 5,
+            "idInfo": 3,
+            "number" : 36,
+            "street": "rue crébillion",
+            "additionalAddress" : "",
+            "zipCode": 44000,
+            "city" : "Nantes",
+            "country": "France"
         }
     }
 }

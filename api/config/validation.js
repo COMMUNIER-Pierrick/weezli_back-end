@@ -57,7 +57,6 @@ const updateValidation = (data) => {
             }),
         email: joi.string().required().email(),
         phone: joi.any(),
-        url_profile_img: joi.any(),
         check: joi.any(),
         address: joi.any()
     });
