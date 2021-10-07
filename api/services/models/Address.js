@@ -1,5 +1,6 @@
 module.exports = class Address{
-    constructor(nameInfo, number, street, additionalAddress, zipCode, city, country) {
+    constructor(id, nameInfo, number, street, additionalAddress, zipCode, city, country) {
+        this.id = id;
         this.idInfo = nameInfo;
         this.number = number;
         this.street = street;

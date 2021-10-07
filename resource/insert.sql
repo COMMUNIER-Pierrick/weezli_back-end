@@ -1,19 +1,22 @@
 INSERT INTO `transport` SET name='non-identifier';
-INSERT INTO `transport` SET name='avion';
-INSERT INTO `transport` SET name='voiture';
-INSERT INTO `transport` SET name='train';
-INSERT INTO `transport` SET name='bateau';
+INSERT INTO `transport` SET name='avion', filename='avion.png';
+INSERT INTO `transport` SET name='voiture', filename='voiture.png';
+INSERT INTO `transport` SET name='train', filename = 'train.png';
+INSERT INTO `transport` SET name='bateau', filename='bateau.png';
+INSERT INTO `transport` SET name='camion', filename = 'camion.png';
+INSERT INTO `transport` SET name='bus', filename = 'bus.png';
 
 INSERT INTO `types` SET name='expediteur';
 INSERT INTO `types` SET name='transporteur';
 
-INSERT INTO `size` SET name='petit';
-INSERT INTO `size` SET name='moyen';
-INSERT INTO `size` SET name='grand';
-INSERT INTO `size` SET name='très grand';
+INSERT INTO `size` SET name='petit', filename='petit.png';
+INSERT INTO `size` SET name='moyen', filename='moyen.png';
+INSERT INTO `size` SET name='grand', filename = 'grand.png';
+INSERT INTO `size` SET name='très grand', filename='tresgrand.png';
 
 INSERT INTO `info` SET name='depart';
 INSERT INTO `info` SET name='arrival';
+INSERT INTO `info` SET name='personal';
 
 INSERT INTO `address` SET id_info=1, number=45, street='Orange St', additional_address='3eme floor', zipcode='SW1Y 4UR', city='London', country='England';
 INSERT INTO `address` SET id_info=1, number=12, street='Lalana Delord', additional_address='', zipcode='105', city='Antananarivo', country='Madagascar';
@@ -50,9 +53,9 @@ INSERT INTO `payment` SET name='alain terieur', iban='FR000000000000000000000000
 INSERT INTO `payment` SET name='sarah croche', iban='FR0000000000000000000000002', number_card='5245874596855698' , expired_date_card='2023-12-10T00:00:00';
 INSERT INTO `payment` SET name='marc assin', iban='FR0000000000000000000000003', number_card='8745968556985245' , expired_date_card='2024-12-10T00:00:00';
 
-INSERT INTO `check_user` SET status_phone=true, status_mail=false, status_identity=true, img_identity=null;
-INSERT INTO `check_user` SET status_phone=false, status_mail=true, status_identity=true, img_identity='pictureidentity1.jpg';
-INSERT INTO `check_user` SET status_phone=false, status_mail=false, status_identity=false, img_identity='';
+INSERT INTO `check_user` SET status_phone=true, status_mail=false, status_identity=true, img_identity=null, status='Active';
+INSERT INTO `check_user` SET status_phone=false, status_mail=true, status_identity=true, img_identity='pictureidentity1.jpg', status='Active';
+INSERT INTO `check_user` SET status_phone=false, status_mail=false, status_identity=false, img_identity='', status='';
 
 INSERT INTO `users` SET firstname='alain',lastname='terrieur', username='alainterieur', password='1§fdv54ùmsldc354sdvm^$5656m',
                         email='alain@terrieur.com', phone='0707070707', date_of_birthday= '2000-12-10T00:00:00', active=1, url_profile_img='', average_opinion=4.5,

@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const user = require("../controllers/user");
+const {upload} = require("../config/image-config");
 
 router.post("/register", user.insert);
 router.post("/login", user.login);
 router.delete("/remove-user/:id", user.remove);
-router.put("/update-profile/:id", user.update);
+router.put("/update-profile/:id", upload.any('file', 'filecheck'), user.update);
 router.put("/update-choice-profile/:id", user.updateChoiceUser);
 
 router.delete("/logout", user.logout);

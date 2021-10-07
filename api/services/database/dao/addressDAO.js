@@ -6,11 +6,11 @@ const SQL_DELETE = `DELETE FROM address WHERE id = ?`;
 const SQL_UPDATE = `UPDATE address SET number = ?, street = ?, additional_address = ?, zipcode = ?, city = ?, country = ? WHERE id = ?`;
 const SQL_INSERT_RELATION = `INSERT INTO rel_package_address SET id_package = ?, id_address = ?`;
 const SQL_REMOVE_RELATION = `DELETE FROM rel_package_address WHERE  id_package = ? AND id_address = ?`
-const SELECT_BY_ID_INFO = `SELECT a.id, i.name, a.number, a.street, a.additional_address, a.zipcode, a.city, a.country 
+const SELECT_BY_ID_INFO = `SELECT a.id, i.name, a.number, a.street, a.additional_address as additionalAddress, a.zipcode as zipCode, a.city, a.country 
                             from address a 
                             INNER JOIN info i ON a.id_info = i.id
                             WHERE a.id = ?`;
-const SELECT_BY_PACKAGE = `SELECT a.id, i.name, a.number, a.street, a.additional_address, a.zipcode, a.city, a.country
+const SELECT_BY_PACKAGE = `SELECT a.id, i.name, a.number, a.street, a.additional_address as additionalAddress, a.zipcode as zipCode, a.city, a.country
                             from address a
                             INNER JOIN rel_package_address rpa on a.id = rpa.id_address
                             INNER JOIN package p ON rpa.id_package = p.id

@@ -8,6 +8,7 @@ const finalPriceDAO = require("./finalPriceDAO");
 const Package = require("../../models/Package");
 const Announce = require("../../models/Announce");
 const userDAO = require("./userDAO");
+const fileDAO = require("./fileDAO");
 
 const SQL_DELETE = `DELETE FROM announce WHERE  id = ?`
 const SQL_INSERT_WITH_FINAL_PRICE = `INSERT INTO announce SET id_package = ?, id_final_price = ?, id_type = ?, price = ?, transact = ?, img_url = ?`;
@@ -26,8 +27,10 @@ const SELECT_BY_TYPE = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.
 
 const errorMessage = "Data access error";
 
-async function insert(announce){
+async function insert(announce, filesName){
     let con = null;
+    let files = '';
+    if(filesName){ files = filesName;}
     try{
         con = await database.getConnection();
         /*Addresse de départ*/
@@ -43,25 +46,15 @@ async function insert(announce){
         await addressDAO.insertRelation(idPack, idDepart);
         await addressDAO.insertRelation(idPack, idArrival);
         /* Insertion relation size */
-        const size = announce.packages.sizes;
-        for(let i = 0; i < size.length; i++){
-            await sizeDAO.insertRelation(idPack, size[i]);
-        }
-
+        const sizes = announce.packages.sizes;
+        sizes.forEach(el => sizeDAO.insertRelation(idPack, el.size.id));
         let finalPrice = null;
         /*Insertion annonce en fonction de si transact is true*/
-        if(announce.transact){
-            finalPrice = await finalPriceDAO.insert(announce.price, true);
-        }else{
-            finalPrice = await finalPriceDAO.insert(0, false);
-        }
-
-        const [idCreated] = await con.execute(SQL_INSERT_WITH_FINAL_PRICE, [idPack, finalPrice.id, announce.idType, announce.price, announce.transact, announce.imgUrl]);
+        announce.transact ? finalPrice = await finalPriceDAO.insert(announce.price, true) : finalPrice = await finalPriceDAO.insert(0, false);
+        const [idCreated] = await con.execute(SQL_INSERT_WITH_FINAL_PRICE, [idPack, finalPrice.id, announce.idType, announce.price, announce.transact, files]);
         const id = idCreated.insertId;
-
         /*insertion relation user annonce*/
         await userDAO.insertRelation(id, announce.userAnnounce.id);
-
         const results = await getById(id);
         return results;
 
@@ -75,21 +68,29 @@ async function insert(announce){
     }
 }
 
-async function update(announce){
+async function update(announce, imgUrl){
     let con = null;
+    let files = '';
+    if(imgUrl){ files = imgUrl;}
     try{
         con = await database.getConnection();
-        /* NON FINI !!!!! */
+        const oldAnnounce = await getById(announce.id);
+        const oldSize = oldAnnounce.packages.sizes;
         /*Addresse de départ*/
         await addressDAO.update(announce.packages.addressDeparture);
         /*Addresse  d'arrivée*/
         await addressDAO.update(announce.packages.addressArrival);
         /* package */
         await packageDAO.update(announce.packages);
+        /* Update relation size */
+        const sizes = announce.packages.sizes;
+        oldSize.forEach(el => sizeDAO.removeRelation(announce.packages.id, el.size.id));
+        sizes.forEach(el => sizeDAO.insertRelation(announce.packages.id, el.size.id));
+        /*final price*/
+        let finalPrice = null;
+        announce.transact ? finalPrice = await finalPriceDAO.update(announce.price, false, announce.finalPrice)  : finalPrice = await finalPriceDAO.update(0, false, announce.finalPrice);
         /* annonce */
-        await con.execute(SQL_UPDATE, [announce.idType, announce.price, announce.transact,
-            announce.imgUrl, announce.id]);
-
+        await con.execute(SQL_UPDATE, [announce.idType, announce.price, announce.transact, files, announce.id]);
         const results = await getById(announce.id);
         return results;
     }catch (error) {
@@ -137,18 +138,19 @@ async function remove(id){
         await addressDAO.removeRelation(announce.packages.id, announce.packages.addressArrival.id);
         // delete relation size
         const size = announce.packages.sizes;
-        for(let i = 0; i < size.length; i++){
-            await sizeDAO.removeRelation(announce.packages.id, size[i]);
-        }
+        size.forEach(el => sizeDAO.removeRelation(announce.packages.id, el.size.id));
         // delete relation user
         await userDAO.removeRelationAnnounce(announce.id, announce.userAnnounce.id);
         // delete address
         await addressDAO.remove(announce.packages.addressDeparture.id);
         await addressDAO.remove(announce.packages.addressArrival.id);
-        // delete package
-        await packageDAO.remove(announce.packages.id);
         //delete announce
         await con.execute(SQL_DELETE, [id]);
+        // delete package
+        await packageDAO.remove(announce.packages.id);
+        //delete file
+        let imgAnnounceBack = announce.imgUrl.split(',');
+        imgAnnounceBack.forEach(el => fileDAO.remove(el));
     }catch (error) {
         log.error("Error announceDAO remove : " + error);
         throw errorMessage;
@@ -175,7 +177,7 @@ async function getByType(idType){
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
             const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
-            newListAnnounce.push({announce});
+            newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
     } catch (error) {
@@ -188,47 +190,89 @@ async function getByType(idType){
     }
 }
 
+async function getSearch(condition, Search){
+    let con = null;
+    const SELECT_SEARCH = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact,
+                                           a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept 
+                            FROM announce a 
+                            INNER JOIN package p ON a.id = p.id
+                            INNER JOIN final_price fp ON a.id_final_price = fp.id    
+                            INNER JOIN rel_package_address rpa_depart ON p.id = rpa_depart.id_package 
+                            INNER JOIN rel_package_address rpa_arrival ON p.id = rpa_arrival.id_package 
+                            INNER JOIN address ad_depart ON rpa_depart.id_address = ad_depart.id and ad_depart.id_info = 1 
+                            INNER JOIN address ad_destination ON rpa_arrival.id_address = ad_destination.id and ad_destination.id_info = 2 
+                            INNER JOIN rel_package_sizes rps ON p.id = rps.id_package 
+                            INNER JOIN size s ON rps.id_size = s.id 
+                            ${condition} `;
+
+    try {
+        con = await database.getConnection();
+        const [announces] = await con.execute(SELECT_SEARCH);
+
+        let newListAnnounce = [];
+        for(let i = 0; i < announces.length; i++){
+            let packageId = announces[i].id_package;
+            const [packages] = await packageDAO.getById(packageId);
+            const [address1] = await addressDAO.getByPackage(packageId, "depart");
+            const [address2] = await addressDAO.getByPackage(packageId, "arrival");
+            const [sizes] = await sizeDAO.getByPackage(packageId);
+            const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
+            const [ transport ] = await transportDAO.getById(packages.id_transport);
+            const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            newListAnnounce.push({"Announce": announce});
+        }
+        return newListAnnounce;
+    } catch (error) {
+        log.error("Error announceDAO search : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
 
 module.exports = {
     insert,
     remove,
     update,
     getByType,
-    getById
+    getById,
+    getSearch
 }
 
 /*
 VERSION ENVOYER AU BACK
 
-{   "announce":
-        {
+{"Announce" : {
             "packages":
                 {
                     "addressDeparture" :
                         {
                             "idInfo": 1,
-                            "number" : 4,
-                            "street": "rue de la soif",
+                            "number" : 9,
+                            "street": "rue de la biere",
                             "additionalAddress" : "",
-                            "zipCode": 35000,
-                            "city" : "Rennes",
+                            "zipCode": 25000,
+                            "city" : "Brest",
                             "country": "France"
                         },
                     "addressArrival" :
                         {
                             "idInfo": 2,
-                            "number" : 34,
-                            "street": "stade de la beaujoire",
-                            "additionalAddress" : "1er batiement",
-                            "zipCode": 44000,
-                            "city" : "Nantes",
+                            "number" : 1,
+                            "street": "rue du boulodrome",
+                            "additionalAddress" : "1er étage",
+                            "zipCode": 13000,
+                            "city" : "Marseille",
                             "country": "France"
                         },
-                    "datetimeDeparture" : "2021-10-19 03:14:07.999999",
-                    "datetimeArrival" : "2021-11-19 03:14:07.999999",
-                    "kgAvailable" : 46,
+                    "datetimeDeparture" : "2022-10-19 03:14:07.999999",
+                    "datetimeArrival" : "2022-11-19 03:14:07.999999",
+                    "kgAvailable" : 8,
                     "description" : "",
-                    "idTransport": 2,
+                    "idTransport": 4,
                     "sizes": [
                 {
                 "size":{
@@ -237,24 +281,23 @@ VERSION ENVOYER AU BACK
                     }
                 },{
                 "size": {
-                    "id": 2,
-                    "name": "moyen"
+                    "id": 3,
+                    "name": "grand"
                     }
              }
-            ]
-
-        },
+                    ]
                 },
+
             "idType" : 2,
-            "price" : 25,
+            "price" : 5,
             "transact" : true,
-            "imgUrl" : "picture15052021.png, picture15052022.png, picture15052023.png",
+            "imgUrl" : "",
             "dateCreated" : "",
             "userAnnounce":
             {
-                "id" : 1,
-                "firstname" : "alain",
-                "lastname" : "terieur"
+                "id" : 33,
+                "firstname" : "vinc",
+                "lastname" : "dev"
             }
         }
 }
@@ -262,53 +305,70 @@ VERSION ENVOYER AU BACK
 VERSION RECUPERER
 
 {
-    "announce": {
-        "id": 1,
+    "Message": "L'annonce a bien été créé.",
+    "Announce": {
+        "id": 14,
         "packages": {
-            "id": 1,
+            "id": 13,
             "addressDeparture": {
-                "id": 1,
+                "id": 22,
                 "name": "depart",
-                "number": 45,
-                "street": "Orange St",
-                "additional_address": "3eme floor",
-                "zipcode": "SW1Y 4UR",
-                "city": "London",
-                "country": "England"
-            },
-            "addressArrival": {
-                "id": 3,
-                "name": "arrival",
-                "number": 28,
-                "street": "Avenue des Champs-Elysées",
-                "additional_address": "",
-                "zipcode": "75000",
-                "city": "Paris",
+                "number": 9,
+                "street": "rue de la biere",
+                "additionalAddress": "",
+                "zipCode": "25000",
+                "city": "Brest",
                 "country": "France"
             },
-            "datetimeDeparture": null,
-            "datetimeArrival": "2021-11-27T23:00:00.000Z",
-            "kgAvailable": 6.5,
-            "description": "Maecenas consectetur, magna nec pretium faucibus, ipsum urna dapibus dolor, ac ornare est purus et velit",
+            "addressArrival": {
+                "id": 23,
+                "name": "arrival",
+                "number": 1,
+                "street": "rue du boulodrome",
+                "additionalAddress": "1er étage",
+                "zipCode": "13000",
+                "city": "Marseille",
+                "country": "France"
+            },
+            "datetimeDeparture": "2022-10-19T01:14:08.000Z",
+            "datetimeArrival": "2022-11-19T02:14:08.000Z",
+            "kgAvailable": 8,
+            "description": "",
             "transport": {
-                "id": 1,
-                "name": "non-identifier"
+                "id": 4,
+                "name": "train",
+                "filename": "train.png"
             },
             "sizes": [
-                2,
-                3
+                {
+                    "size": {
+                        "id": 1,
+                        "name": "petit",
+                        "filename": "petit.png"
+                    }
+                },
+                {
+                    "size": {
+                        "id": 3,
+                        "name": "grand",
+                        "filename": "grand.png"
+                    }
+                }
             ]
         },
-        "views": 10,
-        "idType": 1,
-        "price": null,
-        "transact": 0,
-        "imgUrl": "picture15052021.png, picture15052021.png",
-        "dateCreated": "2021-10-31T23:00:00.000Z",
+        "views": 0,
+        "finalPrice": null,
+        "order": null,
+        "idType": 2,
+        "price": 5,
+        "transact": 1,
+        "imgUrl": "20191220_195101.jpg,Vincent-Colas-mer.jpg,Vincent-Colas-ski.JPG",
+        "dateCreated": "2021-10-06T08:27:26.000Z",
         "userAnnounce": {
-            "id": 1,
-            "firstname": "alain",
-            "lastname": "terrieur"
+            "id": 33,
+            "firstname": "vinc",
+            "lastname": "dev",
+            "average_opinion": 0
         }
     }
 }
@@ -324,10 +384,105 @@ FROM announce a
     INNER JOIN address ad_destination ON rpa_arrival.id_address = ad_destination.id and ad_destination.id_info = 2
     INNER JOIN rel_package_sizes rps ON p.id = rps.id_package
     INNER JOIN size s ON rps.id_size = s.id
-WHERE s.id in (1, 2, 3, 4) AND p.id_transport = 1 AND p.kg_available <= 6.5 AND ad_depart.city = 'London'
-                            AND ad_destination.city = 'Paris' AND datetime_departure < '2021-11-01T23:00:00'
- */
+WHERE a.id_type = 2 AND p.id_transport = 5 AND p.kg_available <= 6.5 AND ad_depart.city = 'Antananarivo'
+                    AND ad_destination.city = 'Manhattan New York' AND p.datetime_departure < '2021-12-31T23:00:00' AND s.id in (1, 2, 3, 4) */
 
-
+/*
+* {
+    "Search": {
+        "departure": "Antananarivo",
+        "arrival": "Manhattan New York",
+        "date": "2021-12-31T23:00:00",
+        "sizes": [
+            {
+                "size": {
+                    "id": 2,
+                    "name": "moyen"
+                }
+            },{
+                "size": {
+                    "id": 3,
+                        "name": "grand"
+                }
+            }
+        ],
+        "kgAvailable": 6.5,
+        "transport": 5,
+        "type": 2
+    }
+}
+*
+*UPDATE
+*
+* {
+    "Announce": {
+        "id": 11,
+        "packages": {
+            "id": 10,
+            "addressDeparture": {
+                "id": 16,
+                "name": "depart",
+                "number": 9,
+                "street": "rue de la biere",
+                "additionalAddress": "",
+                "zipCode": "25000",
+                "city": "Brest",
+                "country": "France"
+            },
+            "addressArrival": {
+                "id": 17,
+                "name": "arrival",
+                "number": 1,
+                "street": "rue du boulodrome",
+                "additionalAddress": "1er étage",
+                "zipCode": "13000",
+                "city": "Marseille",
+                "country": "France"
+            },
+            "datetimeDeparture": "2022-10-19T01:14:08.000Z",
+            "datetimeArrival": "2022-11-19T02:14:08.000Z",
+            "kgAvailable": 13,
+            "description": "",
+            "transport": {
+                "id": 2,
+                "name": "avion",
+                "filename": "avion.png"
+            },
+            "sizes": [
+                {
+                    "size": {
+                        "id": 2,
+                        "name": "moyen",
+                        "filename": "moyen.png"
+                    }
+                },
+                {
+                    "size": {
+                        "id": 3,
+                        "name": "grand",
+                        "filename": "grand.png"
+                    }
+                }
+            ]
+        },
+        "views": 0,
+        "finalPrice": null,
+        "order": null,
+        "idType": 2,
+        "price": 25,
+        "transact": 1,
+        "imgUrl": "",
+        "dateCreated": "2021-10-05T07:37:43.000Z",
+        "userAnnounce": {
+            "id": 33,
+            "firstname": "vinc",
+            "lastname": "dev",
+            "average_opinion": 0
+        }
+    }
+}
+*
+*
+* */
 
 

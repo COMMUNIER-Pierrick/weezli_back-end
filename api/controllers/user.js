@@ -4,10 +4,13 @@ const log = require("../log/logger");
 const userDAO = require("../services/database/dao/userDAO");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const mail = require("../config/mail");
+const checkDAO = require("../services/database/dao/checkUserDAO");
+const fileDAO = require("../services/database/dao/fileDAO");
 
 const insert = async (req, res) => {
-	const { firstname, lastname, username, password, email, dateOfBirthday} = req.body.user;
-	const { error } = registerValidation(req.body.user);
+	const { firstname, lastname, username, password, email, dateOfBirthday, address} = req.body.User;
+	const { error } = registerValidation(req.body.User);
 	if(error){
 		log.error("Error register : " + error.details[0].message);
 		return res.status(400).send({ error: error.details[0].message });
@@ -24,7 +27,7 @@ const insert = async (req, res) => {
 
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
-		const newUser = User.UserInsert(firstname, lastname, username, hashedPassword, email, dateOfBirthday);
+		const newUser = User.UserInsert(firstname, lastname, username, hashedPassword, email, dateOfBirthday, address);
 
 		const user = await userDAO.insert(newUser);
 
@@ -32,6 +35,9 @@ const insert = async (req, res) => {
 
 		const token = jwt.sign(playoad, process.env.TOKEN_SECRET, {expiresIn: "30m"});
 		let refreshToken = jwt.sign(playoad, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "1y"});
+
+		const [check] = await checkDAO.updateCode(token, user.check.id)
+		const emailSend = await mail.sendConfirmationEmail( user.lastname, user.email, check.confirm_code);
 
 		delete user.password;
 
@@ -47,7 +53,7 @@ const insert = async (req, res) => {
 				sameSite: "strict",
 			})
 			.cookie("refTokenId", true)
-			.status(201).send({"message": "Votre compte a bien été créée", "User": user});
+			.status(201).send({"Message": "Votre compte a bien été créé, merci de verifier vos mail pour confirmer votre email e ou vos spams", "User": user, "EmailSend": emailSend});
 	}catch (error) {
 		log.error("Error user.js Register");
 		throw error;
@@ -55,18 +61,49 @@ const insert = async (req, res) => {
 };
 
 const update = async (req, res) => {
+	let file = '';
+	let filecheck = '';
 	const {id} = req.params;
-	const {user} = req.body;
-	const { error } = updateValidation(user);
+	const {User} = req.body;
+	//let userParse = JSON.parse(req.body.User);
+	const user = User.UserUpdate(User.firstname, User.lastname, User.email, User.phone,User.check, User.address);
+
+	req.files.forEach(el => el.fieldname === 'file' ? file = el : el.fieldname === 'filecheck' ? filecheck = el : '');
+
+	const { error } = updateValidation(User);
 	if(error){
 		log.error("Error update : " + error.details[0].message);
 		return res.status(400).send({ error: error.details[0].message });
 	}
+	const userback = await userDAO.getById(id);
+
+	if(file){
+		if(userback.filename !== file.filename){
+			if(userback.filename !== ''){
+				await fileDAO.remove(userback.filename)
+			}
+			await fileDAO.insert(file.filename);
+		}
+	}else if(!file && userback.filename){
+		await fileDAO.remove(userback.filename);
+	}
+
+	if(filecheck){
+		if(userback.check.filename !== filecheck.filename){
+			if(userback.check.filename !== ''){
+				await fileDAO.remove(userback.check.filename)
+			}
+			await fileDAO.insert(filecheck.filename);
+		}
+	}else if(!filecheck && userback.check.filename){
+		await fileDAO.remove(userback.check.filename);
+	}
+
 	try{
-		const newUser = await userDAO.update(user,id);
+		const newUser = await userDAO.update(user, file.filename, filecheck.filename, id);
 		delete newUser.password;
 		const message = "mise à jour réussi.";
-		res.status(200).send( {"message": message, "user": newUser} );
+		res.status(200).send( {"Message": message, "User": newUser} );
 	}catch (error) {
 		log.error("Error user.js update");
 		throw error;
@@ -81,9 +118,8 @@ const updateChoiceUser = async (req, res) => {
 	const {id} = req.params;
 	const { user } = req.body;
 	const updateUser = await userDAO.updateChoiceUser(user, id);
-	console.log(updateUser);
 	const message = "mise à jour de votre formule."
-	res.status(200).send({"message": message, "User": updateUser})
+	res.status(200).send({"Message": message, "User": updateUser})
 }
 
 const remove = async (req, res) => {
@@ -92,14 +128,13 @@ const remove = async (req, res) => {
 
 const getById = async (req, res) => {
 	const {id} = req.params;
-	let user = null;
-	user = await userDAO.getById(id);
+	const user = await userDAO.getById(id);
 	res.status(200).send( {"User": user} );
 };
 
 const login = async (req, res) => {
-	const {email, password} = req.body.user;
-	const {error}  = loginValidation(req.body.user);
+	const {email, password} = req.body.User;
+	const {error}  = loginValidation(req.body.User);
 
 	if (error){
 		log.error("Error login : " + error.details[0].message );
@@ -109,16 +144,19 @@ const login = async (req, res) => {
 	try {
 		const user = await userDAO.getByLogin(email);
 		if (!user) {
-			return res.status(401).send({ error: "L'identiant ou le mot de passe est erroné !" });
+			return res.status(401).send({ "Error": "L'identiant ou le mot de passe est erroné !" });
+		}
+		if(user.check.status !== "Active"){
+			return res.status(401).send({ "Error": "Votre compte est en attente, merci de verifier votre email !" });
 		}
 
 		const validPassword = await bcrypt.compare(password, user.password);
 		if (!validPassword) {
-			return res.status(401).send({ error: "Le mot de passe est erroné !" });
+			return res.status(401).send({ "Error": "Le mot de passe est erroné !" });
 		}
 
 		if (!user.active) {
-			return res.status(403).send({ error: "Votre compte a été désactivé. Merci de contacter un administrateur." });
+			return res.status(403).send({ "Error": "Votre compte a été désactivé. Merci de contacter un administrateur." });
 		}
 
 		let playoad = {id: user.id};
@@ -140,7 +178,7 @@ const login = async (req, res) => {
 				sameSite: "strict",
 			})
 			.cookie("refTokenId", true)
-			.status(201).send({success: "Connection réusse", User: user});
+			.status(201).send({"Message": "Connection réussie", "User": user});
 	} catch (error) {
 		log.error("Error user.js login : " + error);
 	}
@@ -205,16 +243,24 @@ function compareDate(dateOfBirthday){
 
 /*UPDATE PROFILE
 
-*{
-    "user": {
-        "firstname": "paul",
-        "lastname": "position",
-        "email": "paul@pausition.com",
-        "phone": null,
-        "url_profile_img": null,
+*{"User": {
+        "firstname": "vincent",
+        "lastname": "colas",
+        "email": "vinc.tigra@gmail.com",
+        "phone": "0707070707",
         "check": {
-            "id": 13,
-            "imgIdentity": "picture789.png"
+            "id": 37,
+            "imgIdentity": ""
+        },
+        "address" : {
+            "id": 5,
+            "idInfo": 3,
+            "number" : 36,
+            "street": "rue crébillion",
+            "additionalAddress" : "",
+            "zipCode": 44000,
+            "city" : "Nantes",
+            "country": "France"
         }
     }
 }

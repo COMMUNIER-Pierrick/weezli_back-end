@@ -18,7 +18,8 @@ CREATE TABLE `users`(
     `id_choice` INT NOT NULL,
     `id_check` INT NOT NULL,
     `choice_date_started` DATETIME NULL,
-    `choice_date_end` DATETIME NULL
+    `choice_date_end` DATETIME NULL,
+    `id_address` INT NOT NULL
 )Engine = InnoDB;
 
 ALTER TABLE `users` ADD UNIQUE (`username`);
@@ -45,10 +46,10 @@ CREATE TABLE `types`(
 CREATE TABLE `address`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT ,
     `id_info` INT NOT NULL,
-    `number` INT NOT NULL,
-    `street` VARCHAR(250) NOT NULL,
+    `number` INT NULL,
+    `street` VARCHAR(250) NULL,
     `additional_address` VARCHAR(250) NULL,
-    `zipcode` VARCHAR(50) NOT NULL,
+    `zipcode` VARCHAR(50) NULL,
     `city` VARCHAR(100) NOT NULL,
     `country` VARCHAR(100) NOT NULL
 )Engine = InnoDB;
@@ -67,7 +68,8 @@ ALTER TABLE `rel_package_address` ADD PRIMARY KEY (`id_package`,`id_address`);
 
 CREATE TABLE `size`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(50) NOT NULL
+    `name` VARCHAR(50) NOT NULL,
+    `filename` VARCHAR(250) NULL UNIQUE
 )Engine = InnoDB;
 
 CREATE TABLE `final_price`(
@@ -81,7 +83,9 @@ CREATE TABLE `check_user`(
     `status_phone` BOOLEAN NOT NULL DEFAULT FALSE,
     `status_mail` BOOLEAN NOT NULL DEFAULT FALSE,
     `status_identity` BOOLEAN NOT NULL DEFAULT FALSE,
-    `img_identity` VARCHAR(150) NULL
+    `img_identity` VARCHAR(150) NULL,
+    `status` ENUM('Pending', 'Active') NOT NULL DEFAULT 'Pending',
+    `confirm_code` VARCHAR(50) NULL UNIQUE
 )Engine = InnoDB;
 
 CREATE TABLE `choice`(
@@ -110,7 +114,8 @@ CREATE TABLE `package`(
 
 CREATE TABLE `transport`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL
+    `name` VARCHAR(255) NOT NULL,
+    `filename` VARCHAR(250) NULL UNIQUE
 )Engine = InnoDB;
 
 CREATE TABLE `orders`(
@@ -179,9 +184,10 @@ CREATE TABLE `rel_user_announce`(
 
 ALTER TABLE `rel_user_announce` ADD PRIMARY KEY (`id_user`,`id_announce`);
 
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_payment` FOREIGN KEY (`id_payment`) REFERENCES `payment`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_choice` FOREIGN KEY (`id_choice`) REFERENCES `choice`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFERENCES `check_user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_payment` FOREIGN KEY (`id_payment`) REFERENCES `payment`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_choice` FOREIGN KEY (`id_choice`) REFERENCES `choice`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_address` FOREIGN KEY (`id_address`) REFERENCES `address`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFERENCES `check_user`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION; /* Le on delete no action c'est pour refusé de supprimer le parent donc user*/
 
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_package` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_final_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -41,3 +41,6 @@ https://www.figma.com/file/TXyf2UF2fatYPIOdfgVLPW/wizzly?node-id=0%3A1
 ## STRIPE SAVE CARD 
 https://stripe.com/docs/payments/save-during-payment
 https://stripe.com/docs/payments/sepa-debit/set-up-payment
+
+## SOCKET FRONT
+https://pub.dev/packages/socket_io_client
