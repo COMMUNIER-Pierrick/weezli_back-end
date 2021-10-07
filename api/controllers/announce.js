@@ -12,9 +12,10 @@ const insert = async (req, res) => {
     let fileFive = '';
     let strFilesName = '';
     let urlImages = '';
-    //let announceParse = JSON.parse(req.body.Announce);
-    //const announce = Announce.AnnounceInsert(announceParse.Announce.packages, announceParse.Announce.idType, announceParse.Announce.price, announceParse.Announce.transact, announceParse.Announce.imgUrl, announceParse.Announce.userAnnounce);
-    const announce = Announce.AnnounceInsert(req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
+    let announceParse = JSON.parse(req.body.Announce);
+    const announce = Announce.AnnounceInsert(announceParse.packages, announceParse.idType, announceParse.price, announceParse.transact, announceParse.imgUrl, announceParse.userAnnounce);
+
+    //const announce = Announce.AnnounceInsert(req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
     req.files.forEach(el => el.fieldname === 'fileOne' ? fileOne = el : el.fieldname === 'fileTwo' ? fileTwo = el : el.fieldname === 'fileThree' ? fileThree = el : el.fieldname === 'fileFour' ? fileFour = el : fileFive = el);
 
     const files = [fileOne, fileTwo, fileThree, fileFour, fileFive];
