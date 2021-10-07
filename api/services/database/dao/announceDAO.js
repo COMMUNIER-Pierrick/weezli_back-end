@@ -19,11 +19,25 @@ const SELECT_BY_ID = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.id
         FROM announce a
         INNER JOIN final_price fp ON a.id_final_price = fp.id
         WHERE a.id = ?`;
+const SELECT_ALL_USER = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact, 
+        a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept
+        FROM announce a
+        INNER JOIN final_price fp ON a.id_final_price = fp.id
+        INNER JOIN rel_user_announce rua on a.id = rua.id_announce
+        INNER JOIN users u on rua.id_user = u.id
+        WHERE u.id = ?`;
 const SELECT_BY_TYPE = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact, 
         a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept
         FROM announce a
         INNER JOIN final_price fp ON a.id_final_price = fp.id
         WHERE a.id_type = ?`;
+const SELECT_BY_TYPE_USER = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact, 
+        a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept
+        FROM announce a
+        INNER JOIN final_price fp ON a.id_final_price = fp.id
+        INNER JOIN rel_user_announce rua on a.id = rua.id_announce
+        INNER JOIN users u on rua.id_user = u.id
+        WHERE a.id_type = ? AND u.id = ?`;
 
 const errorMessage = "Data access error";
 
@@ -233,13 +247,74 @@ async function getSearch(condition, Search){
     }
 }
 
+async function getAllUser(id){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        const [announces] = await con.execute(SELECT_ALL_USER, [id]);
+
+        let newListAnnounce = [];
+        for(let i = 0; i < announces.length; i++){
+            let packageId = announces[i].id_package;
+            const [packages] = await packageDAO.getById(packageId);
+            const [address1] = await addressDAO.getByPackage(packageId, "depart");
+            const [address2] = await addressDAO.getByPackage(packageId, "arrival");
+            const [sizes] = await sizeDAO.getByPackage(packageId);
+            const [user] = await userDAO.getUserForAnnounceByAnnounce(id);
+            const [ transport ] = await transportDAO.getById(packages.id_transport);
+            const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            newListAnnounce.push({"Announce": announce});
+        }
+        return newListAnnounce;
+    }catch (error) {
+        log.error("Error announceDAO getAllUser : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
+async function getByTypeUser(idType, id){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        const [announces] = await con.execute(SELECT_BY_TYPE_USER, [idType, id]);
+        let newListAnnounce = [];
+        for(let i = 0; i < announces.length; i++){
+            let packageId = announces[i].id_package;
+            const [packages] = await packageDAO.getById(packageId);
+            const [address1] = await addressDAO.getByPackage(packageId, "depart");
+            const [address2] = await addressDAO.getByPackage(packageId, "arrival");
+            const [sizes] = await sizeDAO.getByPackage(packageId);
+            const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
+            const [ transport ] = await transportDAO.getById(packages.id_transport);
+            const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            newListAnnounce.push({"Announce": announce});
+        }
+        return newListAnnounce;
+    }catch (error) {
+        log.error("Error announceDAO getByTypeUser : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
 module.exports = {
     insert,
     remove,
     update,
     getByType,
     getById,
-    getSearch
+    getSearch,
+    getAllUser,
+    getByTypeUser
 }
 
 /*

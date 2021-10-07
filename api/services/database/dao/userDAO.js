@@ -6,7 +6,7 @@ const choiceDAO = require("./choiceDAO");
 const Payment = require("../../models/Payment");
 const CheckUser = require("../../models/CheckUser");
 const Choice = require("../../models/Choice");
-const User = require("../../models/User");
+const UserDAO = require("../../models/User");
 const addressDAO = require("./addressDAO");
 
 const errorMessage = "Data access error";
@@ -14,6 +14,7 @@ const errorMessage = "Data access error";
 const SQL_INSERT_RELATION_ANNOUNCE = `INSERT INTO rel_user_announce SET id_announce = ?, id_user = ?`;
 const SQL_INSERT = `INSERT INTO users SET firstname = ?, lastname = ?, username = ?, password = ?, email = ?, date_of_birthday = ?, id_payment = ?, id_choice = ?, id_check = ?, id_address = ?`;
 const SQL_REMOVE_RELATION = `DELETE FROM rel_user_announce WHERE id_announce = ? AND id_user = ?`
+const SQL_REMOVE_USER = `DELETE FROM users WHERE id = ?`;
 const SQL_UPDATE_PROFILE = `UPDATE users SET firstname = ?, lastname = ?, email = ?, phone = ?, url_profile_img = ? WHERE id = ?`;
 const SQL_UPDATE_CHOICE = `UPDATE users SET id_choice = ?, choice_date_started = ?, choice_date_end = ? WHERE id = ?`;
 const SELECT_BY_ID = `SELECT * FROM users WHERE id = ? `;
@@ -112,8 +113,30 @@ async function getByLogin(email){
     }
 }
 
-async function remove(){
-
+/*Non implémanté*/
+async function remove(id){
+    let con = null
+    try{
+        con = await database.getConnection();
+        //const user = await getById(id);
+        // récuperer tout les annonces de l'utilisateur
+        //const announces = await announce.getAllUser(id);
+        // supprimer tout les annonces
+        //if(announces){
+        //    announces.forEach(el => announce.remove(el.id));
+        //}
+        //supprimer l'utilisateur
+        //await con.execute(SQL_REMOVE_USER, [id]);
+        //await paymentDAO.remove(user.payment.id);
+       // await checkDAO.remove(user.check.id);
+    }catch (error) {
+        log.error("Error userDAO remove : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
 }
 
 async function update(User,filename, filecheck, id){
@@ -185,7 +208,7 @@ async function getById(id){
         const newPayment = new Payment(payment[0].id, payment[0].name, payment[0].iban, payment[0].number_card, payment[0].expired_date_card);
         const newCheck = new CheckUser(check[0].id, check[0].status_phone, check[0].status_mail, check[0].status_identity, check[0].img_identity, check[0].status, check[0].confirm_code);
         const newChoice = new Choice(choice[0].id, choice[0].name, choice[0].description, choice[0].price);
-        const newUser = new User(user[0].id, user[0].firstname, user[0].lastname, user[0].username, user[0].password, user[0].email, user[0].phone, user[0].date_of_birthday, user[0].active, user[0].url_profile_img, user[0].average_opinion, newPayment, newChoice, newCheck, user[0].choice_date_started, user[0].choice_date_end);
+        const newUser = new UserDAO(user[0].id, user[0].firstname, user[0].lastname, user[0].username, user[0].password, user[0].email, user[0].phone, user[0].date_of_birthday, user[0].active, user[0].url_profile_img, user[0].average_opinion, newPayment, newChoice, newCheck, user[0].choice_date_started, user[0].choice_date_end);
         return newUser;
     }catch (error) {
         log.error("Error userDAO getById : " + error);
@@ -225,11 +248,11 @@ module.exports = {
     getByLogin,
     removeRelationAnnounce,
     getControlUser
-}
+};
 
 /*
 * {
-    "User": {
+    "UserDAO": {
         "firstname": "vinc",
         "lastname": "dev",
         "username": "vincdev",

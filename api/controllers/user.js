@@ -55,7 +55,7 @@ const insert = async (req, res) => {
 			.cookie("refTokenId", true)
 			.status(201).send({"Message": "Votre compte a bien été créé, merci de verifier vos mail pour confirmer votre email e ou vos spams", "User": user, "EmailSend": emailSend});
 	}catch (error) {
-		log.error("Error user.js Register");
+		log.error("Error userDAO.js Register");
 		throw error;
 	}
 };
@@ -64,9 +64,10 @@ const update = async (req, res) => {
 	let file = '';
 	let filecheck = '';
 	const {id} = req.params;
-	const {User} = req.body;
-	//let userParse = JSON.parse(req.body.User);
-	const user = User.UserUpdate(User.firstname, User.lastname, User.email, User.phone,User.check, User.address);
+	//const {User} = req.body;
+	let userParse = JSON.parse(req.body.User);
+	const user = User.UserUpdate(userParse.firstname, userParse.lastname, userParse.email, userParse.phone, userParse.check, userParse.address);
+	//const user = User.UserUpdate(User.firstname, User.lastname, User.email, User.phone,User.check, User.address);
 
 	req.files.forEach(el => el.fieldname === 'file' ? file = el : el.fieldname === 'filecheck' ? filecheck = el : '');
 
@@ -105,7 +106,7 @@ const update = async (req, res) => {
 		const message = "mise à jour réussi.";
 		res.status(200).send( {"Message": message, "User": newUser} );
 	}catch (error) {
-		log.error("Error user.js update");
+		log.error("Error userDAO.js update");
 		throw error;
 	}
 };
@@ -122,7 +123,19 @@ const updateChoiceUser = async (req, res) => {
 	res.status(200).send({"Message": message, "User": updateUser})
 }
 
+/*NON Implémanté*/
 const remove = async (req, res) => {
+	/*const {id} = req.params;
+	const user = await userDAO.getById(id);
+	if(user.filename){
+		await fileDAO.remove(user.filename);
+	}
+	if(user.check.filename){
+		await fileDAO.remove(user.check.filename);
+	}
+	await userDAO.remove(id);*/
+	const message = "L'utilisateur a bien été supprimer."
+	res.status(200).send( {"Message": message})
 
 };
 
@@ -180,7 +193,7 @@ const login = async (req, res) => {
 			.cookie("refTokenId", true)
 			.status(201).send({"Message": "Connection réussie", "User": user});
 	} catch (error) {
-		log.error("Error user.js login : " + error);
+		log.error("Error userDAO.js login : " + error);
 	}
 
 };
@@ -200,7 +213,7 @@ const refresh = (req, res) => {
 	try {
 		payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 	} catch (e) {
-		log.error("Error user.js refresh : " + e);
+		log.error("Error userDAO.js refresh : " + e);
 		return res.status(403).send();
 	}
 
