@@ -6,7 +6,7 @@ const choiceDAO = require("./choiceDAO");
 const Payment = require("../../models/Payment");
 const CheckUser = require("../../models/CheckUser");
 const Choice = require("../../models/Choice");
-const UserDAO = require("../../models/User");
+const User = require("../../models/User");
 const addressDAO = require("./addressDAO");
 
 const errorMessage = "Data access error";
@@ -208,7 +208,8 @@ async function getById(id){
         const newPayment = new Payment(payment[0].id, payment[0].name, payment[0].iban, payment[0].number_card, payment[0].expired_date_card);
         const newCheck = new CheckUser(check[0].id, check[0].status_phone, check[0].status_mail, check[0].status_identity, check[0].img_identity, check[0].status, check[0].confirm_code);
         const newChoice = new Choice(choice[0].id, choice[0].name, choice[0].description, choice[0].price);
-        const newUser = new UserDAO(user[0].id, user[0].firstname, user[0].lastname, user[0].username, user[0].password, user[0].email, user[0].phone, user[0].date_of_birthday, user[0].active, user[0].url_profile_img, user[0].average_opinion, newPayment, newChoice, newCheck, user[0].choice_date_started, user[0].choice_date_end);
+        const address = await addressDAO.getByIdWithInfo(user[0].id_address);
+        const newUser = new User(user[0].id, user[0].firstname, user[0].lastname, user[0].username, user[0].password, user[0].email, user[0].phone, user[0].date_of_birthday, user[0].active, user[0].url_profile_img, user[0].average_opinion, newPayment, newChoice, newCheck, user[0].choice_date_started, user[0].choice_date_end, address);
         return newUser;
     }catch (error) {
         log.error("Error userDAO getById : " + error);
