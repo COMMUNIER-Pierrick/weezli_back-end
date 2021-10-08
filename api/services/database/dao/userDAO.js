@@ -113,22 +113,11 @@ async function getByLogin(email){
     }
 }
 
-/*Non implémanté*/
 async function remove(id){
     let con = null
     try{
         con = await database.getConnection();
-        //const user = await getById(id);
-        // récuperer tout les annonces de l'utilisateur
-        //const announces = await announce.getAllUser(id);
-        // supprimer tout les annonces
-        //if(announces){
-        //    announces.forEach(el => announce.remove(el.id));
-        //}
-        //supprimer l'utilisateur
-        //await con.execute(SQL_REMOVE_USER, [id]);
-        //await paymentDAO.remove(user.payment.id);
-       // await checkDAO.remove(user.check.id);
+        await con.execute(SQL_REMOVE_USER, [id]);
     }catch (error) {
         log.error("Error userDAO remove : " + error);
         throw errorMessage;

@@ -7,6 +7,8 @@ const bcrypt = require("bcryptjs");
 const mail = require("../config/mail");
 const checkDAO = require("../services/database/dao/checkUserDAO");
 const fileDAO = require("../services/database/dao/fileDAO");
+const announceDAO = require("../services/database/dao/announceDAO");
+const paymentDAO = require("../services/database/dao/paymentDAO");
 
 const insert = async (req, res) => {
 	const { firstname, lastname, username, password, email, dateOfBirthday, address} = req.body.User;
@@ -125,18 +127,28 @@ const updateChoiceUser = async (req, res) => {
 
 /*NON Implémanté*/
 const remove = async (req, res) => {
-	/*const {id} = req.params;
+	/*
+	const {id} = req.params;
 	const user = await userDAO.getById(id);
+	//récuperer tout les annonces de l'utilisateur
+    const announces = await announceDAO.getAllUser(id);
+    // supprimer tout les annonces
+    if(announces){
+    	announces.forEach(el => announceDAO.remove(el.Announce.id));
+    }
 	if(user.filename){
 		await fileDAO.remove(user.filename);
 	}
 	if(user.check.filename){
 		await fileDAO.remove(user.check.filename);
 	}
-	await userDAO.remove(id);*/
-	const message = "L'utilisateur a bien été supprimer."
-	res.status(200).send( {"Message": message})
+	console.log("check");
 
+	await userDAO.remove(id);
+	await paymentDAO.remove(user.payment.id);
+	await checkDAO.remove(user.check.id);
+	const message = "L'utilisateur a bien été supprimer."
+	res.status(200).send( {"Message": message});*/
 };
 
 const getById = async (req, res) => {
