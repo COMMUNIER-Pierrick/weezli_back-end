@@ -39,6 +39,7 @@ const SELECT_BY_TYPE_USER = `SELECT a.id, a.id_package, a.views, a.id_final_pric
         INNER JOIN users u on rua.id_user = u.id
         WHERE a.id_type = ? AND u.id = ?`;
 const CREATE_ORDER = `UPDATE announce SET id_order = ? WHERE id =?`;
+const SET_TRANSACT = `UPDATE announce SET transact = ? WHERE id =?`;
 
 const errorMessage = "Data access error";
 
@@ -323,6 +324,22 @@ async function createOrder(orderId, id) {
     }
 }
 
+async function setTransact(id, transact) {
+    let con = null;
+    try{
+        con = await database.getConnection();
+        await con.execute(SET_TRANSACT, [id, transact]);
+        return await getById(id);
+    }catch (error) {
+        log.error("Error orderDAO setTransact : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
 module.exports = {
     insert,
     remove,
@@ -332,7 +349,8 @@ module.exports = {
     getSearch,
     getAllUser,
     getByTypeUser,
-    createOrder
+    createOrder,
+    setTransact
 }
 
 /*
