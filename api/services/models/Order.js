@@ -1,22 +1,23 @@
 module.exports = class Order {
-    constructor(id, codeValidated, status, announce, dateOrder, transporter, qrCode) {
+    constructor(id, codeValidated, status, announce, dateOrder, buyer, qrCode, finalPrice) {
         this.id = id;
         this.codeValidated = codeValidated;
         this.status = status;
         this.announce = announce;
         this.dateOrder = dateOrder;
-        this.transporter = transporter;
+        this.buyer = buyer;
         this.qrCode = qrCode;
+        this.finalPrice = finalPrice;
 
     }
 
-    static OrderId(id, code, status, announce, dateOrder, transporter, qrCode){
-        return new Order(id, code, status, announce, dateOrder, transporter, qrCode)
+    static OrderId(id, code, status, announce, dateOrder, buyer, qrCode, finalPrice){
+        return new Order(id, code, status, announce, dateOrder, buyer, qrCode, finalPrice)
     };
 
-    static OrderInsert(status, announce, dateOrder, transporter, qrCode){
+    static OrderInsert(status, announce, dateOrder, buyer, qrCode, finalPrice){
         let code = Order.codeValidatedRandom();
-        return new Order(null, code, status, announce, dateOrder, transporter, qrCode)
+        return new Order(null, code, status, announce, dateOrder, buyer, qrCode, finalPrice)
     };
 
     static codeValidatedRandom() {

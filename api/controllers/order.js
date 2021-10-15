@@ -4,9 +4,9 @@ const orderDAO = require("../services/database/dao/orderDAO");
 
 const insert = async (req, res) => {
 
-    const { announce, status, dateOrder, transporter, qrCode} = req.body.Order;
+    const { announce, status, dateOrder, transporter, qrCode, finalPrice} = req.body.Order;
 
-    const order = Order.OrderInsert(status, announce, dateOrder, transporter, qrCode);
+    const order = Order.OrderInsert(status, announce, dateOrder, transporter, qrCode, finalPrice);
     const result = await orderDAO.insert(order);
     const message = "La commande a bien été créée";
     return res.status(200).send({"Message": message, "Order": result});

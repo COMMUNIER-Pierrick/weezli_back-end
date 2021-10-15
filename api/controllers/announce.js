@@ -179,11 +179,17 @@ const getSearch = async (req, res) => {
 }
 
 const setTransact = async (req, res) => {
-    const id = req.body.Announce.id;
-    const transact = req.body.Announce.transact;
-    const announce = await announceDAO.setTransact(id, transact);
+    const updateAnnounce = req.body.Announce;
+    let announce = await announceDAO.setTransact(updateAnnounce);
     res.status(200).send( {"Announce": announce} );
 };
+
+const setFinalPrice = async (req, res) => {
+    const updateAnnounce = req.body.Announce;
+    let announce = await announceDAO.setFinalPrice(updateAnnounce);
+    res.status(200).send( {"Announce": announce} );
+};
+
 
 module.exports = {
     insert,
@@ -194,7 +200,8 @@ module.exports = {
    getTypeByUser,
     getSearch,
     getALLUser,
-    setTransact
+    setTransact,
+    setFinalPrice
 };
 
 function verifString(str){

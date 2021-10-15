@@ -13,8 +13,8 @@ module.exports = class Announce{
         this.userAnnounce = userAnnounce;
     }
 
-    static AnnounceId(id,packages,views, idType, price, transact, imgUrl, dateCreated, userAnnounce){
-        return new Announce(id,packages,views,null,null,idType,price, transact, imgUrl, dateCreated, userAnnounce);
+    static AnnounceId(id,packages,views, finalPrice, idType, price, transact, imgUrl, dateCreated, userAnnounce){
+        return new Announce(id,packages,views, finalPrice,null,idType,price, transact, imgUrl, dateCreated, userAnnounce);
     }
 
     static AnnounceUpdate(id,packages, idType, price, transact, imgUrl, userAnnounce){

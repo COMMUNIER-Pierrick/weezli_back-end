@@ -6,6 +6,7 @@ const {upload} = require("../config/image-config");
 router.post("/new-announce",  upload.any('fileOne', 'fileTwo', 'fileThree', 'fileFour', 'fileFive'), announce.insert);
 router.put("/update-announce/:id", upload.any('fileOne', 'fileTwo', 'fileThree', 'fileFour', 'fileFive'), announce.update);
 router.put("/:id/setTransact", announce.setTransact);
+router.put("/:id/setFinalPrice", announce.setFinalPrice);
 router.delete("/remove-announce/:id", announce.remove);
 
 router.get("/announces-by-type/:id_type", announce.getByType);

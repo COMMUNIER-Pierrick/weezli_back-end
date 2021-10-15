@@ -66,7 +66,7 @@ async function insert(announce, filesName){
         sizes.forEach(el => sizeDAO.insertRelation(idPack, el.size.id));
         let finalPrice = null;
         /*Insertion annonce en fonction de si transact is true*/
-        announce.transact ? finalPrice = await finalPriceDAO.insert(announce.price, true) : finalPrice = await finalPriceDAO.insert(0, false);
+        announce.transact ? finalPrice = await finalPriceDAO.insert(announce.price, true, announce.userAnnounce.id) : finalPrice = await finalPriceDAO.insert(0, false, announce.userAnnounce.id);
         const [idCreated] = await con.execute(SQL_INSERT_WITH_FINAL_PRICE, [idPack, finalPrice.id, announce.idType, announce.price, announce.transact, files]);
         const id = idCreated.insertId;
         /*insertion relation user annonce*/
@@ -125,14 +125,16 @@ async function getById(id) {
         con = await database.getConnection();
         const [announce] = await con.execute(SELECT_BY_ID, [id]);
         let packageId = announce[0].id_package;
-        const [packages] = await packageDAO.getById(packageId);
+        let finalPriceId = announce[0].id_final_price;
+        const packages = await packageDAO.getById(packageId);
         const [address1] = await addressDAO.getByPackage(packageId, "depart");
         const [address2] = await addressDAO.getByPackage(packageId, "arrival");
         const [sizes] = await sizeDAO.getByPackage(packageId);
         const [user] = await userDAO.getUserForAnnounceByAnnounce(id);
-        const [ transport ] = await transportDAO.getById(packages.id_transport);
-        const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-        const newAnnonce = Announce.AnnounceId(announce[0].id, newPackage, announce[0].views, announce[0].id_type, announce[0].price, announce[0].transact, announce[0].img_url, announce[0].date_created, user);
+        const [ transport ] = await transportDAO.getById(packages[0].id_transport);
+        const finalPrice = await finalPriceDAO.getById(finalPriceId);
+        const newPackage = new Package(packageId, address1, address2, packages[0].datetime_departure, packages[0].datetime_arrival, packages[0].kg_available, packages[0].description_condition, transport, sizes);
+        const newAnnonce = Announce.AnnounceId(announce[0].id, newPackage, announce[0].views, finalPrice, announce[0].id_type, announce[0].price, announce[0].transact, announce[0].img_url, announce[0].date_created, user[0]);
         return newAnnonce;
     } catch (error) {
         log.error("Error announceDAO selectById : " + error);
@@ -185,14 +187,17 @@ async function getByType(idType){
         let newListAnnounce = [];
         for(let i = 0; i < announces.length; i++){
             let packageId = announces[i].id_package;
+            let finalPriceId = announces[i].id_final_price;
+            let announceId = announces[i].id;
             const [packages] = await packageDAO.getById(packageId);
             const [address1] = await addressDAO.getByPackage(packageId, "depart");
             const [address2] = await addressDAO.getByPackage(packageId, "arrival");
             const [sizes] = await sizeDAO.getByPackage(packageId);
-            const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
+            const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
             const [ transport ] = await transportDAO.getById(packages.id_transport);
+            const finalPrice = await finalPriceDAO.getById(finalPriceId);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user[0]);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
@@ -257,15 +262,17 @@ async function getAllUser(id){
 
         let newListAnnounce = [];
         for(let i = 0; i < announces.length; i++){
+            let announceId = announces[i].id;
             let packageId = announces[i].id_package;
             const [packages] = await packageDAO.getById(packageId);
             const [address1] = await addressDAO.getByPackage(packageId, "depart");
             const [address2] = await addressDAO.getByPackage(packageId, "arrival");
             const [sizes] = await sizeDAO.getByPackage(packageId);
-            const [user] = await userDAO.getUserForAnnounceByAnnounce(id);
+            const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
             const [ transport ] = await transportDAO.getById(packages.id_transport);
+            const finalPrice = await finalPriceDAO.getById(announces[i].id_final_price);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user[0]);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
@@ -324,14 +331,31 @@ async function createOrder(orderId, id) {
     }
 }
 
-async function setTransact(id, transact) {
+async function setTransact(announce) {
     let con = null;
     try{
         con = await database.getConnection();
-        await con.execute(SET_TRANSACT, [id, transact]);
-        return await getById(id);
+        await con.execute(SET_TRANSACT, [announce.id, announce.transact]);
+        await finalPriceDAO.update(announce.finalPrice.proposition, announce.finalPrice.accept, announce.finalPrice.user.id, announce.finalPrice.id);
+        return getById(announce.id);
     }catch (error) {
-        log.error("Error orderDAO setTransact : " + error);
+        log.error("Error announceDAO setTransact : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
+async function setFinalPrice(announce) {
+    let con = null;
+    try{
+        con = await database.getConnection();
+        await finalPriceDAO.update(announce.finalPrice.proposition, announce.finalPrice.accept, announce.finalPrice.user.id, announce.finalPrice.id);
+        return getById(announce.id);
+    }catch (error) {
+        log.error("Error announceDAO setTransact : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -350,7 +374,8 @@ module.exports = {
     getAllUser,
     getByTypeUser,
     createOrder,
-    setTransact
+    setTransact,
+    setFinalPrice
 }
 
 /*
