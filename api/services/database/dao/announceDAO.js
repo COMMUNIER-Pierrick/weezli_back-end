@@ -134,8 +134,8 @@ async function getById(id) {
         const [ transport ] = await transportDAO.getById(packages[0].id_transport);
         const finalPrice = await finalPriceDAO.getById(finalPriceId);
         const newPackage = new Package(packageId, address1, address2, packages[0].datetime_departure, packages[0].datetime_arrival, packages[0].kg_available, packages[0].description_condition, transport, sizes);
-        const newAnnonce = Announce.AnnounceId(announce[0].id, newPackage, announce[0].views, finalPrice, announce[0].id_type, announce[0].price, announce[0].transact, announce[0].img_url, announce[0].date_created, user[0]);
-        return newAnnonce;
+        const newAnnounce = Announce.AnnounceId(announce[0].id, newPackage, announce[0].views, finalPrice, announce[0].id_order, announce[0].id_type, announce[0].price, announce[0].transact, announce[0].img_url, announce[0].date_created, user);
+        return newAnnounce;
     } catch (error) {
         log.error("Error announceDAO selectById : " + error);
         throw errorMessage;
@@ -197,7 +197,7 @@ async function getByType(idType){
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const finalPrice = await finalPriceDAO.getById(finalPriceId);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_order, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user[0]);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_order, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
@@ -272,7 +272,7 @@ async function getAllUser(id){
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const finalPrice = await finalPriceDAO.getById(announces[i].id_final_price);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_order, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user[0]);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_order, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
