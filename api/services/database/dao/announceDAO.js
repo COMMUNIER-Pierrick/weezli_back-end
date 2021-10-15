@@ -197,7 +197,7 @@ async function getByType(idType){
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const finalPrice = await finalPriceDAO.getById(finalPriceId);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user[0]);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_order, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user[0]);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
@@ -272,7 +272,7 @@ async function getAllUser(id){
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const finalPrice = await finalPriceDAO.getById(announces[i].id_final_price);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user[0]);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_order, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user[0]);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
@@ -335,23 +335,7 @@ async function setTransact(announce) {
     let con = null;
     try{
         con = await database.getConnection();
-        await con.execute(SET_TRANSACT, [announce.id, announce.transact]);
-        await finalPriceDAO.update(announce.finalPrice.proposition, announce.finalPrice.accept, announce.finalPrice.user.id, announce.finalPrice.id);
-        return getById(announce.id);
-    }catch (error) {
-        log.error("Error announceDAO setTransact : " + error);
-        throw errorMessage;
-    } finally {
-        if (con !== null) {
-            con.end();
-        }
-    }
-}
-
-async function setFinalPrice(announce) {
-    let con = null;
-    try{
-        con = await database.getConnection();
+        await con.execute(SET_TRANSACT, [announce.transact, announce.id]);
         await finalPriceDAO.update(announce.finalPrice.proposition, announce.finalPrice.accept, announce.finalPrice.user.id, announce.finalPrice.id);
         return getById(announce.id);
     }catch (error) {
@@ -375,7 +359,6 @@ module.exports = {
     getByTypeUser,
     createOrder,
     setTransact,
-    setFinalPrice
 }
 
 /*

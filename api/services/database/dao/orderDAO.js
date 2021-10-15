@@ -3,6 +3,7 @@ const log = require("../../../log/logger");
 const userDAO = require("./userDAO");
 const announceDAO = require("./announceDAO");
 const statusDAO = require("./statusDAO");
+const finalPriceDAO = require("./finalPriceDAO");
 const Order = require("../../models/Order");
 
 const SQL_INSERT = `INSERT INTO orders SET code_validated = ?, id_status = ?, id_announce = ?, date_order = ?, id_buyer = ?, qr_code = ?, id_final_price = ?`;
@@ -42,7 +43,9 @@ async function getById (id) {
         const user = await userDAO.getById(userId);
         let statusId = order[0].id_status;
         const status = await statusDAO.getById(statusId);
-        let newOrder = Order.OrderId(order.id, order.codeValidated, status, announce, order.dateOrder, user, order.qrCode);
+        let finalPriceId = order[0].id_final_price;
+        const finalPrice = await finalPriceDAO.getById(finalPriceId);
+        let newOrder = Order.OrderId(order[0].id, order[0].code_validated, status, announce, order[0].date_order, user, order[0].qr_code, finalPrice);
         return newOrder;
     } catch (error) {
         log.error("Error orderDAO selectById : " + error);

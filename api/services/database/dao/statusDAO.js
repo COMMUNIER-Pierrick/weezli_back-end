@@ -79,8 +79,7 @@ async function getById(id){
     let con = null;
     try {
         con = await database.getConnection();
-        const [rows] = await con.execute(SELECT_BY_ID, [id]);
-        return rows;
+        return await con.execute(SELECT_BY_ID, [id]);
     } catch (error) {
         log.error("Error statusDAO selectById : " + error);
         throw errorMessage;
