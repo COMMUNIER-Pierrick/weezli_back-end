@@ -4,5 +4,7 @@ const order = require("../controllers/order");
 
 router.post("/new-order", order.insert);
 
+router.get("/:id", order.getById);
+
 
 module.exports = router;

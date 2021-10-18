@@ -38,15 +38,14 @@ async function getById (id) {
         con = await database.getConnection();
         const [order] = await con.execute(SELECT_BY_ID, [id]);
         let announceId = order[0].id_announce;
-        const announce = await announceDAO.getById(announceId);
+        const Announce = await announceDAO.getById(announceId);
         let userId = order[0].id_buyer;
         const user = await userDAO.getById(userId);
         let statusId = order[0].id_status;
         const status = await statusDAO.getById(statusId);
         let finalPriceId = order[0].id_final_price;
         const finalPrice = await finalPriceDAO.getById(finalPriceId);
-        let newOrder = Order.OrderId(order[0].id, order[0].code_validated, status, announce, order[0].date_order, user, order[0].qr_code, finalPrice);
-        console.log(newOrder);
+        let newOrder = Order.OrderId(order[0].id, order[0].code_validated, status, Announce, order[0].date_order, user, order[0].qr_code, finalPrice);
         return newOrder;
     } catch (error) {
         log.error("Error orderDAO selectById : " + error);

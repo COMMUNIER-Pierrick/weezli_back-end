@@ -12,8 +12,16 @@ const insert = async (req, res) => {
     return res.status(200).send({"Message": message, "Order": result});
 };
 
+const getById = async (req, res) => {
+
+    const {id} = req.params;
+    const order = await orderDAO.getById(id);
+    res.status(200).send( {"Order": order} );
+};
+
 module.exports = {
     insert,
+    getById
 };
 
 
