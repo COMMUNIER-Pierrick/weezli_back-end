@@ -46,6 +46,7 @@ async function getById (id) {
         let finalPriceId = order[0].id_final_price;
         const finalPrice = await finalPriceDAO.getById(finalPriceId);
         let newOrder = Order.OrderId(order[0].id, order[0].code_validated, status, announce, order[0].date_order, user, order[0].qr_code, finalPrice);
+        console.log(newOrder);
         return newOrder;
     } catch (error) {
         log.error("Error orderDAO selectById : " + error);
