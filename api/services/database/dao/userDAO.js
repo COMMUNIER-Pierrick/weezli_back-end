@@ -29,8 +29,8 @@ async function getUserForAnnounceByAnnounce(id){
     let con = null;
     try{
         con = await database.getConnection();
-        const [user] = await con.execute(SELECT_FOR_ANNOUNCE_BY_ANNOUNCE , [id]);
-        return user;
+        const [rows] = await con.execute(SELECT_FOR_ANNOUNCE_BY_ANNOUNCE , [id]);
+        return rows;
     } catch (error) {
         log.error("Error userDAO selectUserforannouncebyannounce : " + error);
         throw errorMessage;

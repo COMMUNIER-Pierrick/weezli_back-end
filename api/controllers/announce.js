@@ -103,14 +103,14 @@ const getTypeByUser = async (req, res) => {
     const {id} = req.params;
     const{idType} = req.params;
     const announce = await announceDAO.getByTypeUser(idType,id);
-    res.status(200).send( {"Announce": announce} );
+    res.status(200).send( {"Announces": announce} );
 };
 
 const getALLUser = async (req, res) => {
     const {id} = req.params;
     const announce = await announceDAO.getAllUser(id);
-    announce.forEach(el => console.log(el.id));
-    res.status(200).send( {"Announce": announce} );
+    //announce.forEach(el => console.log(el.id));
+    res.status(200).send( {"Announces": announce} );
 }
 
 const getSearch = async (req, res) => {
@@ -178,6 +178,19 @@ const getSearch = async (req, res) => {
     res.status(200).send({"Announces": search});
 }
 
+const setTransact = async (req, res) => {
+    const updateAnnounce = req.body.Announce;
+    let announce = await announceDAO.setTransact(updateAnnounce);
+    res.status(200).send( {"Announce": announce} );
+};
+
+const setFinalPrice = async (req, res) => {
+    const updateAnnounce = req.body.Announce;
+    let announce = await announceDAO.setFinalPrice(updateAnnounce);
+    res.status(200).send( {"Announce": announce} );
+};
+
+
 module.exports = {
     insert,
     remove,
@@ -186,7 +199,9 @@ module.exports = {
     getById,
    getTypeByUser,
     getSearch,
-    getALLUser
+    getALLUser,
+    setTransact,
+    setFinalPrice
 };
 
 function verifString(str){

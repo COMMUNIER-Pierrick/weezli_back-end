@@ -1,7 +1,12 @@
 module.exports = class FinalPrice{
-    constructor(proposition, accept, idTransporter) {
+    constructor(id, proposition, accept, user) {
+        this.id = id;
         this.proposition = proposition;
         this.accept = accept;
-        this.idTransporter = idTransporter;
+        this.user = user;
+    }
+
+    static FinalPriceId(id, proposition, accept, user){
+        return new FinalPrice(id,proposition, accept, user);
     }
 }
