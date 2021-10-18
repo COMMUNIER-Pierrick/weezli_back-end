@@ -4,7 +4,7 @@ module.exports = class Status{
         this.name = name;
     }
 
-    static StatusInsert(id, name) {
+    static StatusId(id, name) {
         return new Status(id, name);
     }
 }

@@ -81,7 +81,8 @@ async function getById(id){
     try {
         con = await database.getConnection();
         const newStatus = await con.execute(SELECT_BY_ID, [id]);
-        const status = new Status (newStatus[0].id, newStatus[0].name);
+        const status = Status.StatusId(newStatus[0].id, newStatus[0].name);
+        console.log(status);
         return status;
     } catch (error) {
         log.error("Error statusDAO selectById : " + error);
