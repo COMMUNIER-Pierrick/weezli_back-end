@@ -75,7 +75,8 @@ CREATE TABLE `size`(
 CREATE TABLE `final_price`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `proposition` DOUBLE NULL,
-    `accept` BOOLEAN NULL DEFAULT FALSE
+    `accept` BOOLEAN NULL DEFAULT FALSE,
+    `id_user` INT NULL
 )Engine = InnoDB;
 
 CREATE TABLE `check_user`(
@@ -125,8 +126,9 @@ CREATE TABLE `orders`(
     `id_announce` INT NOT NULL,
     `id_opinion` INT NOT NULL,
     `date_order` DATETIME NOT NULL,
-    `id_transporter` INT NOT NULL,
-    `qr_code` VARCHAR(250)
+    `id_buyer` INT NOT NULL,
+    `qr_code` VARCHAR(250),
+    `id_final_price` INT NOT NULL
 )Engine = InnoDB;
 
 CREATE TABLE `status`(
@@ -137,7 +139,8 @@ CREATE TABLE `status`(
 CREATE TABLE `opinion`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `number` DOUBLE NOT NULL,
-    `comment` VARCHAR(255) NULL
+    `comment` VARCHAR(255) NULL,
+    `id_order` INT NOT NULL
 )Engine = InnoDB;
 
 CREATE TABLE `rel_opinion_users`(
@@ -215,6 +218,9 @@ ALTER TABLE `package` ADD CONSTRAINT `fk_package_transport` FOREIGN KEY (`id_tra
 ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_status` FOREIGN KEY (`id_status`)  REFERENCES `status`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_opinion` FOREIGN KEY (`id_opinion`) REFERENCES `opinion`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_finale_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE `opinion` ADD CONSTRAINT `fk_opnion_id_order` FOREIGN KEY (`id_order`) REFERENCES `orders`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
