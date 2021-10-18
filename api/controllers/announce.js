@@ -37,9 +37,10 @@ const update = async (req, res) => {
     let fileFive = '';
     let strFilesName = '';
     let urlImages = '';
-    //let announceParse = JSON.parse(req.body.Announce);
-    //const announce = Announce.AnnounceUpdate(id,announceParse.Announce.packages, announceParse.Announce.idType, announceParse.Announce.price, announceParse.Announce.transact, announceParse.Announce.imgUrl, announceParse.Announce.userAnnounce);
-    const announce = Announce.AnnounceInsert(id, req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
+    let announceParse = JSON.parse(req.body.Announce);
+    const announce = Announce.AnnounceUpdate(id,announceParse.packages, announceParse.idType, announceParse.price, announceParse.transact, announceParse.imgUrl, announceParse.userAnnounce);
+    //const announce = Announce.AnnounceInsert(id, req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
+
     //insertion de l'image dans sa variable si il y en a un
     req.files.forEach(el => el.fieldname === 'fileOne' ? fileOne = el : el.fieldname === 'fileTwo' ? fileTwo = el : el.fieldname === 'fileThree' ? fileThree = el : el.fieldname === 'fileFour' ? fileFour = el : fileFive = el);
 
@@ -98,9 +99,19 @@ const getById = async (req, res) => {
     res.status(200).send( {"Announce": announce} );
 };
 
-const getByUserType = async (req, res) => {
-
+const getTypeByUser = async (req, res) => {
+    const {id} = req.params;
+    const{idType} = req.params;
+    const announce = await announceDAO.getByTypeUser(idType,id);
+    res.status(200).send( {"Announces": announce} );
 };
+
+const getALLUser = async (req, res) => {
+    const {id} = req.params;
+    const announce = await announceDAO.getAllUser(id);
+    //announce.forEach(el => console.log(el.id));
+    res.status(200).send( {"Announces": announce} );
+}
 
 const getSearch = async (req, res) => {
     const {departure, arrival, date, sizes, kgAvailable, transport, type} = req.body.Search;
@@ -167,14 +178,30 @@ const getSearch = async (req, res) => {
     res.status(200).send({"Announces": search});
 }
 
+const setTransact = async (req, res) => {
+    const updateAnnounce = req.body.Announce;
+    let announce = await announceDAO.setTransact(updateAnnounce);
+    res.status(200).send( {"Announce": announce} );
+};
+
+const setFinalPrice = async (req, res) => {
+    const updateAnnounce = req.body.Announce;
+    let announce = await announceDAO.setFinalPrice(updateAnnounce);
+    res.status(200).send( {"Announce": announce} );
+};
+
+
 module.exports = {
     insert,
     remove,
     update,
     getByType,
     getById,
-    getByUserType,
-    getSearch
+   getTypeByUser,
+    getSearch,
+    getALLUser,
+    setTransact,
+    setFinalPrice
 };
 
 function verifString(str){
@@ -196,14 +223,3 @@ function verifDate(str){
     return !pattern.test(str) && patDate.test(str) && !patSpace.test(str);
 }
 
-async function imageControl(fieldname, imgBack){
-    console.log(fieldname);
-        if(imgBack !== fieldname.filename) {
-            if (imgBack !== '') {
-                console.log(imgBack)
-                await fileDAO.remove(imgBack)
-            }
-            await fileDAO.insert(fieldname.filename);
-
-    }
-}

@@ -9,6 +9,7 @@ const SQL_UPDATE_CODE = `UPDATE check_user SET confirm_code = ? WHERE id = ?`;
 const SQL_UPDATE = `UPDATE check_user SET img_identity = ? WHERE id = ?`;
 const SELECT_BY_ID = `SELECT * FROM check_user WHERE id = ?`;
 const SELECT_BY_CODE = `SELECT * FROM check_user WHERE confirm_code = ?`;
+const SQL_REMOVE_CHECK = `DELETE FROM check_user WHERE id = ?`;
 
 async function insert(){
     let con = null;
@@ -112,11 +113,26 @@ async function getByCode(code){
     }
 }
 
+async function remove(id){
+    let con = null
+    try{
+        con = await database.getConnection();
+        await con.execute(SQL_REMOVE_CHECK, [id]);
+    }catch (error) {
+        log.error("Error checkDAO remove : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
 module.exports = {
     insert,
     update,
     getById,
     getByCode,
     updateActive,
-    updateCode
+    updateCode,
+    remove
 }

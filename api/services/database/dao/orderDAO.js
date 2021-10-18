@@ -1,19 +1,69 @@
-let code = codeValidatedRandom();
-console.log(code);
+const database = require("../tools/database");
+const log = require("../../../log/logger");
+const userDAO = require("./userDAO");
+const announceDAO = require("./announceDAO");
+const statusDAO = require("./statusDAO");
+const finalPriceDAO = require("./finalPriceDAO");
+const Order = require("../../models/Order");
 
-function codeValidatedRandom() {
-    let longueur = 6,
-        str = '1234567890',
-        result = '',
-        number = '1234567890',
-        total = '' + str;
+const SQL_INSERT = `INSERT INTO orders SET code_validated = ?, id_status = ?, id_announce = ?, date_order = ?, id_buyer = ?, qr_code = ?, id_final_price = ?`;
+const SELECT_BY_ID = 'SELECT * FROM orders WHERE id = ?';
 
-    result = str[Math.floor(Math.random() * str.length)];
-    total += str.toUpperCase();
-    total += number;
+const errorMessage = "Data access error";
 
-    for (let d = 1; d < longueur; d++) {
-        result += total[Math.floor(Math.random() * total.length)];
+async function insert(newOrder) {
+    let con = null;
+    try{
+        con = await database.getConnection();
+        const [idCreated] =  await con.execute(SQL_INSERT, [newOrder.codeValidated.toString(), newOrder.status.id, newOrder.announce.id, newOrder.dateOrder, newOrder.buyer.id, newOrder.qrCode, newOrder.finalPrice.id]);
+        const id = idCreated.insertId;
+        //Insertion de l'idOrder dans l'annonce
+        let announceId = newOrder.announce.id;
+        await announceDAO.createOrder(id, announceId);
+        // Récupération de l'order créé.
+        return await getById(id);
+    }catch (error) {
+        log.error("Error orderDAO insert : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
     }
-    return result;
 }
+
+async function getById (id) {
+    let con = null;
+    try {
+        con = await database.getConnection();
+        const [order] = await con.execute(SELECT_BY_ID, [id]);
+        let announceId = order[0].id_announce;
+        const announce = await announceDAO.getById(announceId);
+        let userId = order[0].id_buyer;
+        const user = await userDAO.getById(userId);
+        let statusId = order[0].id_status;
+        const status = await statusDAO.getById(statusId);
+        let finalPriceId = order[0].id_final_price;
+        const finalPrice = await finalPriceDAO.getById(finalPriceId);
+        let newOrder = Order.OrderId(order[0].id, order[0].code_validated, status, announce, order[0].date_order, user, order[0].qr_code, finalPrice);
+        return newOrder;
+    } catch (error) {
+        log.error("Error orderDAO selectById : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
+module.exports = {
+    insert,
+    getById
+};
+
+
+
+
+
+

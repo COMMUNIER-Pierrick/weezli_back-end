@@ -19,7 +19,7 @@ module.exports = class User{
         this.address = address;
     };
 
-    static UserUpdate (firstname, lastname, email, phone, check, address){
+    static UserUpdate(firstname, lastname, email, phone, check, address){
         return new User(null, firstname, lastname, null, null, email, phone, null, null, null, null,null,null, check, null, null, address);
     };
 
