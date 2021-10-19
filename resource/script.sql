@@ -124,7 +124,7 @@ CREATE TABLE `orders`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `code_validated` INT NOT NULL,
     `id_status` INT NOT NULL,
-    `id_announce` INT NOT NULL,
+    `id_announce` INT NOT NULL UNIQUE,
     `date_order` DATETIME NOT NULL,
     `id_buyer` INT NOT NULL,
     `qr_code` VARCHAR(250),
