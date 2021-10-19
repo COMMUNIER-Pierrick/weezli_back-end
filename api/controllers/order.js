@@ -19,9 +19,25 @@ const getById = async (req, res) => {
     res.status(200).send( {"Order": order} );
 };
 
+const getOrdersUserCarrier = async (req, res) => {
+
+    const {id} = req.params;
+    const orders = await orderDAO.getOrdersUserCarrier(id);
+    res.status(200).send( {"Orders": orders} );
+};
+
+const getOrdersUserSender = async (req, res) => {
+
+    const {id} = req.params;
+    const orders = await orderDAO.getOrdersUserSender(id);
+    res.status(200).send( {"Orders": orders} );
+};
+
 module.exports = {
     insert,
-    getById
+    getById,
+    getOrdersUserCarrier,
+    getOrdersUserSender
 };
 
 
