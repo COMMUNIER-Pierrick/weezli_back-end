@@ -1,5 +1,8 @@
 const database = require('../tools/database');
 const log = require('../../../log/logger');
+const Status = require("../../models/Status");
+const userDAO = require("./userDAO");
+const FinalPrice = require("../../models/FinalPrice");
 
 const SELECT_ALL = `SELECT * from status`;
 const SELECT_BY_ID = `SELECT * from status WHERE id = ?`;
@@ -79,7 +82,9 @@ async function getById(id){
     let con = null;
     try {
         con = await database.getConnection();
-        return await con.execute(SELECT_BY_ID, [id]);
+        const [status] = await con.execute(SELECT_BY_ID, [id]);
+        const newStatus = Status.StatusId(status[0].id, status[0].name);
+        return newStatus;
     } catch (error) {
         log.error("Error statusDAO selectById : " + error);
         throw errorMessage;

@@ -1,5 +1,10 @@
 module.exports = class Status{
-    constructor(name) {
+    constructor(id, name) {
+        this.id = id;
         this.name = name;
+    }
+
+    static StatusId(id, name) {
+        return new Status(id, name);
     }
 }
