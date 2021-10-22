@@ -9,7 +9,7 @@ const Order = require("../../models/Order");
 const SQL_INSERT = `INSERT INTO orders SET code_validated = ?, id_status = ?, id_announce = ?, date_order = ?, id_buyer = ?, qr_code = ?, id_final_price = ?`;
 const SELECT_BY_ID = 'SELECT * FROM orders WHERE id = ?';
 const SELECT_ORDER_SENDER = 'SELECT * FROM orders where id_buyer = ?';
-const SELECT_ORDER_CARRIER = 'SELECT * FROM orders o INNER JOIN final_price f on o.id_final_price = f.id where f.id_user = ?';
+const SELECT_ORDER_CARRIER = 'SELECT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.id_buyer, o.qr_code, o.id_final_price FROM orders o INNER JOIN final_price f on o.id_final_price = f.id where f.id_user = ?';
 
 const errorMessage = "Data access error";
 
