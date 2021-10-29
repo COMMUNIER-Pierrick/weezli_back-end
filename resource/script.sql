@@ -93,7 +93,8 @@ CREATE TABLE `choice`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL,
     `description` TEXT NULL,
-    `price` DOUBLE NULL
+    `price` DOUBLE NULL,
+    `id_payment` VARCHAR(255) NOT NULL
 )Engine = InnoDB;
 
 CREATE TABLE `payment`(
