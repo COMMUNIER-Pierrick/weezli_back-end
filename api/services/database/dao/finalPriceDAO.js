@@ -82,7 +82,7 @@ async function getById(id){
         con = await database.getConnection();
         const [finalPrice] = await con.execute(SELECT_BY_ID, [id]);
         let userId = finalPrice[0].id_user;
-        const user = await userDAO.getById(userId);
+        const [user] = await userDAO.getBuyerById(userId);
         const newFinalPrice = FinalPrice.FinalPriceId(finalPrice[0].id, finalPrice[0].proposition, finalPrice[0].accept, user);
         return newFinalPrice;
     } catch (error) {

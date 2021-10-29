@@ -124,8 +124,7 @@ CREATE TABLE `orders`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `code_validated` INT NOT NULL,
     `id_status` INT NOT NULL,
-    `id_announce` INT NOT NULL,
-    `id_opinion` INT NOT NULL,
+    `id_announce` INT NOT NULL UNIQUE,
     `date_order` DATETIME NOT NULL,
     `id_buyer` INT NOT NULL,
     `qr_code` VARCHAR(250),
@@ -196,9 +195,12 @@ ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFE
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_package` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_final_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_type` FOREIGN KEY (`id_type`) REFERENCES `types`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_order` FOREIGN KEY (`id_order`) REFERENCES `orders`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE `messages` ADD CONSTRAINT `fk_message_id_author` FOREIGN KEY (`id_author`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `messages` ADD CONSTRAINT `fk_messages_id_channel` FOREIGN KEY (`id_channel`) REFERENCES  `channels`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE `opinion` ADD CONSTRAINT `fk_opinion_id_order` FOREIGN KEY (`id_order`) REFERENCES `orders`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE `rel_user_channels` ADD CONSTRAINT `fk_rel_user_channels_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `rel_user_channels` ADD CONSTRAINT `fk_rel_user_channels_id_channel` FOREIGN KEY (`id_channel`) REFERENCES `channels`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -217,11 +219,11 @@ ALTER TABLE `address` ADD CONSTRAINT `fk_address_info` FOREIGN KEY (`id_info`) R
 ALTER TABLE `package` ADD CONSTRAINT `fk_package_transport` FOREIGN KEY (`id_transport`) REFERENCES `transport`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_status` FOREIGN KEY (`id_status`)  REFERENCES `status`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_opinion` FOREIGN KEY (`id_opinion`) REFERENCES `opinion`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_finale_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `opinion` ADD CONSTRAINT `fk_opnion_id_order` FOREIGN KEY (`id_order`) REFERENCES `orders`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+/* A SUPPRIMER */
+/*ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_final_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_buyer` FOREIGN KEY (`id_buyer`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;*/
 
 ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;

@@ -24,15 +24,32 @@ const SELECT_FOR_ANNOUNCE_BY_ANNOUNCE = `SELECT u.id, u.firstname, u.lastname, u
                                         FROM users u 
                                         INNER JOIN rel_user_announce rua on u.id = rua.id_user
                                         WHERE rua.id_announce = ?`;
+const SELECT_BUYER_BY_ID = 'SELECT id, firstname, lastname, average_opinion FROM users where id = ?'
 
 async function getUserForAnnounceByAnnounce(id){
     let con = null;
     try{
         con = await database.getConnection();
-        const [rows] = await con.execute(SELECT_FOR_ANNOUNCE_BY_ANNOUNCE , [id]);
-        return rows;
+        const [user] = await con.execute(SELECT_FOR_ANNOUNCE_BY_ANNOUNCE , [id]);
+        return user;
     } catch (error) {
         log.error("Error userDAO selectUserforannouncebyannounce : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
+async function getBuyerById(id){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        const [user] = await con.execute(SELECT_BUYER_BY_ID , [id]);
+        return user;
+    } catch (error) {
+        log.error("Error userDAO selectBuyerById : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -237,7 +254,8 @@ module.exports = {
     remove,
     getByLogin,
     removeRelationAnnounce,
-    getControlUser
+    getControlUser,
+    getBuyerById
 };
 
 /*
