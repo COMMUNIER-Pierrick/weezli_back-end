@@ -1,5 +1,6 @@
 const database = require('../tools/database');
 const log = require('../../../log/logger');
+const Choice = require('../../models/Choice');
 
 const SELECT_ALL = `SELECT * from choice`;
 const SELECT_BY_ID = `SELECT * from choice WHERE id = ?`;
@@ -14,7 +15,13 @@ async function getAll(){
     try {
         con = await database.getConnection();
         const [rows] = await con.execute(SELECT_ALL);
-        return rows;
+        let newListChoice = [];
+        for(let i = 0; i < rows.length; i++){
+            const choice = rows[i];
+            const newChoice = new Choice(choice.id, choice.name, choice.description, choice.price, choice.id_payment);
+            newListChoice.push({"Choice" : newChoice});
+        }
+        return newListChoice;
     } catch (error) {
         log.error("Error ChoiceDAO selectAll : " + error);
         throw errorMessage;

@@ -76,8 +76,7 @@ CREATE TABLE `final_price`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `proposition` DOUBLE NULL,
     `accept` BOOLEAN NULL DEFAULT FALSE,
-    `id_user` INT NOT NULL
-
+    `id_user` INT NULL
 )Engine = InnoDB;
 
 CREATE TABLE `check_user`(
@@ -94,7 +93,8 @@ CREATE TABLE `choice`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL,
     `description` TEXT NULL,
-    `price` DOUBLE NULL
+    `price` DOUBLE NULL,
+    `id_payment` VARCHAR(255) NOT NULL
 )Engine = InnoDB;
 
 CREATE TABLE `payment`(
@@ -220,9 +220,10 @@ ALTER TABLE `package` ADD CONSTRAINT `fk_package_transport` FOREIGN KEY (`id_tra
 
 ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_status` FOREIGN KEY (`id_status`)  REFERENCES `status`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_final_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_buyer` FOREIGN KEY (`id_buyer`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
+/* A SUPPRIMER */
+/*ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_final_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_buyer` FOREIGN KEY (`id_buyer`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;*/
 
 ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
