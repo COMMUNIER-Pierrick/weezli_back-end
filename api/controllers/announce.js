@@ -13,7 +13,7 @@ const insert = async (req, res) => {
     let strFilesName = '';
     let urlImages = '';
     let announceParse = JSON.parse(req.body.Announce);
-    const announce = Announce.AnnounceInsert(announceParse.packages, announceParse.idType, announceParse.price, announceParse.transact, announceParse.imgUrl, announceParse.userAnnounce);
+    const announce = Announce.AnnounceInsert(announceParse.packages, announceParse.idType, announceParse.price, announceParse.imgUrl, announceParse.userAnnounce);
 
     //const announce = Announce.AnnounceInsert(req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
     req.files.forEach(el => el.fieldname === 'fileOne' ? fileOne = el : el.fieldname === 'fileTwo' ? fileTwo = el : el.fieldname === 'fileThree' ? fileThree = el : el.fieldname === 'fileFour' ? fileFour = el : fileFive = el);
@@ -38,7 +38,7 @@ const update = async (req, res) => {
     let strFilesName = '';
     let urlImages = '';
     let announceParse = JSON.parse(req.body.Announce);
-    const announce = Announce.AnnounceUpdate(id,announceParse.packages, announceParse.idType, announceParse.price, announceParse.transact, announceParse.imgUrl, announceParse.userAnnounce);
+    const announce = Announce.AnnounceUpdate(id,announceParse.packages, announceParse.idType, announceParse.price, announceParse.imgUrl, announceParse.userAnnounce);
     //const announce = Announce.AnnounceInsert(id, req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
 
     //insertion de l'image dans sa variable si il y en a un
@@ -109,7 +109,6 @@ const getTypeByUser = async (req, res) => {
 const getALLUser = async (req, res) => {
     const {id} = req.params;
     const announce = await announceDAO.getAllUser(id);
-    //announce.forEach(el => console.log(el.id));
     res.status(200).send( {"Announces": announce} );
 }
 
@@ -178,30 +177,15 @@ const getSearch = async (req, res) => {
     res.status(200).send({"Announces": search});
 }
 
-const setTransact = async (req, res) => {
-    const updateAnnounce = req.body.Announce;
-    let announce = await announceDAO.setTransact(updateAnnounce);
-    res.status(200).send( {"Announce": announce} );
-};
-
-const setFinalPrice = async (req, res) => {
-    const updateAnnounce = req.body.Announce;
-    let announce = await announceDAO.setFinalPrice(updateAnnounce);
-    res.status(200).send( {"Announce": announce} );
-};
-
-
 module.exports = {
     insert,
     remove,
     update,
     getByType,
     getById,
-   getTypeByUser,
+    getTypeByUser,
     getSearch,
     getALLUser,
-    setTransact,
-    setFinalPrice
 };
 
 function verifString(str){

@@ -4,42 +4,45 @@ const addressDAO = require("./addressDAO");
 const packageDAO = require("./packageDAO");
 const sizeDAO = require("./sizeDAO");
 const transportDAO = require("./transportDAO");
-const finalPriceDAO = require("./finalPriceDAO");
+const propositionDAO = require("./propositionDAO");
 const Package = require("../../models/Package");
 const Announce = require("../../models/Announce");
 const userDAO = require("./userDAO");
 const fileDAO = require("./fileDAO");
 
 const SQL_DELETE = `DELETE FROM announce WHERE  id = ?`
-const SQL_INSERT_WITH_FINAL_PRICE = `INSERT INTO announce SET id_package = ?, id_final_price = ?, id_type = ?, price = ?, transact = ?, img_url = ?`;
-const SQL_UPDATE = `UPDATE announce SET id_type = ?, price = ?, transact = ?, img_url = ? WHERE id =?`;
 
-const SELECT_BY_ID = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact, 
-        a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept
+const SQL_INSERT = `INSERT INTO announce SET id_package = ?, id_type = ?, price = ?, img_url = ?`;
+
+const SQL_UPDATE = `UPDATE announce SET id_type = ?, price = ?, img_url = ? WHERE id =?`;
+
+const SELECT_BY_ID = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
+        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.status_proposition
         FROM announce a
-        INNER JOIN final_price fp ON a.id_final_price = fp.id
+        INNER JOIN proposition p ON a.id = p.id_announce
         WHERE a.id = ?`;
-const SELECT_ALL_USER = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact, 
-        a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept
+
+const SELECT_ALL_USER = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
+        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.status_proposition
         FROM announce a
-        INNER JOIN final_price fp ON a.id_final_price = fp.id
+        INNER JOIN proposition p ON a.id = p.id_announce
         INNER JOIN rel_user_announce rua on a.id = rua.id_announce
         INNER JOIN users u on rua.id_user = u.id
         WHERE u.id = ?`;
-const SELECT_BY_TYPE = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact, 
-        a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept
+
+const SELECT_BY_TYPE = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
+        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.status_proposition
         FROM announce a
-        INNER JOIN final_price fp ON a.id_final_price = fp.id
+        INNER JOIN proposition p ON a.id = p.id_announce
         WHERE a.id_type = ?`;
-const SELECT_BY_TYPE_USER = `SELECT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact, 
-        a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept
+
+const SELECT_BY_TYPE_USER = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
+        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.status_proposition
         FROM announce a
-        INNER JOIN final_price fp ON a.id_final_price = fp.id
+        INNER JOIN proposition p ON a.id = p.id_announce
         INNER JOIN rel_user_announce rua on a.id = rua.id_announce
         INNER JOIN users u on rua.id_user = u.id
         WHERE a.id_type = ? AND u.id = ?`;
-const CREATE_ORDER = `UPDATE announce SET id_order = ? WHERE id =?`;
-const SET_TRANSACT = `UPDATE announce SET transact = ? WHERE id =?`;
 
 const errorMessage = "Data access error";
 
@@ -49,27 +52,25 @@ async function insert(announce, filesName){
     if(filesName){ files = filesName;}
     try{
         con = await database.getConnection();
-        /*Addresse de départ*/
+        /* Addresse de départ */
         const AddressDeparture = await addressDAO.insert(announce.packages.addressDeparture);
         const idDepart = AddressDeparture.id;
-        /*Addresse  d'arrivée*/
+        /* Addresse  d'arrivée */
         const AddressArrival = await addressDAO.insert(announce.packages.addressArrival);
         const idArrival = AddressArrival.id;
-        /*Insertion du package*/
+        /* Insertion du package */
         const Package = await packageDAO.insert(announce.packages);
         const idPack = Package.id;
-        /* Insertion relation address*/
+        /* Insertion relation address */
         await addressDAO.insertRelation(idPack, idDepart);
         await addressDAO.insertRelation(idPack, idArrival);
         /* Insertion relation size */
         const sizes = announce.packages.sizes;
         sizes.forEach(el => sizeDAO.insertRelation(idPack, el.size.id));
-        let finalPrice = null;
-        /*Insertion annonce en fonction de si transact is true*/
-        announce.transact ? finalPrice = await finalPriceDAO.insert(announce.price, true, announce.userAnnounce.id) : finalPrice = await finalPriceDAO.insert(0, false, announce.userAnnounce.id);
-        const [idCreated] = await con.execute(SQL_INSERT_WITH_FINAL_PRICE, [idPack, finalPrice.id, announce.idType, announce.price, announce.transact, files]);
+        /* Insertion announce */
+        const [idCreated] = await con.execute(SQL_INSERT, [idPack, announce.idType, announce.price, files]);
         const id = idCreated.insertId;
-        /*insertion relation user annonce*/
+        /* Insertion relation user annonce */
         await userDAO.insertRelation(id, announce.userAnnounce.id);
         const results = await getById(id);
         return results;
@@ -102,11 +103,8 @@ async function update(announce, imgUrl){
         const sizes = announce.packages.sizes;
         oldSize.forEach(el => sizeDAO.removeRelation(announce.packages.id, el.size.id));
         sizes.forEach(el => sizeDAO.insertRelation(announce.packages.id, el.size.id));
-        /*final price*/
-        let finalPrice = null;
-        announce.transact ? finalPrice = await finalPriceDAO.update(announce.price, false, announce.finalPrice)  : finalPrice = await finalPriceDAO.update(0, false, announce.finalPrice);
         /* annonce */
-        await con.execute(SQL_UPDATE, [announce.idType, announce.price, announce.transact, files, announce.id]);
+        await con.execute(SQL_UPDATE, [announce.idType, announce.price, files, announce.id]);
         const results = await getById(announce.id);
         return results;
     }catch (error) {
@@ -125,16 +123,14 @@ async function getById(id) {
         con = await database.getConnection();
         const [announce] = await con.execute(SELECT_BY_ID, [id]);
         let packageId = announce[0].id_package;
-        let finalPriceId = announce[0].id_final_price;
         const packages = await packageDAO.getById(packageId);
         const [address1] = await addressDAO.getByPackage(packageId, "depart");
         const [address2] = await addressDAO.getByPackage(packageId, "arrival");
         const [sizes] = await sizeDAO.getByPackage(packageId);
         const [user] = await userDAO.getUserForAnnounceByAnnounce(id);
         const [ transport ] = await transportDAO.getById(packages[0].id_transport);
-        const finalPrice = await finalPriceDAO.getById(finalPriceId);
         const newPackage = new Package(packageId, address1, address2, packages[0].datetime_departure, packages[0].datetime_arrival, packages[0].kg_available, packages[0].description_condition, transport, sizes);
-        const newAnnounce = Announce.AnnounceId(announce[0].id, newPackage, announce[0].views, finalPrice, announce[0].id_order, announce[0].id_type, announce[0].price, announce[0].transact, announce[0].img_url, announce[0].date_created, user);
+        const newAnnounce = Announce.AnnounceId(announce[0].id, newPackage, announce[0].views, announce[0].id_type, announce[0].price, announce[0].img_url, announce[0].date_created, user);
         return newAnnounce;
     } catch (error) {
         log.error("Error announceDAO selectById : " + error);
@@ -162,6 +158,8 @@ async function remove(id){
         // delete address
         await addressDAO.remove(announce.packages.addressDeparture.id);
         await addressDAO.remove(announce.packages.addressArrival.id);
+        // delete proposition
+        await propositionDAO.remove(annonce.id)
         //delete announce
         await con.execute(SQL_DELETE, [id]);
         // delete package
@@ -187,7 +185,6 @@ async function getByType(idType){
         let newListAnnounce = [];
         for(let i = 0; i < announces.length; i++){
             let packageId = announces[i].id_package;
-            let finalPriceId = announces[i].id_final_price;
             let announceId = announces[i].id;
             const [packages] = await packageDAO.getById(packageId);
             const [address1] = await addressDAO.getByPackage(packageId, "depart");
@@ -195,9 +192,8 @@ async function getByType(idType){
             const [sizes] = await sizeDAO.getByPackage(packageId);
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
             const [ transport ] = await transportDAO.getById(packages.id_transport);
-            const finalPrice = await finalPriceDAO.getById(finalPriceId);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_order, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
@@ -213,16 +209,16 @@ async function getByType(idType){
 
 async function getSearch(condition, Search){
     let con = null;
-    const SELECT_SEARCH = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_final_price, a.id_order, a.id_type, a.price, a.transact,
-                                           a.img_url, a.date_created, fp.id AS id_final, fp.proposition, fp.accept 
+    const SELECT_SEARCH = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type, a.price,
+                                           a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.status_proposition
                             FROM announce a 
-                            INNER JOIN package p ON a.id = p.id
-                            INNER JOIN final_price fp ON a.id_final_price = fp.id    
-                            INNER JOIN rel_package_address rpa_depart ON p.id = rpa_depart.id_package 
-                            INNER JOIN rel_package_address rpa_arrival ON p.id = rpa_arrival.id_package 
+                            INNER JOIN package pk ON a.id = pk.id
+                            INNER JOIN proposition p ON a.id = p.id_announce
+                            INNER JOIN rel_package_address rpa_depart ON pk.id = rpa_depart.id_package
+                            INNER JOIN rel_package_address rpa_arrival ON pk.id = rpa_arrival.id_package
                             INNER JOIN address ad_depart ON rpa_depart.id_address = ad_depart.id and ad_depart.id_info = 1 
                             INNER JOIN address ad_destination ON rpa_arrival.id_address = ad_destination.id and ad_destination.id_info = 2 
-                            INNER JOIN rel_package_sizes rps ON p.id = rps.id_package 
+                            INNER JOIN rel_package_sizes rps ON pk.id = rps.id_package
                             INNER JOIN size s ON rps.id_size = s.id 
                             ${condition} `;
 
@@ -240,7 +236,7 @@ async function getSearch(condition, Search){
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
@@ -270,9 +266,8 @@ async function getAllUser(id){
             const [sizes] = await sizeDAO.getByPackage(packageId);
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
             const [ transport ] = await transportDAO.getById(packages.id_transport);
-            const finalPrice = await finalPriceDAO.getById(announces[i].id_final_price);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, finalPrice, announces[i].id_order, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
@@ -301,45 +296,12 @@ async function getByTypeUser(idType, id){
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].transact, announces[i].img_url, announces[i].date_created, user);
+            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
     }catch (error) {
         log.error("Error announceDAO getByTypeUser : " + error);
-        throw errorMessage;
-    } finally {
-        if (con !== null) {
-            con.end();
-        }
-    }
-}
-
-async function createOrder(orderId, id) {
-    let con = null;
-    try{
-        con = await database.getConnection();
-        await con.execute(CREATE_ORDER, [orderId, id]);
-        return await getById(id);
-    }catch (error) {
-        log.error("Error orderDAO createOrder : " + error);
-        throw errorMessage;
-    } finally {
-        if (con !== null) {
-            con.end();
-        }
-    }
-}
-
-async function setTransact(announce) {
-    let con = null;
-    try{
-        con = await database.getConnection();
-        await con.execute(SET_TRANSACT, [announce.transact, announce.id]);
-        await finalPriceDAO.update(announce.finalPrice.proposition, announce.finalPrice.accept, announce.finalPrice.user.id, announce.finalPrice.id);
-        return getById(announce.id);
-    }catch (error) {
-        log.error("Error announceDAO setTransact : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -357,8 +319,6 @@ module.exports = {
     getSearch,
     getAllUser,
     getByTypeUser,
-    createOrder,
-    setTransact,
 }
 
 /*
