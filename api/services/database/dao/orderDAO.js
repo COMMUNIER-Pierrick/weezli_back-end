@@ -3,13 +3,33 @@ const log = require("../../../log/logger");
 const userDAO = require("./userDAO");
 const announceDAO = require("./announceDAO");
 const statusDAO = require("./statusDAO");
-const finalPriceDAO = require("./finalPriceDAO");
 const Order = require("../../models/Order");
+const propositionDAO = require("./propositionDAO");
 
-const SQL_INSERT = `INSERT INTO orders SET code_validated = ?, id_status = ?, id_announce = ?, date_order = ?, id_buyer = ?, qr_code = ?, id_final_price = ?`;
+const SQL_INSERT = `INSERT INTO orders SET code_validated = ?, id_status = ?, id_announce = ?, date_order = ?, qr_code = ?`;
+
+const SQL_DELETE = `DELETE FROM orders WHERE id = ?`
+
+const SQL_UPDATE = `UPDATE orders SET id_status = ? WHERE id =?`;
+
 const SELECT_BY_ID = 'SELECT * FROM orders WHERE id = ?';
-const SELECT_ORDER_SENDER = 'SELECT * FROM orders where id_buyer = ?';
-const SELECT_ORDER_CARRIER = 'SELECT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.id_buyer, o.qr_code, o.id_final_price FROM orders o INNER JOIN final_price f on o.id_final_price = f.id where f.id_user = ?';
+
+const SELECT_ORDER_BY_USER_AND_STATUS = `SELECT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code, s.name
+                                         FROM orders o
+                                         INNER JOIN status s ON o.id_status = s.id
+                                         INNER JOIN announce a ON o.id_announce = a.id
+                                         INNER JOIN proposition p ON a.id = p.id_announce
+                                         INNER JOIN rel_user_announce rua on a.id = rua.id_announce
+                                         INNER JOIN users u on rua.id_user = u.id
+                                         WHERE p.id_user = ? OR u.id = ? AND s.name = ?`;
+
+const SELECT_ORDER_BY_USER = `SELECT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code
+                              FROM orders o
+                              INNER JOIN announce a ON o.id_announce = a.id
+                              INNER JOIN proposition p ON a.id = p.id_announce
+                              INNER JOIN rel_user_announce rua on a.id = rua.id_announce
+                              INNER JOIN users u on rua.id_user = u.id
+                              WHERE p.id_user = ? OR u.id = ?`;
 
 const errorMessage = "Data access error";
 
@@ -17,15 +37,41 @@ async function insert(newOrder) {
     let con = null;
     try{
         con = await database.getConnection();
-        const [idCreated] =  await con.execute(SQL_INSERT, [newOrder.codeValidated.toString(), newOrder.status.id, newOrder.announce.id, newOrder.dateOrder, newOrder.buyer.id, newOrder.qrCode, newOrder.finalPrice.id]);
+        const [idCreated] =  await con.execute(SQL_INSERT, [newOrder.codeValidated.toString(), newOrder.status.id, newOrder.announce.id, newOrder.date_order, newOrder.qr_code]);
         const id = idCreated.insertId;
-        //Insertion de l'idOrder dans l'annonce
-        let announceId = newOrder.announce.id;
-        await announceDAO.createOrder(id, announceId);
-        // Récupération de l'order créé.
         return await getById(id);
     }catch (error) {
         log.error("Error orderDAO insert : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
+async function remove(id){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        await con.execute(SQL_DELETE, [id]);
+    }catch (error) {
+        log.error("Error orderDAO remove : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
+async function update(order){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        await con.execute(SQL_UPDATE, [order.id_status, order.id]);
+    }catch (error) {
+        log.error("Error orderDAO update : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -39,15 +85,7 @@ async function getById (id) {
     try {
         con = await database.getConnection();
         const [order] = await con.execute(SELECT_BY_ID, [id]);
-        let announceId = order[0].id_announce;
-        const Announce = await announceDAO.getById(announceId);
-        let userId = order[0].id_buyer;
-        const user = await userDAO.getById(userId);
-        let statusId = order[0].id_status;
-        const status = await statusDAO.getById(statusId);
-        let finalPriceId = order[0].id_final_price;
-        const finalPrice = await finalPriceDAO.getById(finalPriceId);
-        let newOrder = Order.OrderId(order[0].id, order[0].code_validated, status, Announce, order[0].date_order, user, order[0].qr_code, finalPrice);
+        let newOrder = Order.OrderId(order[0].id, order[0].code_validated, order[0].id_status, order[0].id_announce, order[0].date_order, order[0].qr_code);
         return newOrder;
     } catch (error) {
         log.error("Error orderDAO selectById : " + error);
@@ -59,27 +97,19 @@ async function getById (id) {
     }
 }
 
-async function getOrdersUserCarrier (id) {
+async function getOrdersByUserAndStatus (idUserP, idUserU, id_status) {
     let con = null;
     try {
         con = await database.getConnection();
-        const [orders] = await con.execute(SELECT_ORDER_CARRIER, [id]);
-        let listOrdersCarrier = [];
+        const [orders] = await con.execute(SELECT_ORDER_BY_USER_AND_STATUS, [idUserP, idUserU, id_status]);
+        let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
-            let announceId = orders[i].id_announce;
-            const Announce = await announceDAO.getById(announceId);
-            let userId = orders[i].id_buyer;
-            const user = await userDAO.getById(userId);
-            let statusId = orders[i].id_status;
-            const status = await statusDAO.getById(statusId);
-            let finalPriceId = orders[i].id_final_price;
-            const finalPrice = await finalPriceDAO.getById(finalPriceId);
-            let newOrder = Order.OrderId(orders[i].id, orders[i].code_validated, status, Announce, orders[i].date_order, user, orders[i].qr_code, finalPrice);
-            listOrdersCarrier.push({"Order": newOrder});
+            let newOrder = Order.OrderId(orders[i].id, orders[i].code_validated, orders[i].id_status, orders[i].id_announce, orders[i].date_order, orders[i].qr_code);
+            listOrdersSender.push({"Order": newOrder});
         }
-        return listOrdersCarrier;
+        return listOrdersSender;
     } catch (error) {
-        log.error("Error orderDAO getOrdersUserCarrier : " + error);
+        log.error("Error orderDAO getOrdersByUserAndStatus : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -88,27 +118,19 @@ async function getOrdersUserCarrier (id) {
     }
 }
 
-async function getOrdersUserSender (id) {
+async function getOrdersByUser (idUserP, idUserU) {
     let con = null;
     try {
         con = await database.getConnection();
-        const [orders] = await con.execute(SELECT_ORDER_SENDER, [id]);
+        const [orders] = await con.execute(SELECT_ORDER_BY_USER, [idUserP, idUserU]);
         let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
-            let announceId = orders[i].id_announce;
-            const Announce = await announceDAO.getById(announceId);
-            let userId = orders[i].id_buyer;
-            const user = await userDAO.getById(userId);
-            let statusId = orders[i].id_status;
-            const status = await statusDAO.getById(statusId);
-            let finalPriceId = orders[i].id_final_price;
-            const finalPrice = await finalPriceDAO.getById(finalPriceId);
-            let newOrder = Order.OrderId(orders[i].id, orders[i].code_validated, status, Announce, orders[i].date_order, user, orders[i].qr_code, finalPrice);
+            let newOrder = Order.OrderId(orders[i].id, orders[i].code_validated, orders[i].id_status, orders[i].id_announce, orders[i].date_order, orders[i].qr_code);
             listOrdersSender.push({"Order": newOrder});
         }
         return listOrdersSender;
     } catch (error) {
-        log.error("Error orderDAO getOrdersUserSender : " + error);
+        log.error("Error orderDAO getOrdersByUser : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -119,9 +141,11 @@ async function getOrdersUserSender (id) {
 
 module.exports = {
     insert,
+    remove,
+    update,
     getById,
-    getOrdersUserCarrier,
-    getOrdersUserSender,
+    getOrdersByUserAndStatus,
+    getOrdersByUser
 };
 
 
