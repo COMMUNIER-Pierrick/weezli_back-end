@@ -9,10 +9,6 @@ module.exports = class Order {
 
     }
 
-    static OrderId(id, code, status, announce, dateOrder, qrCode){
-        return new Order(id, code, status, announce, dateOrder, qrCode)
-    };
-
     static OrderInsert(status, announce, dateOrder, qrCode){
         let code = Order.codeValidatedRandom();
         return new Order(null, code, status, announce, dateOrder, qrCode)

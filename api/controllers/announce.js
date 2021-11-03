@@ -76,7 +76,7 @@ const update = async (req, res) => {
     if(indexEnd !== -1){ urlImages = strFilesName.slice(0, indexEnd)}
 
     const result = await announceDAO.update(announce, urlImages);
-    const message = "L'annonce à bien été mis à jour.";
+    const message = "L'annonce a bien été mis à jour.";
     return res.status(200).send({"Message": message , "Announce": result});
 };
 

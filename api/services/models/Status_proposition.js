@@ -3,8 +3,4 @@ module.exports = class Status_proposition{
         this.id = id;
         this.name = name;
     }
-
-    static StatusPropositionId(id, name) {
-        return new Status(id, name);
-    }
 }

@@ -8,16 +8,16 @@ const getAll = async (req, res) => {
 }
 
 const insert = async (req, res) => {
-    const size = new Status_proposition(req.body.name);
-    const status_proposition = await status_propositionDAO.insert(size);
+    const name = new Status_proposition(req.body.name);
+    const status_proposition = await status_propositionDAO.insert(name);
     const message = "Le status proposition a bien été créé.";
     return res.status(200).send({"Message": message , "Status_proposition": status_proposition});
 }
 
 const update = async (req, res) => {
     const {id} = req.params;
-    const statusPropositionName = new Status_proposition(req.body.name);
-    const status_proposition = await status_propositionDAO.update(statusPropositionName, id);
+    const statusPropositionName = new Status_proposition(id, req.body.name);
+    const status_proposition = await status_propositionDAO.update(statusPropositionName);
     const message = "Le status proposition a bien été modifié.";
     res.status(200).send({"Message": message , "Status_proposition": status_proposition});
 }

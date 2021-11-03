@@ -21,7 +21,7 @@ const SELECT_ORDER_BY_USER_AND_STATUS = `SELECT o.id, o.code_validated, o.id_sta
                                          INNER JOIN proposition p ON a.id = p.id_announce
                                          INNER JOIN rel_user_announce rua on a.id = rua.id_announce
                                          INNER JOIN users u on rua.id_user = u.id
-                                         WHERE p.id_user = ? OR u.id = ? AND s.name = ?`;
+                                         WHERE p.id_user = ? OR u.id = ? AND s.id = ?`;
 
 const SELECT_ORDER_BY_USER = `SELECT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code
                               FROM orders o
@@ -65,7 +65,7 @@ async function remove(id){
     }
 }
 
-async function update(order){
+async function updateStatus(order){
     let con = null;
     try{
         con = await database.getConnection();
@@ -85,7 +85,7 @@ async function getById (id) {
     try {
         con = await database.getConnection();
         const [order] = await con.execute(SELECT_BY_ID, [id]);
-        let newOrder = Order.OrderId(order[0].id, order[0].code_validated, order[0].id_status, order[0].id_announce, order[0].date_order, order[0].qr_code);
+        let newOrder = new Order(order[0].id, order[0].code_validated, order[0].id_status, order[0].id_announce, order[0].date_order, order[0].qr_code);
         return newOrder;
     } catch (error) {
         log.error("Error orderDAO selectById : " + error);
@@ -104,7 +104,7 @@ async function getOrdersByUserAndStatus (idUserP, idUserU, id_status) {
         const [orders] = await con.execute(SELECT_ORDER_BY_USER_AND_STATUS, [idUserP, idUserU, id_status]);
         let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
-            let newOrder = Order.OrderId(orders[i].id, orders[i].code_validated, orders[i].id_status, orders[i].id_announce, orders[i].date_order, orders[i].qr_code);
+            let newOrder = new Order(orders[i].id, orders[i].code_validated, orders[i].id_status, orders[i].id_announce, orders[i].date_order, orders[i].qr_code);
             listOrdersSender.push({"Order": newOrder});
         }
         return listOrdersSender;
@@ -125,7 +125,7 @@ async function getOrdersByUser (idUserP, idUserU) {
         const [orders] = await con.execute(SELECT_ORDER_BY_USER, [idUserP, idUserU]);
         let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
-            let newOrder = Order.OrderId(orders[i].id, orders[i].code_validated, orders[i].id_status, orders[i].id_announce, orders[i].date_order, orders[i].qr_code);
+            let newOrder = new Order(orders[i].id, orders[i].code_validated, orders[i].id_status, orders[i].id_announce, orders[i].date_order, orders[i].qr_code);
             listOrdersSender.push({"Order": newOrder});
         }
         return listOrdersSender;
@@ -142,7 +142,7 @@ async function getOrdersByUser (idUserP, idUserU) {
 module.exports = {
     insert,
     remove,
-    update,
+    updateStatus,
     getById,
     getOrdersByUserAndStatus,
     getOrdersByUser

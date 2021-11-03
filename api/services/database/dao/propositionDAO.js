@@ -22,7 +22,13 @@ async function getAll(){
     try {
         con = await database.getConnection();
         const [rows] = await con.execute(SELECT_ALL);
-        return rows;
+        let newListProposition = [];
+                for(let i = 0; i < rows.length; i++){
+                    const proposition = rows[i];
+                    const newProposition = new Proposition(proposition.id_announce, proposition.id_user, proposition.proposition, proposition.status_proposition);
+                    newListProposition.push({"Proposition" : newProposition});
+                }
+                return newListProposition;
     } catch (error) {
         log.error("Error propositionDAO selectAll : " + error);
         throw errorMessage;
@@ -90,7 +96,7 @@ async function getByIdAnnouce(id_announce){
         let newListProposition = [];
                 for(let i = 0; i < propositions.length; i++){
                     let propositionIdAnnounce = propositions[i].id_announce;
-                    const proposition = Proposition.propositionIdAnnounce(propositions[i].id_announce, propositions[i].id_user, propositions[i].proposition, propositions[i].status_proposition);
+                    const proposition = new Proposition(propositions[i].id_announce, propositions[i].id_user, propositions[i].proposition, propositions[i].status_proposition);
                     newListProposition.push({"Proposition": proposition});
                 }
                 return newListAnnounce;
@@ -109,7 +115,7 @@ async function getByIdAnnouceAndUser(id_announce, id_user){
     try {
         con = await database.getConnection();
         const [proposition] = await con.execute(SELECT_BY_ID_ANNOUNCE_AND_ID_USER, [id_announce, id_user]);
-        const newProposition = Proposition.proposition(proposition[0].id_announce, proposition[0].id_user, proposition[0].proposition, proposition[0].status_proposition);
+        const newProposition = new Proposition(proposition[0].id_announce, proposition[0].id_user, proposition[0].proposition, proposition[0].status_proposition);
         return newProposition;
     } catch (error) {
         log.error("Error propositionDAO selectByIdAnnouceAndUser : " + error);

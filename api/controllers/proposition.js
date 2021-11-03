@@ -6,16 +6,15 @@ const insert = async (req, res) => {
 
     const { id_announce, id_user, proposition, status_proposition } = req.body.Proposition;
 
-    const proposition = Proposition.PropositionInsert(id_announce, id_user, proposition, status_proposition);
-    const result = await propositionDAO.insert(proposition);
+    const newProposition = Proposition(id_announce, id_user, proposition, status_proposition);
+    const result = await propositionDAO.insert(newProposition);
     const message = "La proposition a bien été créée";
     return res.status(200).send({"Message": message, "Proposition": result});
 };
 
 const update = async (req, res) => {
 
-	const { Proposition } = req.params;
-	const proposition = Proposition.PropositionInsert(req.body.proposition, req.body.status_proposition);
+	const { Proposition } = req.body;
 	const result = await propositionDAO.update(proposition);
 	const message = "La proposition a bien été modifiée ";
 	res.status(200).send( {"Message": message , "Proposition": result});

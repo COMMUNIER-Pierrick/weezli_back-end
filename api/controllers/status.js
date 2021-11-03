@@ -8,8 +8,8 @@ const getAll = async (req, res) => {
 }
 
 const insert = async (req, res) => {
-    const size = new Status(req.body.name);
-    const status = await statusDAO.insert(size);
+    const name = new Status(req.body.name);
+    const status = await statusDAO.insert(name);
     const message = "Le status a bien été créé.";
     return res.status(200).send({"Message": message , "Status": status});
 }

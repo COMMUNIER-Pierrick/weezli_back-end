@@ -12,9 +12,9 @@ const insert = async (req, res) => {
     return res.status(200).send({"Message": message, "Order": result});
 };
 
-const update = async (req, res) => {
-    const { order } = req.params;
-    await orderDAO.update(order.id_status, order.id);
+const updateStatus = async (req, res) => {
+    const { order } = req.body;
+    await orderDAO.updateStatus(order.id_status, order.id);
     const message = "La commande a bien été mis à jour.";
     res.status(200).send({ "Message": message });
 };
@@ -49,7 +49,7 @@ const getOrdersByUser = async (req, res) => {
 
 module.exports = {
     insert,
-    update,
+    updateStatus,
     remove,
     getById,
     getOrdersByUserAndStatus,
