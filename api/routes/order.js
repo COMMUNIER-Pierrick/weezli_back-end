@@ -7,8 +7,7 @@ router.put("/update-order/:id", order.updateStatus);
 router.delete("/remove-order/:id", order.remove);
 
 router.get("/:id", order.getById);
-router.get("/deliveries/:idUserP/:idUserU/:id_status", order.getOrdersByUserAndStatus);
-router.get("/orders/:idUserP/:idUserU", order.getOrdersByUser);
-
+router.get("/deliveries/:id/:id_status", order.getOrdersByUserAndStatus);
+router.get("/orders/:id/:id_status_proposition", order.getOrdersByUser);
 
 module.exports = router;

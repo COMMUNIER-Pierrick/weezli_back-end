@@ -6,7 +6,7 @@ const statusDAO = require("./statusDAO");
 const Order = require("../../models/Order");
 const propositionDAO = require("./propositionDAO");
 
-const SQL_INSERT = `INSERT INTO orders SET code_validated = ?, id_status = ?, id_announce = ?, date_order = ?, qr_code = ?`;
+const SQL_INSERT = `INSERT INTO orders SET code_validated = ?, id_status = ?, id_announce = ?, date_order = ?`;
 
 const SQL_DELETE = `DELETE FROM orders WHERE id = ?`
 
@@ -14,22 +14,24 @@ const SQL_UPDATE = `UPDATE orders SET id_status = ? WHERE id =?`;
 
 const SELECT_BY_ID = 'SELECT * FROM orders WHERE id = ?';
 
-const SELECT_ORDER_BY_USER_AND_STATUS = `SELECT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code, s.name
+const SELECT_ORDER_BY_USER_AND_STATUS = `SELECT DISTINCT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code, s.name
                                          FROM orders o
                                          INNER JOIN status s ON o.id_status = s.id
                                          INNER JOIN announce a ON o.id_announce = a.id
                                          INNER JOIN proposition p ON a.id = p.id_announce
                                          INNER JOIN rel_user_announce rua on a.id = rua.id_announce
                                          INNER JOIN users u on rua.id_user = u.id
-                                         WHERE p.id_user = ? OR u.id = ? AND s.id = ?`;
+                                         WHERE (p.id_user = ? OR u.id = ?) AND s.id = ?`;
 
-const SELECT_ORDER_BY_USER = `SELECT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code
+const SELECT_ORDER_BY_USER = `SELECT DISTINCT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code, u.id as user
                               FROM orders o
+                              INNER JOIN status s ON o.id_status = s.id
                               INNER JOIN announce a ON o.id_announce = a.id
                               INNER JOIN proposition p ON a.id = p.id_announce
+                              INNER JOIN status_proposition sp ON p.id_status_proposition = sp.id
                               INNER JOIN rel_user_announce rua on a.id = rua.id_announce
                               INNER JOIN users u on rua.id_user = u.id
-                              WHERE p.id_user = ? OR u.id = ?`;
+                              WHERE (p.id_user = ? AND p.id_status_proposition = ?) OR u.id = ?`;
 
 const errorMessage = "Data access error";
 
@@ -37,7 +39,7 @@ async function insert(newOrder) {
     let con = null;
     try{
         con = await database.getConnection();
-        const [idCreated] =  await con.execute(SQL_INSERT, [newOrder.codeValidated.toString(), newOrder.status.id, newOrder.announce.id, newOrder.date_order, newOrder.qr_code]);
+        const [idCreated] =  await con.execute(SQL_INSERT, [newOrder.codeValidated, newOrder.status, newOrder.announce, newOrder.dateOrder]);
         const id = idCreated.insertId;
         return await getById(id);
     }catch (error) {
@@ -97,11 +99,11 @@ async function getById (id) {
     }
 }
 
-async function getOrdersByUserAndStatus (idUserP, idUserU, id_status) {
+async function getOrdersByUserAndStatus (id, id_status) {
     let con = null;
     try {
         con = await database.getConnection();
-        const [orders] = await con.execute(SELECT_ORDER_BY_USER_AND_STATUS, [idUserP, idUserU, id_status]);
+        const [orders] = await con.execute(SELECT_ORDER_BY_USER_AND_STATUS, [id, id, id_status]);
         let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
             let newOrder = new Order(orders[i].id, orders[i].code_validated, orders[i].id_status, orders[i].id_announce, orders[i].date_order, orders[i].qr_code);
@@ -118,11 +120,12 @@ async function getOrdersByUserAndStatus (idUserP, idUserU, id_status) {
     }
 }
 
-async function getOrdersByUser (idUserP, idUserU) {
+async function getOrdersByUser(id, id_status_proposition) {
     let con = null;
     try {
         con = await database.getConnection();
-        const [orders] = await con.execute(SELECT_ORDER_BY_USER, [idUserP, idUserU]);
+        const [orders] = await con.execute(SELECT_ORDER_BY_USER, [id, id_status_proposition, id]);
+        console.log(orders)
         let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
             let newOrder = new Order(orders[i].id, orders[i].code_validated, orders[i].id_status, orders[i].id_announce, orders[i].date_order, orders[i].qr_code);

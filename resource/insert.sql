@@ -102,6 +102,7 @@ INSERT INTO `announce` SET id_package=6, views=0, id_type=2, price=125.90, img_u
 INSERT INTO `orders` SET code_validated = '51358', id_status = 1, id_announce = 1, date_order = '2021-12-10T00:00:00';
 INSERT INTO `orders` SET code_validated = '55358', id_status = 2, id_announce = 2, date_order = '2021-12-10T00:00:00';
 INSERT INTO `orders` SET code_validated = '48138', id_status = 3, id_announce = 3, date_order = '2021-12-10T00:00:00';
+INSERT INTO `orders` SET code_validated = '589987', id_status = 2, id_announce = 5, date_order = '2021-12-10T00:00:00';
 
 INSERT INTO `rel_user_announce` SET id_user=1, id_announce=1;
 INSERT INTO `rel_user_announce` SET id_user=1, id_announce=4;
