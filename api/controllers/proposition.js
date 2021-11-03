@@ -15,7 +15,7 @@ const insert = async (req, res) => {
 const update = async (req, res) => {
 
 	const { Proposition } = req.body;
-	const result = await propositionDAO.update(proposition);
+	const result = await propositionDAO.update(Proposition);
 	const message = "La proposition a bien été modifiée ";
 	res.status(200).send( {"Message": message , "Proposition": result});
 };

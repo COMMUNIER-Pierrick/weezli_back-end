@@ -95,11 +95,11 @@ async function getByIdAnnouce(id_announce){
 
         let newListProposition = [];
                 for(let i = 0; i < propositions.length; i++){
-                    let propositionIdAnnounce = propositions[i].id_announce;
-                    const proposition = new Proposition(propositions[i].id_announce, propositions[i].id_user, propositions[i].proposition, propositions[i].status_proposition);
+                    let newProposition = propositions[i];
+                    const proposition = new Proposition(newProposition.id_announce, newProposition.id_user, newProposition.proposition, newProposition.id_status_proposition);
                     newListProposition.push({"Proposition": proposition});
                 }
-                return newListAnnounce;
+                return newListProposition;
     } catch (error) {
         log.error("Error propositionDAO selectByIdAnnouce : " + error);
         throw errorMessage;
@@ -115,7 +115,7 @@ async function getByIdAnnouceAndUser(id_announce, id_user){
     try {
         con = await database.getConnection();
         const [proposition] = await con.execute(SELECT_BY_ID_ANNOUNCE_AND_ID_USER, [id_announce, id_user]);
-        const newProposition = new Proposition(proposition[0].id_announce, proposition[0].id_user, proposition[0].proposition, proposition[0].status_proposition);
+        const newProposition = new Proposition(proposition[0].id_announce, proposition[0].id_user, proposition[0].proposition, proposition[0].id_status_proposition);
         return newProposition;
     } catch (error) {
         log.error("Error propositionDAO selectByIdAnnouceAndUser : " + error);
