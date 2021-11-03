@@ -25,6 +25,7 @@ const update = async (req, res) => {
     console.log(newOrder)
     let order = "";
 
+    /*si proposition validé */
     if(result.status_proposition === 3) {
        order = await orderDAO.insert(newOrder)
         if(order.length > 0){

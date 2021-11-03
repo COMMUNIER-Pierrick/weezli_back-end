@@ -1,10 +1,8 @@
 const database = require("../tools/database");
 const log = require("../../../log/logger");
-const userDAO = require("./userDAO");
+const Order = require("../../models/Order");
 const announceDAO = require("./announceDAO");
 const statusDAO = require("./statusDAO");
-const Order = require("../../models/Order");
-const propositionDAO = require("./propositionDAO");
 
 const SQL_INSERT = `INSERT INTO orders SET code_validated = ?, id_status = ?, id_announce = ?, date_order = ?`;
 
@@ -23,7 +21,7 @@ const SELECT_ORDER_BY_USER_AND_STATUS = `SELECT DISTINCT o.id, o.code_validated,
                                          INNER JOIN users u on rua.id_user = u.id
                                          WHERE (p.id_user = ? OR u.id = ?) AND s.id = ?`;
 
-const SELECT_ORDER_BY_USER = `SELECT DISTINCT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code, u.id as user
+const SELECT_ORDER_BY_USER = `SELECT DISTINCT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code
                               FROM orders o
                               INNER JOIN status s ON o.id_status = s.id
                               INNER JOIN announce a ON o.id_announce = a.id
@@ -41,7 +39,8 @@ async function insert(newOrder) {
         con = await database.getConnection();
         const [idCreated] =  await con.execute(SQL_INSERT, [newOrder.codeValidated, newOrder.status, newOrder.announce, newOrder.dateOrder]);
         const id = idCreated.insertId;
-        return await getById(id);
+        const order = await getById(id);
+        return ({"Order": order})
     }catch (error) {
         log.error("Error orderDAO insert : " + error);
         throw errorMessage;
@@ -82,12 +81,14 @@ async function updateStatus(order){
     }
 }
 
-async function getById (id) {
+async function getById(id){
     let con = null;
     try {
         con = await database.getConnection();
         const [order] = await con.execute(SELECT_BY_ID, [id]);
-        let newOrder = new Order(order[0].id, order[0].code_validated, order[0].id_status, order[0].id_announce, order[0].date_order, order[0].qr_code);
+        const announce = await announceDAO.getById(order[0].id_announce);
+        const status = await statusDAO.getById(order[0].id_status);
+        const newOrder = new Order(id, order[0].code_validated, status, announce, order[0].date_order, order[0].qr_code);
         return newOrder;
     } catch (error) {
         log.error("Error orderDAO selectById : " + error);
@@ -106,7 +107,7 @@ async function getOrdersByUserAndStatus (id, id_status) {
         const [orders] = await con.execute(SELECT_ORDER_BY_USER_AND_STATUS, [id, id, id_status]);
         let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
-            let newOrder = new Order(orders[i].id, orders[i].code_validated, orders[i].id_status, orders[i].id_announce, orders[i].date_order, orders[i].qr_code);
+            let newOrder = await getById(orders[i].id);
             listOrdersSender.push({"Order": newOrder});
         }
         return listOrdersSender;
@@ -125,10 +126,9 @@ async function getOrdersByUser(id, id_status_proposition) {
     try {
         con = await database.getConnection();
         const [orders] = await con.execute(SELECT_ORDER_BY_USER, [id, id_status_proposition, id]);
-        console.log(orders)
         let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
-            let newOrder = new Order(orders[i].id, orders[i].code_validated, orders[i].id_status, orders[i].id_announce, orders[i].date_order, orders[i].qr_code);
+            let newOrder = await getById(orders[i].id);
             listOrdersSender.push({"Order": newOrder});
         }
         return listOrdersSender;
