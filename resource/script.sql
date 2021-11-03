@@ -78,7 +78,7 @@ CREATE TABLE `proposition`(
 
 ALTER TABLE `proposition` ADD PRIMARY KEY (`id_announce`,`id_user`);
 
-CREATE TABLE `status-proposition`(
+CREATE TABLE `status_proposition`(
     `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(50) NOT NULL
 )Engine = InnoDB;
@@ -226,4 +226,4 @@ ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_user` FO
 
 ALTER TABLE `proposition` ADD CONSTRAINT `fk_proposition_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `proposition` ADD CONSTRAINT `fk_proposition_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `proposition` ADD CONSTRAINT `fk_status_proposition_id_user` FOREIGN KEY (`status-proposition`) REFERENCES `status-proposition`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `proposition` ADD CONSTRAINT `fk_status_proposition_id_user` FOREIGN KEY (`id_status_proposition`) REFERENCES `status_proposition`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;

@@ -24,10 +24,10 @@ INSERT INTO `choice` SET name='formule1', description='Lorem ipsum dolor sit ame
 INSERT INTO `choice` SET name='formule2', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='10', id_payment= 'price_1JmD3uKAPKSmGQtSk2yTNI1T';
 INSERT INTO `choice` SET name='formule3', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='15', id_payment= 'price_1JmD5FKAPKSmGQtSSaxTdgme';
 
-INSERT INTO `id_status-proposition` set name='Proposition';
-INSERT INTO `id_status-proposition` set name='Contre-proposition';
-INSERT INTO `id_status-proposition` set name='Validé';
-INSERT INTO `id_status-proposition` set name='Refufé';
+INSERT INTO `status_proposition` set name='Proposition';
+INSERT INTO `status_proposition` set name='Contre-proposition';
+INSERT INTO `status_proposition` set name='Validé';
+INSERT INTO `status_proposition` set name='Refufé';
 
 
 INSERT INTO `address` SET id_info=1, number=45, street='Orange St', additional_address='3eme floor', zipcode='SW1Y 4UR', city='London', country='England';
@@ -110,16 +110,16 @@ INSERT INTO `rel_user_announce` SET id_user=2, id_announce=5;
 INSERT INTO `rel_user_announce` SET id_user=3, id_announce=3;
 INSERT INTO `rel_user_announce` SET id_user=3, id_announce=6;
 
-INSERT INTO `proposition` SET id_announce = 1, id_user = 2, proposition = 10, `id_status-proposition` = 1;
-INSERT INTO `proposition` SET id_announce = 2, id_user = 3, proposition = 12, `id_status-proposition` = 2;
-INSERT INTO `proposition` SET id_announce = 3, id_user = 1, proposition = 45, `id_status-proposition` = 3;
-INSERT INTO `proposition` SET id_announce = 4, id_user = 2, proposition = 35, `id_status-proposition` = 4;
-INSERT INTO `proposition` SET id_announce = 5, id_user = 3, proposition = 15, `id_status-proposition` = 1;
-INSERT INTO `proposition` SET id_announce = 6, id_user = 1, proposition = 100, `id_status-proposition` = 2;
+INSERT INTO `proposition` SET id_announce = 1, id_user = 2, proposition = 10, `id_status_proposition` = 1;
+INSERT INTO `proposition` SET id_announce = 2, id_user = 3, proposition = 12, `id_status_proposition` = 2;
+INSERT INTO `proposition` SET id_announce = 3, id_user = 1, proposition = 45, `id_status_proposition` = 3;
+INSERT INTO `proposition` SET id_announce = 4, id_user = 2, proposition = 35, `id_status_proposition` = 4;
+INSERT INTO `proposition` SET id_announce = 5, id_user = 3, proposition = 15, `id_status_proposition` = 1;
+INSERT INTO `proposition` SET id_announce = 6, id_user = 1, proposition = 100, `id_status_proposition` = 2;
 
-INSERT INTO `proposition` SET id_announce = 1, id_user = 3, proposition = 5, `id_status-proposition` = 4;
-INSERT INTO `proposition` SET id_announce = 2, id_user = 1, proposition = 15, `id_status-proposition` = 3;
-INSERT INTO `proposition` SET id_announce = 3, id_user = 2, proposition = 50, `id_status-proposition` = 2;
-INSERT INTO `proposition` SET id_announce = 4, id_user = 3, proposition = 20, `id_status-proposition` = 1;
-INSERT INTO `proposition` SET id_announce = 5, id_user = 1, proposition = 10, `id_status-proposition` = 1;
-INSERT INTO `proposition` SET id_announce = 6, id_user = 2, proposition = 75, `id_status-proposition` = 1;
+INSERT INTO `proposition` SET id_announce = 1, id_user = 3, proposition = 5, `id_status_proposition` = 4;
+INSERT INTO `proposition` SET id_announce = 2, id_user = 1, proposition = 15, `id_status_proposition` = 3;
+INSERT INTO `proposition` SET id_announce = 3, id_user = 2, proposition = 50, `id_status_proposition` = 2;
+INSERT INTO `proposition` SET id_announce = 4, id_user = 3, proposition = 20, `id_status_proposition` = 1;
+INSERT INTO `proposition` SET id_announce = 5, id_user = 1, proposition = 10, `id_status_proposition` = 1;
+INSERT INTO `proposition` SET id_announce = 6, id_user = 2, proposition = 75, `id_status_proposition` = 1;
