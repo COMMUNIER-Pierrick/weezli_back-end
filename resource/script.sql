@@ -73,7 +73,7 @@ CREATE TABLE `proposition`(
     `id_announce` int NOT NULL,
     `id_user` int NOT NULL,
     `proposition` DOUBLE NOT NULL,
-    `status-proposition` int NOT NULL
+    `id_status_proposition` int NOT NULL
 )Engine = InnoDB;
 
 ALTER TABLE `proposition` ADD PRIMARY KEY (`id_announce`,`id_user`);
@@ -98,7 +98,7 @@ CREATE TABLE `choice`(
     `name` VARCHAR(255) NOT NULL,
     `description` TEXT NULL,
     `price` DOUBLE NULL,
-    `id_payment` VARCHAR(255) NOT NULL
+    `id_payment` VARCHAR(255) NULL
 )Engine = InnoDB;
 
 CREATE TABLE `payment`(
