@@ -2,6 +2,7 @@ const database = require('../tools/database');
 const log = require('../../../log/logger');
 const StatusProposition = require("../../models/Status_proposition");
 const Proposition = require("../../models/Proposition");
+const Status_proposition = require("../../models/Status");
 
 const SELECT_ALL = `SELECT * from status_proposition`;
 const SELECT_BY_ID = `SELECT * from status_proposition WHERE id = ?`;
@@ -82,7 +83,7 @@ async function getById(id){
     try {
         con = await database.getConnection();
         const [status_proposition] = await con.execute(SELECT_BY_ID, [id]);
-        const newStatus_proposition = Status_proposition.StatusId(status_proposition[0].id, status_proposition[0].name);
+        const newStatus = Status_proposition.StatusId(status_proposition[0].id, status_proposition[0].name);
         return newStatus;
     } catch (error) {
         log.error("Error status_propositionDAO selectById : " + error);

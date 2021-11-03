@@ -3,6 +3,7 @@ const log = require('../log/logger');
 const Announce = require('../services/models/Announce');
 const Search = require('../services/models/Search');
 const fileDAO = require("../services/database/dao/fileDAO");
+const propositionDAO = require("../services/database/dao/propositionDAO");
 
 const insert = async (req, res) => {
     let fileOne = '';
@@ -83,6 +84,9 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
     const { id } = req.params;
     await announceDAO.remove(id);
+    // delete proposition
+    await propositionDAO.remove(annonce.id)
+
     const message = "Suppression réussie.";
     res.status(200).send({ "Message": message });
 };

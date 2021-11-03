@@ -4,7 +4,6 @@ const addressDAO = require("./addressDAO");
 const packageDAO = require("./packageDAO");
 const sizeDAO = require("./sizeDAO");
 const transportDAO = require("./transportDAO");
-const propositionDAO = require("./propositionDAO");
 const Package = require("../../models/Package");
 const Announce = require("../../models/Announce");
 const userDAO = require("./userDAO");
@@ -158,8 +157,6 @@ async function remove(id){
         // delete address
         await addressDAO.remove(announce.packages.addressDeparture.id);
         await addressDAO.remove(announce.packages.addressArrival.id);
-        // delete proposition
-        await propositionDAO.remove(annonce.id)
         //delete announce
         await con.execute(SQL_DELETE, [id]);
         // delete package
