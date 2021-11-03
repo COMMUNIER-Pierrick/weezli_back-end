@@ -17,13 +17,13 @@ const SQL_INSERT = `INSERT INTO announce SET id_package = ?, id_type = ?, price 
 const SQL_UPDATE = `UPDATE announce SET id_type = ?, price = ?, img_url = ? WHERE id =?`;
 
 const SELECT_BY_ID = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
-        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.status_proposition
+        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.id_status_proposition
         FROM announce a
         INNER JOIN proposition p ON a.id = p.id_announce
         WHERE a.id = ?`;
 
 const SELECT_ALL_USER = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
-        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.status_proposition
+        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.id_status_proposition
         FROM announce a
         INNER JOIN proposition p ON a.id = p.id_announce
         INNER JOIN rel_user_announce rua on a.id = rua.id_announce
@@ -31,13 +31,13 @@ const SELECT_ALL_USER = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
         WHERE u.id = ?`;
 
 const SELECT_BY_TYPE = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
-        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.status_proposition
+        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.id_status_proposition
         FROM announce a
         INNER JOIN proposition p ON a.id = p.id_announce
         WHERE a.id_type = ?`;
 
 const SELECT_BY_TYPE_USER = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
-        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.status_proposition
+        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.id_status_proposition
         FROM announce a
         INNER JOIN proposition p ON a.id = p.id_announce
         INNER JOIN rel_user_announce rua on a.id = rua.id_announce
@@ -210,7 +210,7 @@ async function getByType(idType){
 async function getSearch(condition, Search){
     let con = null;
     const SELECT_SEARCH = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type, a.price,
-                                           a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.status_proposition
+                                           a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.id_status_proposition
                             FROM announce a 
                             INNER JOIN package pk ON a.id = pk.id
                             INNER JOIN proposition p ON a.id = p.id_announce

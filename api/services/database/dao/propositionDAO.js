@@ -9,9 +9,9 @@ const SELECT_ALL_BY_ID_ANNOUNCE = `SELECT * from proposition WHERE id_announce =
 
 const SELECT_BY_ID_ANNOUNCE_AND_ID_USER = `SELECT * from proposition WHERE id_announce = ? AND id_user = ?`;
 
-const SQL_INSERT = `INSERT INTO proposition SET id_announce = ?, id_user = ?, proposition = ?, status-proposition = ?`;
+const SQL_INSERT = `INSERT INTO proposition SET id_announce = ?, id_user = ?, proposition = ?, id_status_proposition = ?`;
 
-const SQL_UPDATE = `UPDATE proposition SET proposition = ?, status-proposition = ? WHERE id_announce = ? AND id_user = ?`;
+const SQL_UPDATE = `UPDATE proposition SET proposition = ?, id_status_proposition = ? WHERE id_announce = ? AND id_user = ?`;
 
 const SQL_DELETE = `DELETE FROM proposition WHERE id_announce = ?`;
 
@@ -60,7 +60,7 @@ async function update(Proposition){
     try{
         con = await database.getConnection();
         await con.execute(SQL_UPDATE, [Proposition.proposition, Proposition.status_proposition, Proposition.id_announce, Proposition.id_user]);
-        const result = await getByIdAnnouceAndUser(Proposition.id_announce, Proposition.id_user);;
+        const result = await getByIdAnnouceAndUser(Proposition.id_announce, Proposition.id_user);
         return result;
     }catch (error) {
         log.error("Error propositionDAO update : " + error);
