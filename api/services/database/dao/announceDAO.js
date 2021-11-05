@@ -146,7 +146,7 @@ async function getById(id) {
         const [user] = await userDAO.getUserForAnnounceByAnnounce(id);
         const [ transport ] = await transportDAO.getById(packages[0].id_transport);
         const newPackage = new Package(packageId, address1, address2, packages[0].datetime_departure, packages[0].datetime_arrival, packages[0].kg_available, packages[0].description_condition, transport, sizes);
-        const newAnnounce = Announce.AnnounceId(announce[0].id, newPackage, announce[0].views, announce[0].id_type, announce[0].price, announce[0].img_url, announce[0].date_created, user);
+        const newAnnounce = Announce.AnnounceAll(announce[0].id, newPackage, announce[0].views, announce[0].id_type, announce[0].price, announce[0].img_url, announce[0].date_created, user);
         return newAnnounce;
     } catch (error) {
         log.error("Error announceDAO selectById : " + error);
@@ -207,7 +207,7 @@ async function getByType(idType){
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
+            const announce = Announce.AnnounceAll(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
@@ -250,7 +250,7 @@ async function getSearch(condition, Search){
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-            const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
+            const announce = new Announce(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;

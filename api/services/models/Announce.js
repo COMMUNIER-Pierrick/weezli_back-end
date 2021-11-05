@@ -11,9 +11,6 @@ module.exports = class Announce{
         this.Propositions = Propositions;
     }
 
-    static AnnounceId(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce, Propositions) {
-        return new Announce(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce, Propositions);
-    }
     static AnnounceAll(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce) {
         return new Announce(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce, null);
     }

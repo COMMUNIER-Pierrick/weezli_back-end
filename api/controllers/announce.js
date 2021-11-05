@@ -129,7 +129,7 @@ const getTypeByUser = async (req, res) => {
             let proposition = ({"proposition" : announces[i].Propositions[e]});
             propositionList.push(proposition);
         }
-        const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user, propositionList);
+        const announce = new Announce(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user, propositionList);
         newListAnnounce.push({"Announce": announce});
     }
     res.status(200).send( {"Announces": newListAnnounce} );
