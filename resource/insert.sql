@@ -27,7 +27,7 @@ INSERT INTO `choice` SET name='formule3', description='Lorem ipsum dolor sit ame
 INSERT INTO `status_proposition` set name='Proposition';
 INSERT INTO `status_proposition` set name='Contre-proposition';
 INSERT INTO `status_proposition` set name='Validé';
-INSERT INTO `status_proposition` set name='Refufé';
+INSERT INTO `status_proposition` set name='Refusé';
 
 
 INSERT INTO `address` SET id_info=1, number=45, street='Orange St', additional_address='3eme floor', zipcode='SW1Y 4UR', city='London', country='England';

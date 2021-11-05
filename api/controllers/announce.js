@@ -4,6 +4,13 @@ const Announce = require('../services/models/Announce');
 const Search = require('../services/models/Search');
 const fileDAO = require("../services/database/dao/fileDAO");
 const propositionDAO = require("../services/database/dao/propositionDAO");
+const packageDAO = require("../services/database/dao/packageDAO");
+const addressDAO = require("../services/database/dao/addressDAO");
+const sizeDAO = require("../services/database/dao/sizeDAO");
+const userDAO = require("../services/database/dao/userDAO");
+const transportDAO = require("../services/database/dao/transportDAO");
+const Package = require("../services/models/Package");
+const Proposition = require("../services/models/Proposition");
 
 const insert = async (req, res) => {
     let fileOne = '';
@@ -106,8 +113,26 @@ const getById = async (req, res) => {
 const getTypeByUser = async (req, res) => {
     const {id} = req.params;
     const{idType} = req.params;
-    const announce = await announceDAO.getByTypeUser(idType,id);
-    res.status(200).send( {"Announces": announce} );
+    const announces = await announceDAO.getByTypeUser(idType,id);
+    let newListAnnounce = [];
+    for(let i = 0; i < announces.length; i++){
+        let packageId = announces[i].id_package;
+        const [packages] = await packageDAO.getById(packageId);
+        const [address1] = await addressDAO.getByPackage(packageId, "depart");
+        const [address2] = await addressDAO.getByPackage(packageId, "arrival");
+        const [sizes] = await sizeDAO.getByPackage(packageId);
+        const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
+        const [ transport ] = await transportDAO.getById(packages.id_transport);
+        const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
+        let propositionList = [];
+        for(let e = 0; e < announces[i].Propositions.length; e++) {
+            let proposition = ({"proposition" : announces[i].Propositions[e]});
+            propositionList.push(proposition);
+        }
+        const announce = Announce.AnnounceId(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user, propositionList);
+        newListAnnounce.push({"Announce": announce});
+    }
+    res.status(200).send( {"Announces": newListAnnounce} );
 };
 
 const getALLUser = async (req, res) => {
