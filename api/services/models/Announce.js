@@ -14,6 +14,9 @@ module.exports = class Announce{
     static AnnounceId(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce, Propositions) {
         return new Announce(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce, Propositions);
     }
+    static AnnounceAll(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce) {
+        return new Announce(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce, null);
+    }
 
     static AnnounceUpdate(id,packages, idType, price, imgUrl, userAnnounce){
         return new Announce(id,packages, null, idType, price, imgUrl, null, userAnnounce, null);
