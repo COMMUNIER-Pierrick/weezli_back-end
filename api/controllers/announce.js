@@ -3,6 +3,14 @@ const log = require('../log/logger');
 const Announce = require('../services/models/Announce');
 const Search = require('../services/models/Search');
 const fileDAO = require("../services/database/dao/fileDAO");
+const propositionDAO = require("../services/database/dao/propositionDAO");
+const packageDAO = require("../services/database/dao/packageDAO");
+const addressDAO = require("../services/database/dao/addressDAO");
+const sizeDAO = require("../services/database/dao/sizeDAO");
+const userDAO = require("../services/database/dao/userDAO");
+const transportDAO = require("../services/database/dao/transportDAO");
+const Package = require("../services/models/Package");
+const Proposition = require("../services/models/Proposition");
 
 const insert = async (req, res) => {
     let fileOne = '';
@@ -13,7 +21,7 @@ const insert = async (req, res) => {
     let strFilesName = '';
     let urlImages = '';
     let announceParse = JSON.parse(req.body.Announce);
-    const announce = Announce.AnnounceInsert(announceParse.packages, announceParse.idType, announceParse.price, announceParse.transact, announceParse.imgUrl, announceParse.userAnnounce);
+    const announce = Announce.AnnounceInsert(announceParse.packages, announceParse.idType, announceParse.price, announceParse.imgUrl, announceParse.userAnnounce);
 
     //const announce = Announce.AnnounceInsert(req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
     req.files.forEach(el => el.fieldname === 'fileOne' ? fileOne = el : el.fieldname === 'fileTwo' ? fileTwo = el : el.fieldname === 'fileThree' ? fileThree = el : el.fieldname === 'fileFour' ? fileFour = el : fileFive = el);
@@ -38,7 +46,7 @@ const update = async (req, res) => {
     let strFilesName = '';
     let urlImages = '';
     let announceParse = JSON.parse(req.body.Announce);
-    const announce = Announce.AnnounceUpdate(id,announceParse.packages, announceParse.idType, announceParse.price, announceParse.transact, announceParse.imgUrl, announceParse.userAnnounce);
+    const announce = Announce.AnnounceUpdate(id,announceParse.packages, announceParse.idType, announceParse.price, announceParse.imgUrl, announceParse.userAnnounce);
     //const announce = Announce.AnnounceInsert(id, req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
 
     //insertion de l'image dans sa variable si il y en a un
@@ -83,6 +91,9 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
     const { id } = req.params;
     await announceDAO.remove(id);
+    // delete proposition
+    await propositionDAO.remove(annonce.id)
+
     const message = "Suppression réussie.";
     res.status(200).send({ "Message": message });
 };
@@ -102,14 +113,31 @@ const getById = async (req, res) => {
 const getTypeByUser = async (req, res) => {
     const {id} = req.params;
     const{idType} = req.params;
-    const announce = await announceDAO.getByTypeUser(idType,id);
-    res.status(200).send( {"Announces": announce} );
+    const announces = await announceDAO.getByTypeUser(idType,id);
+    let newListAnnounce = [];
+    for(let i = 0; i < announces.length; i++){
+        let packageId = announces[i].id_package;
+        const [packages] = await packageDAO.getById(packageId);
+        const [address1] = await addressDAO.getByPackage(packageId, "depart");
+        const [address2] = await addressDAO.getByPackage(packageId, "arrival");
+        const [sizes] = await sizeDAO.getByPackage(packageId);
+        const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
+        const [ transport ] = await transportDAO.getById(packages.id_transport);
+        const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
+        let propositionList = [];
+        for(let e = 0; e < announces[i].Propositions.length; e++) {
+            let proposition = ({"proposition" : announces[i].Propositions[e]});
+            propositionList.push(proposition);
+        }
+        const announce = new Announce(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user, propositionList);
+        newListAnnounce.push({"Announce": announce});
+    }
+    res.status(200).send( {"Announces": newListAnnounce} );
 };
 
 const getALLUser = async (req, res) => {
     const {id} = req.params;
     const announce = await announceDAO.getAllUser(id);
-    //announce.forEach(el => console.log(el.id));
     res.status(200).send( {"Announces": announce} );
 }
 
@@ -178,30 +206,15 @@ const getSearch = async (req, res) => {
     res.status(200).send({"Announces": search});
 }
 
-const setTransact = async (req, res) => {
-    const updateAnnounce = req.body.Announce;
-    let announce = await announceDAO.setTransact(updateAnnounce);
-    res.status(200).send( {"Announce": announce} );
-};
-
-const setFinalPrice = async (req, res) => {
-    const updateAnnounce = req.body.Announce;
-    let announce = await announceDAO.setFinalPrice(updateAnnounce);
-    res.status(200).send( {"Announce": announce} );
-};
-
-
 module.exports = {
     insert,
     remove,
     update,
     getByType,
     getById,
-   getTypeByUser,
+    getTypeByUser,
     getSearch,
     getALLUser,
-    setTransact,
-    setFinalPrice
 };
 
 function verifString(str){

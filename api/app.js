@@ -25,6 +25,7 @@ app.use("/transport", require("./routes/transport"));
 app.use("/api", require("./routes/verifyUser"));
 app.use("/image", require("./routes/image"));
 app.use("/order", require ("./routes/order"));
+app.use("/proposition", require("./routes/proposition"));
 
 
 try{

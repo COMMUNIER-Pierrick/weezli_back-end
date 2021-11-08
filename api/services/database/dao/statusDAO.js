@@ -2,7 +2,6 @@ const database = require('../tools/database');
 const log = require('../../../log/logger');
 const Status = require("../../models/Status");
 const userDAO = require("./userDAO");
-const FinalPrice = require("../../models/FinalPrice");
 
 const SELECT_ALL = `SELECT * from status`;
 const SELECT_BY_ID = `SELECT * from status WHERE id = ?`;

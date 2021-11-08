@@ -1,13 +1,14 @@
 const database = require('../tools/database');
 const log = require('../../../log/logger');
-const userDAO = require("./userDAO");
-const FinalPrice = require("../../models/FinalPrice");
+const StatusProposition = require("../../models/Status_proposition");
+const Proposition = require("../../models/Proposition");
+const Status_proposition = require("../../models/Status");
 
-const SELECT_ALL = `SELECT * from final_price`;
-const SELECT_BY_ID = `SELECT * from final_price WHERE id = ?`;
-const SQL_INSERT = `INSERT INTO final_price SET proposition = ?, accept = ?, id_user = ?`;
-const SQL_UPDATE = `UPDATE final_price SET proposition = ?, accept = ?, id_user = ? WHERE id = ?`;
-const SQL_DELETE = `DELETE FROM final_price WHERE id = ?`;
+const SELECT_ALL = `SELECT * from status_proposition`;
+const SELECT_BY_ID = `SELECT * from status_proposition WHERE id = ?`;
+const SQL_INSERT = `INSERT INTO status_proposition SET name = ?`;
+const SQL_UPDATE = `UPDATE status_proposition SET name = ? WHERE id = ?`;
+const SQL_DELETE = `DELETE FROM status_proposition WHERE id = ?`;
 
 const errorMessage = "Data access error";
 
@@ -18,7 +19,7 @@ async function getAll(){
         const [rows] = await con.execute(SELECT_ALL);
         return rows;
     } catch (error) {
-        log.error("Error finalPriceDAO selectAll : " + error);
+        log.error("Error status_propositionDAO selectAll : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -27,32 +28,33 @@ async function getAll(){
     }
 }
 
-async function insert(proposition, accept, idUser){
+async function insert(Status_proposition){
     let con = null;
     try{
         con = await database.getConnection();
-        const [idCreated] = await con.execute(SQL_INSERT, [proposition, accept, idUser]);
+        const [idCreated] = await con.execute(SQL_INSERT, [Status_proposition.name]);
         const id = idCreated.insertId;
-        return await getById(id);
-    }catch (error) {
-        log.error("Error finalPriceDAO insert : " + error);
-        throw errorMessage;
-    } finally {
-        if (con !== null) {
-            con.end();
-        }
-    }
-}
-
-async function update(proposition, accept, userId, id){
-    let con = null;
-    try{
-        con = await database.getConnection();
-        await con.execute(SQL_UPDATE, [proposition, accept, userId, id]);
-        const result = await getById(id);
+        const [result] = await getById({id})
         return result;
     }catch (error) {
-        log.error("Error finalPriceDAO update : " + error);
+        log.error("Error status_propositionDAO insert : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
+async function update(Status_proposition, id){
+    let con = null;
+    try{
+        con = await database.getConnection();
+        await con.execute(SQL_UPDATE, [Status_proposition.name, id]);
+        const [result] = await getById({id})
+        return result;
+    }catch (error) {
+        log.error("Error status_propositionDAO update : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -67,7 +69,7 @@ async function remove({id}){
         con = await database.getConnection();
         await con.execute(SQL_DELETE, [id]);
     }catch (error) {
-        log.error("Error finalPriceDAO delete : " + error);
+        log.error("Error status_propositionDAO delete : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -80,13 +82,11 @@ async function getById(id){
     let con = null;
     try {
         con = await database.getConnection();
-        const [finalPrice] = await con.execute(SELECT_BY_ID, [id]);
-        let userId = finalPrice[0].id_user;
-        const [user] = await userDAO.getBuyerById(userId);
-        const newFinalPrice = FinalPrice.FinalPriceId(finalPrice[0].id, finalPrice[0].proposition, finalPrice[0].accept, user);
-        return newFinalPrice;
+        const [status_proposition] = await con.execute(SELECT_BY_ID, [id]);
+        const newStatus = Status_proposition.StatusId(status_proposition[0].id, status_proposition[0].name);
+        return newStatus;
     } catch (error) {
-        log.error("Error finalPriceDAO selectById : " + error);
+        log.error("Error status_propositionDAO selectById : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {

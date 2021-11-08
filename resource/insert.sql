@@ -1,6 +1,3 @@
-INSERT INTO `transport` SET name='non-identifier';
-INSERT INTO `transport` SET name='avion', filename='avion.png';
-INSERT INTO `transport` SET name='voiture', filename='voiture.png';
 INSERT INTO `transport` SET name='train', filename = 'train.png';
 INSERT INTO `transport` SET name='bateau', filename='bateau.png';
 INSERT INTO `transport` SET name='camion', filename = 'camion.png';
@@ -18,6 +15,21 @@ INSERT INTO `info` SET name='depart';
 INSERT INTO `info` SET name='arrival';
 INSERT INTO `info` SET name='personal';
 
+INSERT INTO `status` SET name='En cours';
+INSERT INTO `status` SET name='Livré';
+INSERT INTO `status` SET name='Terminé';
+
+INSERT INTO `choice` SET name='no-formule';
+INSERT INTO `choice` SET name='formule1', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='5', id_payment= 'price_1JlyoNKAPKSmGQtSTk8fBsqc';
+INSERT INTO `choice` SET name='formule2', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='10', id_payment= 'price_1JmD3uKAPKSmGQtSk2yTNI1T';
+INSERT INTO `choice` SET name='formule3', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='15', id_payment= 'price_1JmD5FKAPKSmGQtSSaxTdgme';
+
+INSERT INTO `status_proposition` set name='Proposition';
+INSERT INTO `status_proposition` set name='Contre-proposition';
+INSERT INTO `status_proposition` set name='Validé';
+INSERT INTO `status_proposition` set name='Refusé';
+
+
 INSERT INTO `address` SET id_info=1, number=45, street='Orange St', additional_address='3eme floor', zipcode='SW1Y 4UR', city='London', country='England';
 INSERT INTO `address` SET id_info=1, number=12, street='Lalana Delord', additional_address='', zipcode='105', city='Antananarivo', country='Madagascar';
 INSERT INTO `address` SET id_info=2, number=28, street='Avenue des Champs-Elysées', additional_address='', zipcode='75000', city='Paris', country='France';
@@ -29,30 +41,8 @@ INSERT INTO `package` SET datetime_departure=null, datetime_arrival='2021-11-28T
 INSERT INTO `package` SET datetime_departure=null, datetime_arrival='2021-12-21T00:00:00', kg_available=3, description_condition='Maecenas consectetur, magna nec pretium faucibus, ipsum urna dapibus dolor, ac ornare est purus et velit', id_transport=1;
 INSERT INTO `package` SET datetime_departure=null, datetime_arrival='2021-10-15T00:00:00.', kg_available=15, description_condition='Maecenas consectetur, magna nec pretium faucibus, ipsum urna dapibus dolor, ac ornare est purus et velit', id_transport=1;
 INSERT INTO `package` SET datetime_departure='2021-11-26T00:00:00', datetime_arrival='2021-11-29T00:00:00', kg_available=7, description_condition='', id_transport='2';
-INSERT INTO `package` SET datetime_departure='2021-12-20T00:00:00', datetime_arrival='2021-12-22T00:00:00', kg_available=4, description_condition='', id_transport='5';
+INSERT INTO `package` SET datetime_departure='2021-12-20T00:00:00', datetime_arrival='2021-12-22T00:00:00', kg_available=4, description_condition='', id_transport='3';
 INSERT INTO `package` SET datetime_departure='2021-10-15T00:00:00', datetime_arrival='2021-10-15T00:00:00', kg_available=20, description_condition='', id_transport='4';
-
-INSERT INTO `final_price` SET proposition=null, accept=null, id_user = 1;
-INSERT INTO `final_price` SET proposition=null, accept=null, id_user = 2;
-INSERT INTO `final_price` SET proposition=null, accept=null, id_user = 3;
-INSERT INTO `final_price` SET proposition=25.50, accept=false, id_user = 1;
-INSERT INTO `final_price` SET proposition=null, accept=null, id_user = 2;
-INSERT INTO `final_price` SET proposition=100, accept=true, id_user = 3;
-
-INSERT INTO `status` SET name='Payé';
-INSERT INTO `status` SET name='Terminé';
-
-INSERT INTO `announce` SET id_package=1, views=10, id_final_price=1, id_type=1, price=null, transact=true, img_url='picture15052021.png, picture15052021.png', date_created='2021-11-01T00:00:00';
-INSERT INTO `announce` SET id_package=2, views=0, id_final_price=2, id_type=1, price=null, transact=false, img_url='', date_created='2021-12-10T00:00:00';
-INSERT INTO `announce` SET id_package=3, views=3, id_final_price=3, id_type=1, price=null, transact=true, img_url='picture15052021.png', date_created='2021-10-05T00:00:00';
-INSERT INTO `announce` SET id_package=4, views=8, id_final_price=4, id_type=2, price=28.50, transact=false, img_url='', date_created='2021-10-01T00:00:00';
-INSERT INTO `announce` SET id_package=5, views=1, id_final_price=5, id_type=2, price=5, transact=false, img_url='', date_created='2021-11-10T00:00:00';
-INSERT INTO `announce` SET id_package=6, views=0, id_final_price=6, id_type=2, price=125.90, transact=false, img_url='', date_created='2021-09-05T00:00:00';
-
-INSERT INTO `choice` SET name='no-formule';
-INSERT INTO `choice` SET name='formule1', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='5.5';
-INSERT INTO `choice` SET name='formule2', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='10';
-INSERT INTO `choice` SET name='formule3', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='14.9';
 
 INSERT INTO `payment` SET name='alain terieur', iban='FR0000000000000000000000001', number_card='5698524587459685' , expired_date_card='2022-12-10T00:00:00';
 INSERT INTO `payment` SET name='sarah croche', iban='FR0000000000000000000000002', number_card='5245874596855698' , expired_date_card='2023-12-10T00:00:00';
@@ -60,7 +50,7 @@ INSERT INTO `payment` SET name='marc assin', iban='FR0000000000000000000000003',
 
 INSERT INTO `check_user` SET status_phone=true, status_mail=false, status_identity=true, img_identity=null, status='Active', confirm_code = '56dxf46x5df4g6dwf5g46sd5fg4dw6f';
 INSERT INTO `check_user` SET status_phone=false, status_mail=true, status_identity=true, img_identity='pictureidentity1.jpg', status='Active', confirm_code = 'df6g5h4xfdg65h4xf6g5hf';
-INSERT INTO `check_user` SET status_phone=false, status_mail=false, status_identity=false, img_identity='', status='', confirm_code = 's6d5fg4hw6dfg4sdfh5fg45h';
+INSERT INTO `check_user` SET status_phone=false, status_mail=false, status_identity=false, img_identity='', status='Pending', confirm_code = 's6d5fg4hw6dfg4sdfh5fg45h';
 
 
 INSERT INTO `users` SET firstname='alain',lastname='terrieur', username='alainterieur', password='1§fdv54ùmsldc354sdvm^$5656m',
@@ -75,16 +65,6 @@ INSERT INTO `users` SET firstname='marc',lastname='assin', username='marcassin',
                         email='marc@assin.com', phone='0607070707', date_of_birthday= '1989-12-10T00:00:00', active=1, url_profile_img='pictureprofile3.png', average_opinion=0,
                         id_payment=3, id_choice=2, id_check=3, choice_date_started = '2021-11-10T00:00:00', choice_date_end= '2022-03-10T00:00:00', id_address= 6;
 
-INSERT INTO `orders` SET code_validated = '51358', id_status = 1, id_announce = 1, date_order = '2021-12-10T00:00:00', id_buyer = 2, qr_code = '', id_final_price = 1;
-INSERT INTO `orders` SET code_validated = '48138', id_status = 2, id_announce = 3, date_order = '2021-12-10T00:00:00', id_buyer = 1, qr_code = '', id_final_price = 3;
-
-
-INSERT INTO `rel_user_announce` SET id_user=1, id_announce=1;
-INSERT INTO `rel_user_announce` SET id_user=1, id_announce=4;
-INSERT INTO `rel_user_announce` SET id_user=2, id_announce=2;
-INSERT INTO `rel_user_announce` SET id_user=2, id_announce=5;
-INSERT INTO `rel_user_announce` SET id_user=3, id_announce=3;
-INSERT INTO `rel_user_announce` SET id_user=3, id_announce=6;
 
 INSERT INTO `rel_package_sizes` SET id_package=1, id_size=2;
 INSERT INTO `rel_package_sizes` SET id_package=1, id_size=3;
@@ -112,5 +92,35 @@ INSERT INTO `rel_package_address` SET id_package=5, id_address=4;
 INSERT INTO `rel_package_address` SET id_package=6, id_address=1;
 INSERT INTO `rel_package_address` SET id_package=6, id_address=3;
 
-UPDATE `announce` SET `id_order` = '1' WHERE `announce`.`id` = 1;
-UPDATE `announce` SET `id_order` = '2' WHERE `announce`.`id` = 3;
+INSERT INTO `announce` SET id_package=1, views=10, id_type=1, price=12.5, img_url='picture15052021.png, picture15052021.png', date_created='2021-11-01T00:00:00';
+INSERT INTO `announce` SET id_package=2, views=0, id_type=1, price=15, img_url='', date_created='2021-12-10T00:00:00';
+INSERT INTO `announce` SET id_package=3, views=3, id_type=1, price=59, img_url='picture15052021.png', date_created='2021-10-05T00:00:00';
+INSERT INTO `announce` SET id_package=4, views=8, id_type=2, price=28.50, img_url='', date_created='2021-10-01T00:00:00';
+INSERT INTO `announce` SET id_package=5, views=1, id_type=2, price=5, img_url='', date_created='2021-11-10T00:00:00';
+INSERT INTO `announce` SET id_package=6, views=0, id_type=2, price=125.90, img_url='', date_created='2021-09-05T00:00:00';
+
+INSERT INTO `orders` SET code_validated = '51358', id_status = 1, id_announce = 1, date_order = '2021-12-10T00:00:00';
+INSERT INTO `orders` SET code_validated = '55358', id_status = 2, id_announce = 2, date_order = '2021-12-10T00:00:00';
+INSERT INTO `orders` SET code_validated = '48138', id_status = 3, id_announce = 3, date_order = '2021-12-10T00:00:00';
+INSERT INTO `orders` SET code_validated = '589987', id_status = 2, id_announce = 5, date_order = '2021-12-10T00:00:00';
+
+INSERT INTO `rel_user_announce` SET id_user=1, id_announce=1;
+INSERT INTO `rel_user_announce` SET id_user=1, id_announce=4;
+INSERT INTO `rel_user_announce` SET id_user=2, id_announce=2;
+INSERT INTO `rel_user_announce` SET id_user=2, id_announce=5;
+INSERT INTO `rel_user_announce` SET id_user=3, id_announce=3;
+INSERT INTO `rel_user_announce` SET id_user=3, id_announce=6;
+
+INSERT INTO `proposition` SET id_announce = 1, id_user = 2, proposition = 10, `id_status_proposition` = 1;
+INSERT INTO `proposition` SET id_announce = 2, id_user = 3, proposition = 12, `id_status_proposition` = 2;
+INSERT INTO `proposition` SET id_announce = 3, id_user = 1, proposition = 45, `id_status_proposition` = 3;
+INSERT INTO `proposition` SET id_announce = 4, id_user = 2, proposition = 35, `id_status_proposition` = 4;
+INSERT INTO `proposition` SET id_announce = 5, id_user = 3, proposition = 15, `id_status_proposition` = 1;
+INSERT INTO `proposition` SET id_announce = 6, id_user = 1, proposition = 100, `id_status_proposition` = 2;
+
+INSERT INTO `proposition` SET id_announce = 1, id_user = 3, proposition = 5, `id_status_proposition` = 4;
+INSERT INTO `proposition` SET id_announce = 2, id_user = 1, proposition = 15, `id_status_proposition` = 3;
+INSERT INTO `proposition` SET id_announce = 3, id_user = 2, proposition = 50, `id_status_proposition` = 2;
+INSERT INTO `proposition` SET id_announce = 4, id_user = 3, proposition = 20, `id_status_proposition` = 1;
+INSERT INTO `proposition` SET id_announce = 5, id_user = 1, proposition = 10, `id_status_proposition` = 1;
+INSERT INTO `proposition` SET id_announce = 6, id_user = 2, proposition = 75, `id_status_proposition` = 1;

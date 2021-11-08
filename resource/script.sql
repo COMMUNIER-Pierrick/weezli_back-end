@@ -29,11 +29,8 @@ CREATE TABLE `announce`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `id_package` INT NOT NULL,
     `views` INT NOT NULL DEFAULT 0,
-    `id_final_price` INT NULL,
-    `id_order` INT NULL,
     `id_type` INT NOT NULL,
     `price` DOUBLE NULL,
-    `transact` BOOLEAN NOT NULL DEFAULT FALSE,
     `img_url` VARCHAR(255) NULL,
     `date_created` DATETIME DEFAULT CURRENT_TIMESTAMP
 )Engine = InnoDB;
@@ -72,11 +69,18 @@ CREATE TABLE `size`(
     `filename` VARCHAR(250) NULL UNIQUE
 )Engine = InnoDB;
 
-CREATE TABLE `final_price`(
-    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `proposition` DOUBLE NULL,
-    `accept` BOOLEAN NULL DEFAULT FALSE,
-    `id_user` INT NULL
+CREATE TABLE `proposition`(
+    `id_announce` int NOT NULL,
+    `id_user` int NOT NULL,
+    `proposition` DOUBLE NOT NULL,
+    `id_status_proposition` int NOT NULL
+)Engine = InnoDB;
+
+ALTER TABLE `proposition` ADD PRIMARY KEY (`id_announce`,`id_user`);
+
+CREATE TABLE `status_proposition`(
+    `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL
 )Engine = InnoDB;
 
 CREATE TABLE `check_user`(
@@ -94,7 +98,7 @@ CREATE TABLE `choice`(
     `name` VARCHAR(255) NOT NULL,
     `description` TEXT NULL,
     `price` DOUBLE NULL,
-    `id_payment` VARCHAR(255) NOT NULL
+    `id_payment` VARCHAR(255) NULL
 )Engine = InnoDB;
 
 CREATE TABLE `payment`(
@@ -126,9 +130,7 @@ CREATE TABLE `orders`(
     `id_status` INT NOT NULL,
     `id_announce` INT NOT NULL UNIQUE,
     `date_order` DATETIME NOT NULL,
-    `id_buyer` INT NOT NULL,
-    `qr_code` VARCHAR(250),
-    `id_final_price` INT NOT NULL
+    `qr_code` VARCHAR(250)
 )Engine = InnoDB;
 
 CREATE TABLE `status`(
@@ -193,9 +195,7 @@ ALTER TABLE `users` ADD CONSTRAINT `fk_user_address` FOREIGN KEY (`id_address`) 
 ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFERENCES `check_user`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION; /* Le on delete no action c'est pour refusé de supprimer le parent donc user*/
 
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_package` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_final_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_type` FOREIGN KEY (`id_type`) REFERENCES `types`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_order` FOREIGN KEY (`id_order`) REFERENCES `orders`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE `messages` ADD CONSTRAINT `fk_message_id_author` FOREIGN KEY (`id_author`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `messages` ADD CONSTRAINT `fk_messages_id_channel` FOREIGN KEY (`id_channel`) REFERENCES  `channels`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
@@ -221,15 +221,9 @@ ALTER TABLE `package` ADD CONSTRAINT `fk_package_transport` FOREIGN KEY (`id_tra
 ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_status` FOREIGN KEY (`id_status`)  REFERENCES `status`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-/* A SUPPRIMER */
-/*ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_final_price` FOREIGN KEY (`id_final_price`) REFERENCES `final_price`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_buyer` FOREIGN KEY (`id_buyer`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;*/
-
 ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-
-
-
-
-
+ALTER TABLE `proposition` ADD CONSTRAINT `fk_proposition_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `proposition` ADD CONSTRAINT `fk_proposition_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `proposition` ADD CONSTRAINT `fk_status_proposition_id_user` FOREIGN KEY (`id_status_proposition`) REFERENCES `status_proposition`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
