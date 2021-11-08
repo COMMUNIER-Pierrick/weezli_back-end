@@ -11,6 +11,7 @@ const announceDAO = require("../services/database/dao/announceDAO");
 const paymentDAO = require("../services/database/dao/paymentDAO");
 
 const insert = async (req, res) => {
+	console.log(req.body.User);
 	const { firstname, lastname, username, password, email, dateOfBirthday, address} = req.body.User;
 	const { error } = registerValidation(req.body.User);
 	if(error){
