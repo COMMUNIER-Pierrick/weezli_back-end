@@ -124,5 +124,3 @@ INSERT INTO `proposition` SET id_announce = 3, id_user = 2, proposition = 50, `i
 INSERT INTO `proposition` SET id_announce = 4, id_user = 3, proposition = 20, `id_status_proposition` = 1;
 INSERT INTO `proposition` SET id_announce = 5, id_user = 1, proposition = 10, `id_status_proposition` = 1;
 INSERT INTO `proposition` SET id_announce = 6, id_user = 2, proposition = 75, `id_status_proposition` = 1;
-
-/*ziguiziguyi*/
