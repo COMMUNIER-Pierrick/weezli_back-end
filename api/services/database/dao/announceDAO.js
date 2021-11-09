@@ -17,11 +17,7 @@ const SQL_INSERT = `INSERT INTO announce SET id_package = ?, id_type = ?, price 
 
 const SQL_UPDATE = `UPDATE announce SET id_type = ?, price = ?, img_url = ? WHERE id =?`;
 
-const SELECT_BY_ID = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
-        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.id_status_proposition
-        FROM announce a
-        INNER JOIN proposition p ON a.id = p.id_announce
-        WHERE a.id = ?`;
+const SELECT_BY_ID = `SELECT * FROM announce WHERE id = ?`;
 
 const SELECT_ALL_USER = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type, a.price,
         a.img_url, a.date_created
