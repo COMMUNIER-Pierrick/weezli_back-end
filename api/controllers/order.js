@@ -1,16 +1,10 @@
 const log = require('../log/logger');
-let Order = require('../services/models/Order');
+const Order = require('../services/models/Order');
 const orderDAO = require("../services/database/dao/orderDAO");
 
 /*L'insert sera appeler update de proposition et apperla directement la dao sans passer par le controler*/
 const insert = async (req, res) => {
 
-    const { announce, status, dateOrder, qrCode} = req.body.Order;
-    let codeValidated = codeValidatedRandom()
-    const order = Order.OrderInsert(codeValidated, status, announce, dateOrder, qrCode);
-    const result = await orderDAO.insert(order);
-    const message = "La commande a bien été créée";
-    return res.status(200).send({"Message": message, "Order": result});
 };
 
 const updateStatus = async (req, res) => {

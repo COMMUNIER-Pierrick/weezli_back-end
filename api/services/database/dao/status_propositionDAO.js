@@ -31,10 +31,11 @@ async function getAll(){
 async function insert(Status_proposition){
     let con = null;
     try{
+    console.log(Status_proposition.name);
         con = await database.getConnection();
         const [idCreated] = await con.execute(SQL_INSERT, [Status_proposition.name]);
         const id = idCreated.insertId;
-        const [result] = await getById({id})
+        const [result] = await getById(id)
         return result;
     }catch (error) {
         log.error("Error status_propositionDAO insert : " + error);
@@ -83,7 +84,7 @@ async function getById(id){
     try {
         con = await database.getConnection();
         const [status_proposition] = await con.execute(SELECT_BY_ID, [id]);
-        const newStatus = Status_proposition.StatusId(status_proposition[0].id, status_proposition[0].name);
+        const newStatus = new Status_proposition(status_proposition[0].id, status_proposition[0].name);
         return newStatus;
     } catch (error) {
         log.error("Error status_propositionDAO selectById : " + error);

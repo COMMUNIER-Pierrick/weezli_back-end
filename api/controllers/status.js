@@ -24,13 +24,13 @@ const update = async (req, res) => {
 
 const getById = async (req, res) => {
     const {id} = req.params;
-    const status = await statusDAO.getById({id});
+    const status = await statusDAO.getById(id);
     res.status(200).send({"Status": status});
 }
 
 const remove = async (req, res) => {
     const {id} = req.params;
-    await statusDAO.remove({id});
+    await statusDAO.remove(id);
     const message = "Le status a bien été supprimée";
     res.status(200).send({"Message": message});
 }

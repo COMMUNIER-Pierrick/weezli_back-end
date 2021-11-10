@@ -37,10 +37,7 @@ async function insert(newOrder) {
     let con = null;
     try{
         con = await database.getConnection();
-        const [idCreated] =  await con.execute(SQL_INSERT, [newOrder.codeValidated, newOrder.status, newOrder.announce, newOrder.dateOrder]);
-        const id = idCreated.insertId;
-        const order = await getById(id);
-        return ({"Order": order})
+        await con.execute(SQL_INSERT, [newOrder.codeValidated, newOrder.status, newOrder.announce, newOrder.dateOrder]);
     }catch (error) {
         log.error("Error orderDAO insert : " + error);
         throw errorMessage;

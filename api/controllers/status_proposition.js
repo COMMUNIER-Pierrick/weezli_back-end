@@ -24,13 +24,13 @@ const update = async (req, res) => {
 
 const getById = async (req, res) => {
     const {id} = req.params;
-    const status_proposition = await status_propositionDAO.getById({id});
+    const status_proposition = await status_propositionDAO.getById(id);
     res.status(200).send({"Status_proposition": status_proposition});
 }
 
 const remove = async (req, res) => {
     const {id} = req.params;
-    await status_propositionDAO.remove({id});
+    await status_propositionDAO.remove(id);
     const message = "Le status proposition a bien été supprimée";
     res.status(200).send({"Message": message});
 }

@@ -41,12 +41,11 @@ async function getAll(){
     }
 }
 
-async function insert(id_announce, id_user, proposition, status_proposition){
+async function insert(Proposition){
     let con = null;
     try{
         con = await database.getConnection();
-        await con.execute(SQL_INSERT, [id_announce, id_user, proposition, status_proposition]);
-        return await getByIdAnnouceAndUser(id_announce, id_user);
+        await con.execute(SQL_INSERT, [Proposition.id_announce, Proposition.id_user, Proposition.proposition, Proposition.status_proposition]);
     }catch (error) {
         log.error("Error propositionDAO insert : " + error);
         throw errorMessage;
@@ -116,13 +115,7 @@ async function getByIdAnnouceAndUser(id_announce, id_user){
     try {
         con = await database.getConnection();
         const [proposition] = await con.execute(SELECT_BY_ID_ANNOUNCE_AND_ID_USER, [id_announce, id_user]);
-        console.log(proposition)
-        let announce = await announceDAO.getById(proposition[0].id_announce);
-        let statusProposition = await statusPropositionDAO.getById(proposition[0].id_status_proposition);
-        const newProposition = new Proposition(announce, proposition[0].id_user, proposition[0].proposition, statusProposition);
-        return ({"Proposition": newProposition});
-        //const newProposition = new Proposition(proposition[0].id_announce, proposition[0].id_user, proposition[0].proposition, proposition[0].id_status_proposition);
-        //return newProposition;
+        return proposition;
     } catch (error) {
         log.error("Error propositionDAO selectByIdAnnouceAndUser : " + error);
         throw errorMessage;
