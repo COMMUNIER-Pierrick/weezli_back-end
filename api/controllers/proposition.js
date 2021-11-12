@@ -6,6 +6,7 @@ const Order = require("../services/models/Order");
 const orderController = require("./order");
 const announceDAO = require("../services/database/dao/announceDAO");
 const statusPropositionDAO = require("../services/database/dao/status_propositionDAO");
+const userDAO = require("../services/database/dao/userDAO");
 
 const insert = async (req, res) => {
 
@@ -16,38 +17,39 @@ const insert = async (req, res) => {
     let message = "";
     let codeValidated = orderController.codeValidatedRandom();
     const dateOrder = new Date();
-    const newOrder = Order.OrderInsert(codeValidated, 1, result.id_announce, dateOrder);
+    const newOrder = Order.OrderInsert(codeValidated, 1, result.id_announce.id, dateOrder);
 
     /*si proposition validé */
     if(result.status_proposition.id === 3) {
+
        const order = await orderDAO.insert(newOrder);
        message = "Votre commande a été créée.";
-       return res.status(200).send({"Order": order});
+       return res.status(200).send({"Message": message, "Order": order});
 
     }else{
-         message = "La proposition a bien été créée.";
-         return res.status(200).send({"Message": message, "Proposition": result});
+       message = "La proposition a bien été créée.";
+       return res.status(200).send({"Message": message, "Proposition": result});
     }
    }
 
 const update = async (req, res) => {
+
 	const { Proposition } = req.body;
 	const result = await propositionDAO.update(Proposition);
     let message = "";
     let codeValidated = orderController.codeValidatedRandom();
     const dateOrder = new Date();
     const newOrder = Order.OrderInsert(codeValidated,1, result.id_announce, dateOrder);
-    console.log(newOrder);
-    let order = "";
 
     /*si proposition validé */
     if(result.status_proposition === 3) {
-       order = await orderDAO.insert(newOrder)
-        if(order.length > 0){
-            message = "Votre commande a été créée.";
-            res.status(200).send( {"Message": message , "Order" : order});
-        }
+
+        const order = await orderDAO.insert(newOrder)
+        message = "Votre commande a été créée.";
+        res.status(200).send( {"Message": message , "Order" : order});
+
     }else{
+
          message = "La proposition a bien été modifiée ";
          res.status(200).send( {"Message": message , "Proposition": result});
     }
@@ -63,8 +65,18 @@ const remove = async (req, res) => {
 
 const getAll = async (req, res) => {
 
-    const proposition = await propositionDAO.getAll();
-    res.status(200).send( {"Propositions": proposition} );
+    const allProposition = await propositionDAO.getAll();
+    let newListProposition = [];
+        for(let i = 0; i < allProposition.length; i++){
+            const proposition = allProposition[i];
+            console.log(proposition);
+            const announce = await announceDAO.getById(proposition.id_announce);
+            const user = await userDAO.getById(proposition.id_user);
+            const status = await statusPropositionDAO.getById(proposition.id_status_proposition)
+            const newProposition = new PropositionModel(announce, user, proposition.proposition, status);
+            newListProposition.push({"Proposition" : newProposition});
+        }
+    res.status(200).send( {"Propositions": newListProposition} );
 };
 
 const getByIdAnnouce = async (req, res) => {
@@ -102,10 +114,14 @@ async function getByIdProposition(id_announce,id_user){
     return newProposition;
 }
 
-/*async function getByIdOrder(id){
+async function getOrder(newOrder){
 
-    const announce = await announceDAO.getById(order[0].id_announce);
-    const status = await statusDAO.getById(order[0].id_status);
-    const newOrder = new Order(id, order[0].code_validated, status, announce, order[0].date_order, order[0].qr_code);
-    return newOrder;
-}*/
+    //console.log(id);
+    //const order = await orderDAO.getById(id);
+    //console.log(order);
+    const [idCreated] = await con.execute(SQL_INSERT, [newOrder.co, announce.idType, announce.price, files]);
+    console.log(idCreated);
+    const id = idCreated.insertId;
+    const order = new Order(id, newOrder[0].code_validated, status, announce, order[0].date_order, order[0].qr_code);
+    return order;
+}

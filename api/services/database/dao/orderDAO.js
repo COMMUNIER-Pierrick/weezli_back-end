@@ -29,7 +29,7 @@ const SELECT_ORDER_BY_USER = `SELECT DISTINCT o.id, o.code_validated, o.id_statu
                               INNER JOIN status_proposition sp ON p.id_status_proposition = sp.id
                               INNER JOIN rel_user_announce rua on a.id = rua.id_announce
                               INNER JOIN users u on rua.id_user = u.id
-                              WHERE (p.id_user = ? AND p.id_status_proposition = ?) OR u.id = ?`;
+                              WHERE p.id_user OR u.id = ?`;
 
 const errorMessage = "Data access error";
 
@@ -37,7 +37,10 @@ async function insert(newOrder) {
     let con = null;
     try{
         con = await database.getConnection();
-        await con.execute(SQL_INSERT, [newOrder.codeValidated, newOrder.status, newOrder.announce, newOrder.dateOrder]);
+        const [idCreated] = await con.execute(SQL_INSERT, [newOrder.codeValidated, newOrder.status, newOrder.announce, newOrder.dateOrder]);
+        const id = idCreated.insertId;
+        const order = await getById(id);
+        return order;
     }catch (error) {
         log.error("Error orderDAO insert : " + error);
         throw errorMessage;
@@ -118,11 +121,11 @@ async function getOrdersByUserAndStatus (id, id_status) {
     }
 }
 
-async function getOrdersByUser(id, id_status_proposition) {
+async function getOrdersByUser(id) {
     let con = null;
     try {
         con = await database.getConnection();
-        const [orders] = await con.execute(SELECT_ORDER_BY_USER, [id, id_status_proposition, id]);
+        const [orders] = await con.execute(SELECT_ORDER_BY_USER, [id]);
         let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
             let newOrder = await getById(orders[i].id);

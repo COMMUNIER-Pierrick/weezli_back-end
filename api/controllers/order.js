@@ -4,7 +4,14 @@ const orderDAO = require("../services/database/dao/orderDAO");
 
 /*L'insert sera appeler update de proposition et apperla directement la dao sans passer par le controler*/
 const insert = async (req, res) => {
-
+    const {Order} = req.body;
+    //console.log(Order);
+    let codeValidated = codeValidatedRandom()
+    const order = Order.OrderInsert(Order.codeValidated, Order.status, Order.announce, Order.dateOrder);
+    const result = await orderDAO.insert(order);
+    //const message = "La commande a bien été créée";
+    //console.log(result);
+    return res.status(200).send({"Order": result});
 };
 
 const updateStatus = async (req, res) => {

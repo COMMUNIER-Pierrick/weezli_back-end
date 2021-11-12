@@ -24,13 +24,8 @@ async function getAll(){
     try {
         con = await database.getConnection();
         const [rows] = await con.execute(SELECT_ALL);
-        let newListProposition = [];
-                for(let i = 0; i < rows.length; i++){
-                    const proposition = rows[i];
-                    const newProposition = new Proposition(proposition.id_announce, proposition.id_user, proposition.proposition, proposition.id_status_proposition);
-                    newListProposition.push({"Proposition" : newProposition});
-                }
-                return newListProposition;
+
+                return rows;
     } catch (error) {
         log.error("Error propositionDAO selectAll : " + error);
         throw errorMessage;
