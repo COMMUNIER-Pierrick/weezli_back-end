@@ -2,7 +2,7 @@ const database = require('../tools/database');
 const log = require('../../../log/logger');
 const StatusProposition = require("../../models/Status_proposition");
 const Proposition = require("../../models/Proposition");
-const Status_proposition = require("../../models/Status");
+const Status_proposition = require("../../models/Status_proposition");
 
 const SELECT_ALL = `SELECT * from status_proposition`;
 const SELECT_BY_ID = `SELECT * from status_proposition WHERE id = ?`;

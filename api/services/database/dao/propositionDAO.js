@@ -40,7 +40,7 @@ async function insert(Proposition){
     let con = null;
     try{
         con = await database.getConnection();
-        await con.execute(SQL_INSERT, [Proposition.id_announce, Proposition.id_user, Proposition.proposition, Proposition.status_proposition]);
+        await con.execute(SQL_INSERT, [Proposition.announce, Proposition.user, Proposition.proposition, Proposition.status_proposition]);
     }catch (error) {
         log.error("Error propositionDAO insert : " + error);
         throw errorMessage;
@@ -56,7 +56,7 @@ async function update(Proposition){
     try{
         con = await database.getConnection();
         await con.execute(SQL_UPDATE, [Proposition.proposition, Proposition.status_proposition, Proposition.id_announce, Proposition.id_user]);
-        const result = await getByIdAnnouceAndUser(Proposition.id_announce, Proposition.id_user);
+        const result = await getByIdAnnounceAndUser(Proposition.id_announce, Proposition.id_user);
         return result;
     }catch (error) {
         log.error("Error propositionDAO update : " + error);
@@ -83,7 +83,7 @@ async function remove(id_announce){
     }
 }
 
-async function getByIdAnnouce(id_announce){
+async function getByIdAnnounce(id_announce){
     let con = null;
     try {
         con = await database.getConnection();
@@ -91,12 +91,12 @@ async function getByIdAnnouce(id_announce){
 
         let newListProposition = [];
                 for(let i = 0; i < propositions.length; i++){
-                    const proposition = await getByIdAnnouceAndUser(propositions[i].id_announce, propositions[i].id_user);
+                    const proposition = await getByIdAnnounceAndUser(propositions[i].id_announce, propositions[i].id_user);
                     newListProposition.push(proposition);
                 }
                 return newListProposition;
     } catch (error) {
-        log.error("Error propositionDAO selectByIdAnnouce : " + error);
+        log.error("Error propositionDAO selectByIdAnnounce : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -105,14 +105,14 @@ async function getByIdAnnouce(id_announce){
     }
 }
 
-async function getByIdAnnouceAndUser(id_announce, id_user){
+async function getByIdAnnounceAndUser(id_announce, id_user){
     let con = null;
     try {
         con = await database.getConnection();
         const [proposition] = await con.execute(SELECT_BY_ID_ANNOUNCE_AND_ID_USER, [id_announce, id_user]);
         return proposition;
     } catch (error) {
-        log.error("Error propositionDAO selectByIdAnnouceAndUser : " + error);
+        log.error("Error propositionDAO selectByIdAnnounceAndUser : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -123,8 +123,8 @@ async function getByIdAnnouceAndUser(id_announce, id_user){
 
 module.exports = {
     getAll,
-    getByIdAnnouce,
-    getByIdAnnouceAndUser,
+    getByIdAnnounce,
+    getByIdAnnounceAndUser,
     insert,
     update,
     remove,

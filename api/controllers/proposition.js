@@ -5,26 +5,31 @@ const orderDAO = require("../services/database/dao/orderDAO");
 const Order = require("../services/models/Order");
 const orderController = require("./order");
 const announceDAO = require("../services/database/dao/announceDAO");
+const Announce = require("../services/models/Announce");
 const statusPropositionDAO = require("../services/database/dao/status_propositionDAO");
 const userDAO = require("../services/database/dao/userDAO");
 
 const insert = async (req, res) => {
 
+    // Création de la proposition
     const {Proposition} = req.body;
-    const newProposition = new PropositionModel(Proposition.id_announce, Proposition.id_user, Proposition.proposition, Proposition.status_proposition);
+    const newProposition = new PropositionModel(Proposition.id_announce, Proposition.id_user, Proposition.proposition, Proposition.status_proposition.id);
     await propositionDAO.insert(newProposition);
-    const result = await getByIdProposition(newProposition.id_announce, newProposition.id_user);
+    const result = await getByIdProposition(newProposition.announce, newProposition.user);
+    //console.log(result);
+
+    // Configuration pour la création d'une commande
     let message = "";
     let codeValidated = orderController.codeValidatedRandom();
     const dateOrder = new Date();
-    const newOrder = Order.OrderInsert(codeValidated, 1, result.id_announce.id, dateOrder);
+    const newOrder = Order.OrderInsert(codeValidated, 1, result.announce.id, dateOrder);
 
     /*si proposition validé */
     if(result.status_proposition.id === 3) {
 
        const order = await orderDAO.insert(newOrder);
        message = "Votre commande a été créée.";
-       return res.status(200).send({"Message": message, "Order": order});
+       return res.status(200).send({"Order": order});
 
     }else{
        message = "La proposition a bien été créée.";
@@ -69,7 +74,6 @@ const getAll = async (req, res) => {
     let newListProposition = [];
         for(let i = 0; i < allProposition.length; i++){
             const proposition = allProposition[i];
-            console.log(proposition);
             const announce = await announceDAO.getById(proposition.id_announce);
             const user = await userDAO.getById(proposition.id_user);
             const status = await statusPropositionDAO.getById(proposition.id_status_proposition)
@@ -79,18 +83,18 @@ const getAll = async (req, res) => {
     res.status(200).send( {"Propositions": newListProposition} );
 };
 
-const getByIdAnnouce = async (req, res) => {
+const getByIdAnnounce = async (req, res) => {
 
     const {id_announce} = req.params;
-    const proposition = await propositionDAO.getByIdAnnouce(id_announce);
+    const proposition = await propositionDAO.getByIdAnnounce(id_announce);
     res.status(200).send( {"Propositions": proposition} );
 };
 
-const getByIdAnnouceAndUser = async (req, res) => {
+const getByIdAnnounceAndUser = async (req, res) => {
 
     const {id_announce} = req.params;
     const {id_user} = req.params;
-    const proposition = await propositionDAO.getByIdAnnouceAndUser(id_announce, id_user);
+    const proposition = await propositionDAO.getByIdAnnounceAndUser(id_announce, id_user);
     let announce = await announceDAO.getById(proposition[0].id_announce);
     let statusProposition = await statusPropositionDAO.getById(proposition[0].id_status_proposition);
     const newProposition = new Proposition(announce, proposition[0].id_user, proposition[0].proposition, statusProposition);
@@ -102,15 +106,16 @@ module.exports = {
     update,
     remove,
     getAll,
-    getByIdAnnouce,
-    getByIdAnnouceAndUser
+    getByIdAnnounce,
+    getByIdAnnounceAndUser
 };
 
 async function getByIdProposition(id_announce,id_user){
-    const proposition = await propositionDAO.getByIdAnnouceAndUser(id_announce, id_user);
+    const proposition = await propositionDAO.getByIdAnnounceAndUser(id_announce, id_user);
     let announce = await announceDAO.getById(proposition[0].id_announce);
+    let user = await userDAO.getById(proposition[0].id_user)
     let statusProposition = await statusPropositionDAO.getById(proposition[0].id_status_proposition);
-    const newProposition = new PropositionModel(announce, proposition[0].id_user, proposition[0].proposition, statusProposition);
+    const newProposition = new PropositionModel(announce, user, proposition[0].proposition, statusProposition);
     return newProposition;
 }
 
@@ -120,7 +125,6 @@ async function getOrder(newOrder){
     //const order = await orderDAO.getById(id);
     //console.log(order);
     const [idCreated] = await con.execute(SQL_INSERT, [newOrder.co, announce.idType, announce.price, files]);
-    console.log(idCreated);
     const id = idCreated.insertId;
     const order = new Order(id, newOrder[0].code_validated, status, announce, order[0].date_order, order[0].qr_code);
     return order;

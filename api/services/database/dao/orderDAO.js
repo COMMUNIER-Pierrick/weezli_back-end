@@ -37,7 +37,7 @@ async function insert(newOrder) {
     let con = null;
     try{
         con = await database.getConnection();
-        const [idCreated] = await con.execute(SQL_INSERT, [newOrder.codeValidated, newOrder.status, newOrder.announce, newOrder.dateOrder]);
+        const [idCreated] = await con.execute(SQL_INSERT, [newOrder.codeValidated, newOrder.id_status, newOrder.id_announce, newOrder.dateOrder]);
         const id = idCreated.insertId;
         const order = await getById(id);
         return order;

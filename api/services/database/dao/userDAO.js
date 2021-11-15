@@ -89,7 +89,7 @@ async function removeRelationAnnounce(idAnnounce, idUser){
 }
 
 async function insert(newUser){
-    console.log("rentrer dao")
+
     let con = null;
     try{
         con = await database.getConnection();
@@ -217,7 +217,7 @@ async function getById(id){
         const newChoice = new Choice(choice[0].id, choice[0].name, choice[0].description, choice[0].price, choice[0].id_payment);
         const address = await addressDAO.getByIdWithInfo(user[0].id_address);
         const newUser = new User(user[0].id, user[0].firstname, user[0].lastname, user[0].username, user[0].password, user[0].email, user[0].phone, user[0].date_of_birthday, user[0].active, user[0].url_profile_img, user[0].average_opinion, newPayment, newChoice, newCheck, user[0].choice_date_started, user[0].choice_date_end, address);
-        console.log(newUser);
+
         return newUser;
     }catch (error) {
         log.error("Error userDAO getById : " + error);
