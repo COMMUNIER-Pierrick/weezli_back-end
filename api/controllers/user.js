@@ -118,9 +118,28 @@ const updatePayment = async (req, res) => {
 }
 
 const updateChoiceUser = async (req, res) => {
-	const {id} = req.params;
-	const { user } = req.body;
-	const updateUser = await userDAO.updateChoiceUser(user, id);
+	const { idChoice, idUser } = req.params;
+	const user  = await userDAO.getById(idUser);
+	const dayOne = new Date();
+	const dayEnd = new Date();
+	switch (idChoice) {
+		case '2' : dayEnd.setDate(dayEnd.getDate() + 7);
+			break;
+		case '3' : dayEnd.setDate(dayEnd.getDate() + 30);
+			break;
+		case '4' : dayEnd.setDate(dayEnd.getDate() + 90);
+			break;
+		case '5' : dayEnd.setDate(dayEnd.getDate() + 180);
+			break;
+		case '6' : dayEnd.setDate(dayEnd.getDate() + 270);
+			break;
+		case '7' : dayEnd.setDate(dayEnd.getDate() + 365);
+			break;
+	}
+	if(user.choiceDateEnd > dayOne){
+
+	}
+	const updateUser = await userDAO.updateChoiceUser(idChoice, dayOne, dayEnd, idUser);
 	const message = "mise à jour de votre formule."
 	res.status(200).send({"Message": message, "User": updateUser})
 }
@@ -190,7 +209,6 @@ const login = async (req, res) => {
 		let refreshToken = jwt.sign(playoad, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "1y"});
 
 		delete user.password;
-
 		return res
 			.cookie("accessToken", token, {
 				httpOnly: true,

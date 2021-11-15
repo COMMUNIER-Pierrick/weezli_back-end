@@ -20,9 +20,13 @@ INSERT INTO `status` SET name='Livré';
 INSERT INTO `status` SET name='Terminé';
 
 INSERT INTO `choice` SET name='no-formule';
-INSERT INTO `choice` SET name='formule1', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='5', id_payment= 'price_1JlyoNKAPKSmGQtSTk8fBsqc';
-INSERT INTO `choice` SET name='formule2', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='10', id_payment= 'price_1JmD3uKAPKSmGQtSk2yTNI1T';
-INSERT INTO `choice` SET name='formule3', description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum dolor sed luctus pellentesque.', price='15', id_payment= 'price_1JmD5FKAPKSmGQtSSaxTdgme';
+INSERT INTO `choice` SET name='Formule 1', description='7 jours.', price='3.99', id_payment= 'price_1JlyoNKAPKSmGQtSTk8fBsqc';
+INSERT INTO `choice` SET name='Formule 2', description='1 mois.', price='9.99', id_payment= 'price_1JmD3uKAPKSmGQtSk2yTNI1T';
+INSERT INTO `choice` SET name='Formule 3', description='3 mois.', price='24.99', id_payment= 'price_1JmD5FKAPKSmGQtSSaxTdgme';
+INSERT INTO `choice` SET name='Formule 4', description='6 mois.', price='44.99', id_payment= 'price_1JlyoNKAPKSmGQtSTk8fBsqc';
+INSERT INTO `choice` SET name='Formule 5', description='9 mois.', price='54.99', id_payment= 'price_1JmD3uKAPKSmGQtSk2yTNI1T';
+INSERT INTO `choice` SET name='Formule 6', description='1 ans.', price='60.00', id_payment= 'price_1JmD5FKAPKSmGQtSSaxTdgme';
+
 
 INSERT INTO `status_proposition` set name='Proposition';
 INSERT INTO `status_proposition` set name='Contre-proposition';
