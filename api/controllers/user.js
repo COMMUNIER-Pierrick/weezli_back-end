@@ -7,8 +7,6 @@ const bcrypt = require("bcryptjs");
 const mail = require("../config/mail");
 const checkDAO = require("../services/database/dao/checkUserDAO");
 const fileDAO = require("../services/database/dao/fileDAO");
-const announceDAO = require("../services/database/dao/announceDAO");
-const paymentDAO = require("../services/database/dao/paymentDAO");
 
 const insert = async (req, res) => {
 	const { firstname, lastname, username, password, email, dateOfBirthday, address} = req.body.User;
@@ -115,33 +113,6 @@ const update = async (req, res) => {
 
 const updatePayment = async (req, res) => {
 
-}
-
-const updateChoiceUser = async (req, res) => {
-	const { idChoice, idUser } = req.params;
-	const user  = await userDAO.getById(idUser);
-	const dayOne = new Date();
-	const dayEnd = new Date();
-	switch (idChoice) {
-		case '2' : dayEnd.setDate(dayEnd.getDate() + 7);
-			break;
-		case '3' : dayEnd.setDate(dayEnd.getDate() + 30);
-			break;
-		case '4' : dayEnd.setDate(dayEnd.getDate() + 90);
-			break;
-		case '5' : dayEnd.setDate(dayEnd.getDate() + 180);
-			break;
-		case '6' : dayEnd.setDate(dayEnd.getDate() + 270);
-			break;
-		case '7' : dayEnd.setDate(dayEnd.getDate() + 365);
-			break;
-	}
-	if(user.choiceDateEnd > dayOne){
-
-	}
-	const updateUser = await userDAO.updateChoiceUser(idChoice, dayOne, dayEnd, idUser);
-	const message = "mise à jour de votre formule."
-	res.status(200).send({"Message": message, "User": updateUser})
 }
 
 /*NON Implémanté*/
@@ -265,7 +236,6 @@ module.exports = {
 	getById,
 	insert,
 	update,
-	updateChoiceUser,
 	updatePayment,
 	remove,
 	logout,

@@ -18,7 +18,6 @@ app.use('/images', express.static('uploads'));
 
 app.use("/user", require("./routes/users"));
 app.use("/announce", require("./routes/announce"));
-app.use("/choice", require("./routes/choice"));
 app.use("/size", require("./routes/size"));
 app.use("/status", require("./routes/status"));
 app.use("/transport", require("./routes/transport"));
@@ -26,7 +25,6 @@ app.use("/api", require("./routes/verifyUser"));
 app.use("/image", require("./routes/image"));
 app.use("/order", require ("./routes/order"));
 app.use("/proposition", require("./routes/proposition"));
-
 
 try{
     http.listen(port, () => {
