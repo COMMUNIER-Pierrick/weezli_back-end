@@ -73,7 +73,8 @@ CREATE TABLE `proposition`(
     `id_announce` int NOT NULL,
     `id_user` int NOT NULL,
     `proposition` DOUBLE NOT NULL,
-    `id_status_proposition` int NOT NULL
+    `id_status_proposition` int NOT NULL,
+    `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 )Engine = InnoDB;
 
 ALTER TABLE `proposition` ADD PRIMARY KEY (`id_announce`,`id_user`);
