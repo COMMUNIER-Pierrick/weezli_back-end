@@ -17,11 +17,7 @@ const SQL_INSERT = `INSERT INTO announce SET id_package = ?, id_type = ?, price 
 
 const SQL_UPDATE = `UPDATE announce SET id_type = ?, price = ?, img_url = ? WHERE id =?`;
 
-const SELECT_BY_ID = `SELECT a.id, a.id_package, a.views, a.id_type, a.price,
-        a.img_url, a.date_created, p.id_announce, p.id_user, p.proposition, p.id_status_proposition
-        FROM announce a
-        INNER JOIN proposition p ON a.id = p.id_announce
-        WHERE a.id = ?`;
+const SELECT_BY_ID = `SELECT * FROM announce WHERE id = ?`;
 
 const SELECT_ALL_USER = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type, a.price,
         a.img_url, a.date_created
@@ -30,35 +26,12 @@ const SELECT_ALL_USER = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type,
         INNER JOIN users u on rua.id_user = u.id
         WHERE u.id = ?`;
 
-const SELECT_BY_TYPE = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type, a.price,
-        a.img_url, a.date_created,
-       (SELECT JSON_ARRAYAGG( JSON_OBJECT(
-                  'id_announce', id_announce,
-                  'id_user', id_user,
-                  'proposition', proposition,
-                  'id_status_proposition', id_status_proposition
-           )) FROM proposition
-           INNER JOIN announce ON proposition.id_announce = announce.id
-           WHERE id_announce = a.id AND proposition.id_status_proposition != 3) AS Proposition
+const SELECT_BY_TYPE = `SELECT DISTINCT *
         FROM announce a
+        INNER JOIN packages pa ON a.id_package = pa.id
         LEFT JOIN proposition p ON a.id = p.id_announce
-        WHERE a.id_type != ?`;
-
-const SELECT_BY_TYPE_USER = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type, a.price,
-        a.img_url, a.date_created,
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT(
-                'id_announce', id_announce,
-                'id_user', id_user,
-                'proposition', proposition,
-                'id_status_proposition', id_status_proposition
-            )) FROM proposition
-               INNER JOIN announce ON proposition.id_announce = announce.id
-         WHERE id_announce = a.id) AS Propositions
-        FROM announce a
-        LEFT JOIN proposition p ON a.id = p.id_announce
-        INNER JOIN rel_user_announce rua on a.id = rua.id_announce
-        INNER JOIN users u on rua.id_user = u.id
-        WHERE a.id_type = ? AND u.id = ?`;
+        WHERE a.id_type = ? AND ((id_status_proposition != 3) OR (id_status_proposition IS NULL))
+        ORDER BY pa.datetime_departure DESC`;
 
 const errorMessage = "Data access error";
 
@@ -87,6 +60,7 @@ async function insert(announce, filesName){
         const [idCreated] = await con.execute(SQL_INSERT, [idPack, announce.idType, announce.price, files]);
         const id = idCreated.insertId;
         /* Insertion relation user annonce */
+        console.log(id);
         await userDAO.insertRelation(id, announce.userAnnounce.id);
         const results = await getById(id);
         return results;
@@ -137,7 +111,9 @@ async function getById(id) {
     let con = null;
     try {
         con = await database.getConnection();
+        console.log(id);
         const [announce] = await con.execute(SELECT_BY_ID, [id]);
+        console.log(announce);
         let packageId = announce[0].id_package;
         const packages = await packageDAO.getById(packageId);
         const [address1] = await addressDAO.getByPackage(packageId, "depart");
@@ -207,6 +183,7 @@ async function getByType(idType){
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
             const [ transport ] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
+            console.log(announces[i].date_created);
             const announce = Announce.AnnounceAll(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
         }
@@ -295,22 +272,6 @@ async function getAllUser(id){
     }
 }
 
-async function getByTypeUser(idType, id){
-    let con = null;
-    try{
-        con = await database.getConnection();
-        const [announces] = await con.execute(SELECT_BY_TYPE_USER, [idType, id]);
-        return announces;
-    }catch (error) {
-        log.error("Error announceDAO getByTypeUser : " + error);
-        throw errorMessage;
-    } finally {
-        if (con !== null) {
-            con.end();
-        }
-    }
-}
-
 module.exports = {
     insert,
     remove,
@@ -319,7 +280,6 @@ module.exports = {
     getById,
     getSearch,
     getAllUser,
-    getByTypeUser,
 }
 
 /*

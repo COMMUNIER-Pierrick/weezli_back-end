@@ -20,7 +20,7 @@ const SQL_UPDATE_CHOICE = `UPDATE users SET id_choice = ?, choice_date_started =
 const SELECT_BY_ID = `SELECT * FROM users WHERE id = ? `;
 const SELECT_CONTROL_IDENTIFIER = `SELECT id, email, username FROM users WHERE email = ? OR username = ?`;
 const SELECT_ID = `SELECT id FROM users WHERE email = ?`;
-const SELECT_FOR_ANNOUNCE_BY_ANNOUNCE = `SELECT u.id, u.firstname, u.lastname, u.average_opinion 
+const SELECT_FOR_ANNOUNCE_BY_ANNOUNCE = `SELECT *
                                         FROM users u 
                                         INNER JOIN rel_user_announce rua on u.id = rua.id_user
                                         WHERE rua.id_announce = ?`;

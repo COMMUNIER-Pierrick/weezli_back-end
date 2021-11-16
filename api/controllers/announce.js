@@ -110,31 +110,6 @@ const getById = async (req, res) => {
     res.status(200).send( {"Announce": announce} );
 };
 
-const getTypeByUser = async (req, res) => {
-    const {id} = req.params;
-    const{idType} = req.params;
-    const announces = await announceDAO.getByTypeUser(idType,id);
-    let newListAnnounce = [];
-    for(let i = 0; i < announces.length; i++){
-        let packageId = announces[i].id_package;
-        const [packages] = await packageDAO.getById(packageId);
-        const [address1] = await addressDAO.getByPackage(packageId, "depart");
-        const [address2] = await addressDAO.getByPackage(packageId, "arrival");
-        const [sizes] = await sizeDAO.getByPackage(packageId);
-        const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
-        const [ transport ] = await transportDAO.getById(packages.id_transport);
-        const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
-        let propositionList = [];
-        for(let e = 0; e < announces[i].Propositions.length; e++) {
-            let proposition = ({"proposition" : announces[i].Propositions[e]});
-            propositionList.push(proposition);
-        }
-        const announce = new Announce(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user, propositionList);
-        newListAnnounce.push({"Announce": announce});
-    }
-    res.status(200).send( {"Announces": newListAnnounce} );
-};
-
 const getALLUser = async (req, res) => {
     const {id} = req.params;
     const announce = await announceDAO.getAllUser(id);
@@ -212,7 +187,6 @@ module.exports = {
     update,
     getByType,
     getById,
-    getTypeByUser,
     getSearch,
     getALLUser,
 };
