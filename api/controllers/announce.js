@@ -98,9 +98,16 @@ const remove = async (req, res) => {
     res.status(200).send({ "Message": message });
 };
 
-const getByType = async (req, res) => {
+const getByTypeConnect = async (req, res) => {
     const { id_type } = req.params;
-    const announces = await announceDAO.getByType(id_type);
+    const { id_user } = req.params;
+    const announces = await announceDAO.getByTypeConnect(id_type, id_user);
+    res.status(200).send( {"Announces": announces} );
+};
+
+const getByTypeDisconnect = async (req, res) => {
+    const { id_type } = req.params;
+    const announces = await announceDAO.getByTypeDisconnect(id_type);
     res.status(200).send( {"Announces": announces} );
 };
 
@@ -185,7 +192,8 @@ module.exports = {
     insert,
     remove,
     update,
-    getByType,
+    getByTypeConnect,
+    getByTypeDisconnect,
     getById,
     getSearch,
     getALLUser,

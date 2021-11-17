@@ -44,14 +44,14 @@ const update = async (req, res) => {
     let message = "";
     let codeValidated = orderController.codeValidatedRandom();
     const dateOrder = new Date();
-    const newOrder = Order.OrderInsert(codeValidated,1, result.announce.id, dateOrder);
+    const newOrder = Order.OrderInsert(codeValidated,1, result[0].id_announce, dateOrder);
 
     /*si proposition validé */
-    if(result.status_proposition.id === 3) {
+    if(result[0].id_status_proposition === 3) {
 
         const order = await orderDAO.insert(newOrder)
         message = "Votre commande a été créée.";
-        res.status(200).send( {"Message": message , "Order" : order});
+        res.status(200).send( {"Order" : order});
 
     }else{
 
