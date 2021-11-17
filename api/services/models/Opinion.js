@@ -11,7 +11,7 @@ module.exports = class Opinion{
         return new Opinion(null,number, comment, idUser, null);
     }
 
-    static OpinionUpdate(id, number, comment) {
-        return new Opinion(id, number, comment, null, null);
+    static OpinionUpdate(id, number, comment, status) {
+        return new Opinion(id, number, comment, null, status);
     }
 }

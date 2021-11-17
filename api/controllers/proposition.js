@@ -4,6 +4,7 @@ const propositionDAO = require("../services/database/dao/propositionDAO");
 const orderDAO = require("../services/database/dao/orderDAO");
 const Order = require("../services/models/Order");
 const orderController = require("./order");
+const opinionController = require("./opinion");
 
 const insert = async (req, res) => {
 
@@ -23,17 +24,16 @@ const update = async (req, res) => {
     const dateOrder = new Date();
     const newOrder = Order.OrderInsert(codeValidated,1, result.id_announce, dateOrder);
     let order = "";
+    let opinion = "";
 
     /*si proposition validé */
     if(result.status_proposition === 3) {
+        /*création de la commande*/
        order = await orderDAO.insert(newOrder)
-        /**
-         *
-         *
-         *
-         * ajouter ici la creation des avis */
-
+        /*si commande création des avis*/
         if(order.length > 0){
+            // il manque l'id du createur de l'announce
+           // opinion = await opinionController.insertOpinion(Proposition.user.id, Proposition.announce.user.id, order.id);
             message = "Votre commande a été créée.";
         }
     }else{
@@ -41,7 +41,7 @@ const update = async (req, res) => {
     }
 
 
-	res.status(200).send( {"Message": message , "Proposition": result, "Order" : order});
+	res.status(200).send( {"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
 };
 
 const remove = async (req, res) => {
