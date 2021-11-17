@@ -27,12 +27,10 @@ INSERT INTO `choice` SET name='Formule 4', description='6 mois.', price='44.99',
 INSERT INTO `choice` SET name='Formule 5', description='9 mois.', price='54.99', id_payment= 'price_1JmD3uKAPKSmGQtSk2yTNI1T';
 INSERT INTO `choice` SET name='Formule 6', description='1 ans.', price='60.00', id_payment= 'price_1JmD5FKAPKSmGQtSSaxTdgme';
 
-
 INSERT INTO `status_proposition` set name='Proposition';
 INSERT INTO `status_proposition` set name='Contre-proposition';
 INSERT INTO `status_proposition` set name='Validé';
 INSERT INTO `status_proposition` set name='Refusé';
-
 
 INSERT INTO `address` SET id_info=1, number=45, street='Orange St', additional_address='3eme floor', zipcode='SW1Y 4UR', city='London', country='England';
 INSERT INTO `address` SET id_info=1, number=12, street='Lalana Delord', additional_address='', zipcode='105', city='Antananarivo', country='Madagascar';
@@ -128,3 +126,13 @@ INSERT INTO `proposition` SET id_announce = 3, id_user = 2, proposition = 50, `i
 INSERT INTO `proposition` SET id_announce = 4, id_user = 3, proposition = 20, `id_status_proposition` = 1;
 INSERT INTO `proposition` SET id_announce = 5, id_user = 1, proposition = 10, `id_status_proposition` = 1;
 INSERT INTO `proposition` SET id_announce = 6, id_user = 2, proposition = 75, `id_status_proposition` = 1;
+
+INSERT INTO `opinion` SET number = 4.5, comment = 'très bonne livraison', id_user = 3;
+INSERT INTO `opinion` SET number = 4.5, comment = 'expediteur a l\'heure avec un embalage qui correspond a se qui était convenue', id_user = 1;
+INSERT INTO `opinion` SET number = 2, comment = 'livraison arrivé ouverte avec 1 semaine de retard', id_user = 1;
+INSERT INTO `opinion` SET number = 5, comment = 'expediteur très charmante', id_user = 6;
+
+INSERT INTO `rel_opinion_users` SET id_opinion = 1, id_user = 1, id_order = 3, id_types = 1;
+INSERT INTO `rel_opinion_users` SET id_opinion = 2, id_user = 3, id_order = 3, id_types = 2;
+INSERT INTO `rel_opinion_users` SET id_opinion = 3, id_user = 6, id_order = 5, id_types = 2;
+INSERT INTO `rel_opinion_users` SET id_opinion = 4, id_user = 1, id_order = 5, id_types = 1;

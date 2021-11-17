@@ -143,15 +143,18 @@ CREATE TABLE `opinion`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `number` DOUBLE NOT NULL,
     `comment` VARCHAR(255) NULL,
-    `id_order` INT NOT NULL
+    `id_user` INT NOT NULL,
+    `status` ENUM('Pending', 'Active') NOT NULL DEFAULT 'Pending'
 )Engine = InnoDB;
 
 CREATE TABLE `rel_opinion_users`(
     `id_opinion` INT NOT NULL,
-    `id_user` INT NOT NULL
+    `id_user` INT NOT NULL,
+    `id_order` INT NOT NULL,
+    `id_types` INT NOT NULL
 )Engine = InnoDB;
 
-ALTER TABLE `rel_opinion_users` ADD PRIMARY KEY (`id_opinion`,`id_user`);
+ALTER TABLE `rel_opinion_users` ADD PRIMARY KEY (`id_opinion`,`id_user`, `id_order`,`id_types`);
 
 CREATE TABLE `rel_package_sizes`(
     `id_package` INT NOT NULL,
@@ -201,13 +204,15 @@ ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_type` FOREIGN KEY (`id_typ
 ALTER TABLE `messages` ADD CONSTRAINT `fk_message_id_author` FOREIGN KEY (`id_author`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `messages` ADD CONSTRAINT `fk_messages_id_channel` FOREIGN KEY (`id_channel`) REFERENCES  `channels`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `opinion` ADD CONSTRAINT `fk_opinion_id_order` FOREIGN KEY (`id_order`) REFERENCES `orders`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
 ALTER TABLE `rel_user_channels` ADD CONSTRAINT `fk_rel_user_channels_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `rel_user_channels` ADD CONSTRAINT `fk_rel_user_channels_id_channel` FOREIGN KEY (`id_channel`) REFERENCES `channels`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+ALTER TABLE `opinion` ADD CONSTRAINT `fk_opinion_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
 ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_opinion` FOREIGN KEY (`id_opinion`) REFERENCES `opinion`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_order` FOREIGN KEY (`id_order`) REFERENCES `orders`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_types` FOREIGN KEY (`id_types`) REFERENCES `types`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE `rel_package_sizes` ADD CONSTRAINT `fk_rel_sender_size_id_sender` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `rel_package_sizes` ADD CONSTRAINT `fk_rel_sender_size_id_size` FOREIGN KEY (`id_size`) REFERENCES `size`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;

@@ -1,16 +1,17 @@
 module.exports = class Opinion{
-    constructor(id, number, comment, idOrder) {
+    constructor(id, number, comment, idUser, status) {
         this.id = id;
         this.number = number;
         this.comment = comment;
-        this.idOrder = idOrder;
+        this.idUser = idUser;
+        this.status = status;
     }
 
-    static OpinionInsert(number, comment, idOrder) {
-        return new Opinion(null,number, comment, idOrder);
+    static OpinionInsert(number, comment, idUser) {
+        return new Opinion(null,number, comment, idUser, null);
     }
 
     static OpinionUpdate(id, number, comment) {
-        return new Opinion(id, number, comment);
+        return new Opinion(id, number, comment, null, null);
     }
 }

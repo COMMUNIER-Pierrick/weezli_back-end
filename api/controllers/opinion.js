@@ -15,8 +15,9 @@ const getById = async (req, res) => {
 const getAllOpinionByUser = async (req, res) => {
     try {
         const {idUser} = req.params;
-        const opinion = await opinionDAO.getAllOpinionByUser(idUser);
-        res.status(200).send( {"Opinions": opinion} );
+        const opinions = await opinionDAO.getAllOpinionByUser(idUser);
+        const listOpinions = await listOpinion(opinions);
+        res.status(200).send( {"Opinions": listOpinions} );
     }catch (error) {
             log.error("Error getAllOpinionByUser controller : " + error);
     }
@@ -25,8 +26,25 @@ const getAllOpinionByUser = async (req, res) => {
 const getOpinionByOrder = async (req, res) => {
     try {
         const {idOrder} = req.params;
-        const opinion = await opinionDAO.getOpinionByOrder(idOrder);
-        res.status(200).send( {"Opinion": opinion} );
+        const opinions = await opinionDAO.getOpinionByOrder(idOrder);
+        const listOpinions = await listOpinion(opinions);
+        res.status(200).send( {"Opinions": listOpinions} );
+    }catch (error) {
+        log.error("Error getOpinionByOrder controller : " + error);
+    }
+}
+
+const getOpinionUserByUser = async (req, res) => {
+    try {
+        const {idLivreur, idExpediteur} = req.params;
+        const opinions = await opinionDAO.getOpinionUserByUser(idLivreur, idExpediteur);
+        if(opinions.length > 0){
+            const listOpinions = await listOpinion(opinions);
+            res.status(200).send( {"Opinions": listOpinions} );
+        }else{
+            res.status(200).send( {"Message": "Aucune relation trouvé", "Opinion": []} );
+        }
+
     }catch (error) {
         log.error("Error getOpinionByOrder controller : " + error);
     }
@@ -34,12 +52,30 @@ const getOpinionByOrder = async (req, res) => {
 
 const insert = async (req, res) => {
     try{
-        const {number, comment, idOrder} = req.body.Opinion;
-        const newOpinion = Opinion.OpinionInsert(number, comment, idOrder);
-        const opinion = await opinionDAO.insert(newOpinion);
-        res.status(200).send({"Opinion": opinion});
+        const {idLivreur, idExpediteur, idOrder} = req.body;
+        const list = await getUserByUser(idLivreur, idExpediteur)
+
+        if(list.length !== 0){
+            const opinions = await listOpinion(list);
+            res.status(200).send({"Message": "Cette relation existe deja" ,"Opinions": opinions});
+        }else{
+            /*Opinion sur le livreur par l'expediteur*/
+            const opinionLivreur = await opinionDAO.insert(idLivreur);
+            /*Opinion expediteur par le livreur*/
+            const opinionExpediteur = await opinionDAO.insert(idExpediteur);
+            /*expediteur*/
+            await opinionDAO.insertRealtion(opinionLivreur, idExpediteur, idOrder, 1);
+            /*livreur*/
+            await opinionDAO.insertRealtion(opinionExpediteur, idLivreur, idOrder, 2);
+
+            const listOpinions = await getUserByUser(idLivreur, idExpediteur)
+            const opinions = await listOpinion(listOpinions);
+            res.status(200).send({"Opinions": opinions});
+        }
+
+
     }catch (error) {
-        log.error("Error insert controller : " + error);
+        log.error("Error insertRealtion controller : " + error);
     }
 }
 
@@ -71,5 +107,24 @@ module.exports = {
     update,
     getAllOpinionByUser,
     getOpinionByOrder,
-    getById
+    getById,
+    getOpinionUserByUser
 };
+
+async function listOpinion(opinions){
+    let listOpinion = [];
+    for(let i = 0; i < opinions.length; i++){
+        const newOpinion = new Opinion(opinions[i].id,opinions[i].number ,opinions[i].comment, opinions[i].id_user, opinions[i].status);
+        listOpinion.push({"opinion": newOpinion});
+    }
+    return listOpinion;
+}
+
+async function getUserByUser(idLivreur, idExpediteur){
+    const opinions = await opinionDAO.getOpinionUserByUser(idLivreur, idExpediteur);
+    if(opinions.length > 0){
+        return opinions;
+    }else{
+        return [];
+    }
+}
