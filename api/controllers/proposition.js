@@ -22,12 +22,17 @@ const update = async (req, res) => {
     let codeValidated = orderController.codeValidatedRandom();
     const dateOrder = new Date();
     const newOrder = Order.OrderInsert(codeValidated,1, result.id_announce, dateOrder);
-    console.log(newOrder)
     let order = "";
 
     /*si proposition validé */
     if(result.status_proposition === 3) {
        order = await orderDAO.insert(newOrder)
+        /**
+         *
+         *
+         *
+         * ajouter ici la creation des avis */
+
         if(order.length > 0){
             message = "Votre commande a été créée.";
         }

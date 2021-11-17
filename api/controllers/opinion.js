@@ -2,6 +2,12 @@ const Opinion = require("../services/models/Opinion");
 const opinionDAO = require("../services/database/dao/opinionDAO");
 const log = require("../log/logger");
 
+/**
+ *
+ * ajouter la creation d'opinion dans la creation de l'order qui se trouve dans proposition
+ *
+ * */
+
 const getById = async (req, res) => {
     try{
         const {id} = req.params;
