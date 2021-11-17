@@ -32,8 +32,7 @@ const update = async (req, res) => {
        order = await orderDAO.insert(newOrder)
         /*si commande création des avis*/
         if(order.length > 0){
-            // il manque l'id du createur de l'announce
-           // opinion = await opinionController.insertOpinion(Proposition.user.id, Proposition.announce.user.id, order.id);
+            opinion = await opinionController.insertOpinion(Proposition.user.id, result.announce.user.id, order.id);
             message = "Votre commande a été créée.";
         }
     }else{
