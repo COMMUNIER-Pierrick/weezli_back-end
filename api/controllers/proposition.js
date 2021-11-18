@@ -12,35 +12,37 @@ const opinionController = require("./opinion");
 
 
 const insert = async (req, res) => {
-
     // Création de la proposition
     const {Proposition} = req.body;
     const newProposition = new PropositionModel(Proposition.id_announce, Proposition.id_user, Proposition.proposition, Proposition.status_proposition.id);
     await propositionDAO.insert(newProposition);
     const result = await getByIdProposition(newProposition.announce, newProposition.user);
-    //console.log(result);
 
     // Configuration pour la création d'une commande
     let message = "";
     let codeValidated = orderController.codeValidatedRandom();
     const dateOrder = new Date();
     const newOrder = Order.OrderInsert(codeValidated, 1, result.announce.id, dateOrder);
+    let order = "";
+    let opinion = "";
 
     /*si proposition validé */
     if(result.status_proposition.id === 3) {
-
-       const order = await orderDAO.insert(newOrder);
-       message = "Votre commande a été créée.";
-       return res.status(200).send({"Order": order});
-
+        /*création de la commande*/
+        order = await orderDAO.insert(newOrder)
+        /*si commande création des avis*/
+        if(order){
+            opinion = await opinionController.insertOpinion(Proposition.id_user, result.announce.userAnnounce.id, order.id);
+            message = "Votre commande a été créée.";
+        }
+        res.status(200).send( {"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
     }else{
-       message = "La proposition a bien été créée.";
-       return res.status(200).send({"Message": message, "Proposition": result});
+        message = "La proposition a bien été créée.";
+        res.status(200).send({"Message": message, "Proposition": result});
     }
    }
 
 const update = async (req, res) => {
-
 	const { Proposition } = req.body;
 	const result = await propositionDAO.update(Proposition);
     let message = "";
@@ -49,17 +51,17 @@ const update = async (req, res) => {
     const newOrder = Order.OrderInsert(codeValidated,1, result[0].id_announce, dateOrder);
     let order = "";
     let opinion = "";
-
+    console.log(result)
     /*si proposition validé */
-    if(result.status_proposition === 3) {
+    if(result[0].id_status_proposition === 3) {
         /*création de la commande*/
-       order = await orderDAO.insert(newOrder)
+        order = await orderDAO.insert(newOrder)
         /*si commande création des avis*/
-        if(order.length > 0){
-            opinion = await opinionController.insertOpinion(Proposition.user.id, result.announce.user.id, order.id);
+        if(order){
+            opinion = await opinionController.insertOpinion(Proposition.id_user, result[0].announce.userAnnounce.id, order.id);
             message = "Votre commande a été créée.";
         }
-      res.status(200).send( {"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
+        res.status(200).send( {"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
     }else{
          message = "La proposition a bien été modifiée ";
          res.status(200).send( {"Message": message , "Proposition": result});

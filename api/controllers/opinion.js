@@ -142,10 +142,9 @@ async function getUserByUser(idLivreur, idExpediteur){
 
 async function insertOpinion(idLivreur, idExpediteur, idOrder){
     const list = await getUserByUser(idLivreur, idExpediteur)
-
-    if(list.length === 0){
+    if(list.length !== 0){
         const opinions = await listOpinion(list);
-        res.status(200).send({"Message": "Cette relation existe deja" ,"Opinions": opinions});
+        return opinions;
     }else {
         /*Opinion sur le livreur par l'expediteur*/
         const opinionLivreur = await opinionDAO.insert(idLivreur);
