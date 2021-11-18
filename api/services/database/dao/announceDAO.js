@@ -26,35 +26,19 @@ const SELECT_ALL_USER = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type,
         INNER JOIN users u on rua.id_user = u.id
         WHERE u.id = ?`;
 
-const SELECT_BY_TYPE = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type, a.price,
-        a.img_url, a.date_created,
-       (SELECT JSON_ARRAYAGG( JSON_OBJECT(
-                  'id_announce', id_announce,
-                  'id_user', id_user,
-                  'proposition', proposition,
-                  'id_status_proposition', id_status_proposition
-           )) FROM proposition
-           INNER JOIN announce ON proposition.id_announce = announce.id
-           WHERE id_announce = a.id AND proposition.id_status_proposition != 3) AS Proposition
+const SELECT_BY_TYPE_CONNECT = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type, a.price, a.img_url, a.date_created
         FROM announce a
+        INNER JOIN package pa ON a.id_package = pa.id
         LEFT JOIN proposition p ON a.id = p.id_announce
-        WHERE a.id_type != ?`;
+        WHERE a.id_type = ? AND (p.id_user != ? AND (id_status_proposition != 3) OR (id_status_proposition IS NULL))
+        ORDER BY pa.datetime_departure ASC`;
 
-const SELECT_BY_TYPE_USER = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type, a.price,
-        a.img_url, a.date_created,
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT(
-                'id_announce', id_announce,
-                'id_user', id_user,
-                'proposition', proposition,
-                'id_status_proposition', id_status_proposition
-            )) FROM proposition
-               INNER JOIN announce ON proposition.id_announce = announce.id
-         WHERE id_announce = a.id) AS Propositions
+const SELECT_BY_TYPE_DISCONNECT = `SELECT DISTINCT a.id, a.id_package, a.views, a.id_type, a.price, a.img_url, a.date_created
         FROM announce a
+        INNER JOIN package pa ON a.id_package = pa.id
         LEFT JOIN proposition p ON a.id = p.id_announce
-        INNER JOIN rel_user_announce rua on a.id = rua.id_announce
-        INNER JOIN users u on rua.id_user = u.id
-        WHERE a.id_type = ? AND u.id = ?`;
+        WHERE a.id_type = ? AND ((id_status_proposition != 3) OR (id_status_proposition IS NULL))
+        ORDER BY pa.datetime_departure ASC`;
 
 const errorMessage = "Data access error";
 
@@ -141,7 +125,7 @@ async function getById(id) {
         const [address2] = await addressDAO.getByPackage(packageId, "arrival");
         const [sizes] = await sizeDAO.getByPackage(packageId);
         const [user] = await userDAO.getUserForAnnounceByAnnounce(id);
-        const [ transport ] = await transportDAO.getById(packages[0].id_transport);
+        const [transport] = await transportDAO.getById(packages[0].id_transport);
         const newPackage = new Package(packageId, address1, address2, packages[0].datetime_departure, packages[0].datetime_arrival, packages[0].kg_available, packages[0].description_condition, transport, sizes);
         const newAnnounce = Announce.AnnounceAll(announce[0].id, newPackage, announce[0].views, announce[0].id_type, announce[0].price, announce[0].img_url, announce[0].date_created, user);
         return newAnnounce;
@@ -188,11 +172,11 @@ async function remove(id){
     }
 }
 
-async function getByType(idType){
+async function getByTypeConnect(idType, id_user){
     let con = null;
     try {
         con = await database.getConnection();
-        const [announces] = await con.execute(SELECT_BY_TYPE, [idType]);
+        const [announces] = await con.execute(SELECT_BY_TYPE_CONNECT, [idType, id_user]);
         let newListAnnounce = [];
         for(let i = 0; i < announces.length; i++){
             let packageId = announces[i].id_package;
@@ -202,14 +186,44 @@ async function getByType(idType){
             const [address2] = await addressDAO.getByPackage(packageId, "arrival");
             const [sizes] = await sizeDAO.getByPackage(packageId);
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
-            const [ transport ] = await transportDAO.getById(packages.id_transport);
+            const [transport] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
             const announce = Announce.AnnounceAll(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
         }
         return newListAnnounce;
     } catch (error) {
-        log.error("Error announceDAO selectByType : " + error);
+        log.error("Error announceDAO selectByTypeConnect : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
+async function getByTypeDisconnect(idType){
+    let con = null;
+    try {
+        con = await database.getConnection();
+        const [announces] = await con.execute(SELECT_BY_TYPE_DISCONNECT, [idType]);
+        let newListAnnounce = [];
+        for(let i = 0; i < announces.length; i++){
+            let packageId = announces[i].id_package;
+            let announceId = announces[i].id;
+            const [packages] = await packageDAO.getById(packageId);
+            const [address1] = await addressDAO.getByPackage(packageId, "depart");
+            const [address2] = await addressDAO.getByPackage(packageId, "arrival");
+            const [sizes] = await sizeDAO.getByPackage(packageId);
+            const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
+            const [transport] = await transportDAO.getById(packages.id_transport);
+            const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
+            const announce = Announce.AnnounceAll(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
+            newListAnnounce.push({"Announce": announce});
+        }
+        return newListAnnounce;
+    } catch (error) {
+        log.error("Error announceDAO selectByTypeDisconnect : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -245,7 +259,7 @@ async function getSearch(condition, Search){
             const [address2] = await addressDAO.getByPackage(packageId, "arrival");
             const [sizes] = await sizeDAO.getByPackage(packageId);
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announces[i].id);
-            const [ transport ] = await transportDAO.getById(packages.id_transport);
+            const [transport] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
             const announce = new Announce(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
@@ -276,7 +290,7 @@ async function getAllUser(id){
             const [address2] = await addressDAO.getByPackage(packageId, "arrival");
             const [sizes] = await sizeDAO.getByPackage(packageId);
             const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
-            const [ transport ] = await transportDAO.getById(packages.id_transport);
+            const [transport] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
             const announce = Announce.AnnounceAll(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
             newListAnnounce.push({"Announce": announce});
@@ -292,31 +306,15 @@ async function getAllUser(id){
     }
 }
 
-async function getByTypeUser(idType, id){
-    let con = null;
-    try{
-        con = await database.getConnection();
-        const [announces] = await con.execute(SELECT_BY_TYPE_USER, [idType, id]);
-        return announces;
-    }catch (error) {
-        log.error("Error announceDAO getByTypeUser : " + error);
-        throw errorMessage;
-    } finally {
-        if (con !== null) {
-            con.end();
-        }
-    }
-}
-
 module.exports = {
     insert,
     remove,
     update,
-    getByType,
+    getByTypeConnect,
+    getByTypeDisconnect,
     getById,
     getSearch,
     getAllUser,
-    getByTypeUser,
 }
 
 /*
