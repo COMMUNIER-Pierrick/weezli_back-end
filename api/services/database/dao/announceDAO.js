@@ -13,7 +13,7 @@ const propositionDAO = require("./propositionDAO");
 
 const SQL_DELETE = `DELETE FROM announce WHERE  id = ?`
 
-const SQL_INSERT = `INSERT INTO announce SET id_package = ?, id_type = ?, price = ?, img_url = ?, date_created = ?`;
+const SQL_INSERT = `INSERT INTO announce SET id_package = ?, id_type = ?, price = ?, img_url = ?`;
 
 const SQL_UPDATE = `UPDATE announce SET id_type = ?, price = ?, img_url = ? WHERE id =?`;
 
@@ -44,7 +44,6 @@ const errorMessage = "Data access error";
 
 async function insert(announce, filesName){
     let con = null;
-    const date = Date.now()
     let files = '';
     if(filesName){ files = filesName;}
     try{
@@ -65,7 +64,7 @@ async function insert(announce, filesName){
         const sizes = announce.packages.sizes;
         sizes.forEach(el => sizeDAO.insertRelation(idPack, el.size.id));
         /* Insertion announce */
-        const [idCreated] = await con.execute(SQL_INSERT, [idPack, announce.idType, announce.price, files, date]);
+        const [idCreated] = await con.execute(SQL_INSERT, [idPack, announce.idType, announce.price, files]);
         const id = idCreated.insertId;
         /* Insertion relation user annonce */
         await userDAO.insertRelation(id, announce.userAnnounce.id);
