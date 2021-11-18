@@ -17,7 +17,7 @@ const SQL_UPDATE_PROFILE = `UPDATE users SET firstname = ?, lastname = ?, email 
 const SELECT_BY_ID = `SELECT * FROM users WHERE id = ? `;
 const SELECT_CONTROL_IDENTIFIER = `SELECT id, email, username FROM users WHERE email = ? OR username = ?`;
 const SELECT_ID = `SELECT id FROM users WHERE email = ?`;
-const SELECT_FOR_ANNOUNCE_BY_ANNOUNCE = `SELECT u.id, u.firstname, u.lastname, u.average_opinion 
+const SELECT_FOR_ANNOUNCE_BY_ANNOUNCE = `SELECT *
                                         FROM users u 
                                         INNER JOIN rel_user_announce rua on u.id = rua.id_user
                                         WHERE rua.id_announce = ?`;
@@ -69,7 +69,7 @@ async function removeRelationAnnounce(idAnnounce, idUser){
 }
 
 async function insert(newUser){
-    console.log("rentrer dao")
+
     let con = null;
     try{
         con = await database.getConnection();

@@ -9,6 +9,7 @@ const checkDAO = require("../services/database/dao/checkUserDAO");
 const fileDAO = require("../services/database/dao/fileDAO");
 
 const insert = async (req, res) => {
+
 	const { firstname, lastname, username, password, email, dateOfBirthday, address} = req.body.User;
 	const { error } = registerValidation(req.body.User);
 	if(error){

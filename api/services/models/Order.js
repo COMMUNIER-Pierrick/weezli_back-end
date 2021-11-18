@@ -1,15 +1,15 @@
 module.exports = class Order {
-    constructor(id, codeValidated, status, announce, dateOrder, qrCode) {
+    constructor(id, codeValidated, id_status, id_announce, dateOrder, qrCode) {
         this.id = id;
         this.codeValidated = codeValidated;
-        this.status = status;
-        this.announce = announce;
+        this.id_status = id_status;
+        this.id_announce = id_announce;
         this.dateOrder = dateOrder;
         this.qrCode = qrCode;
     }
 
-    static OrderInsert(codeValidated, status, announce, dateOrder){
-        return new Order(null, codeValidated, status, announce, dateOrder, null)
+    static OrderInsert(codeValidated, id_status, id_announce, dateOrder){
+        return new Order(null, codeValidated, id_status, id_announce, dateOrder, null)
     };
 
 }
