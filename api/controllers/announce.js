@@ -30,8 +30,12 @@ const insert = async (req, res) => {
     files.forEach(el => {if(el){fileDAO.insert(fileOne.filename); strFilesName += el.filename + ","}} );
     const indexEnd = strFilesName.lastIndexOf(',');
     if(indexEnd !== -1){ urlImages = strFilesName.slice(0, indexEnd)}
-
-    const result = await announceDAO.insert(announce, urlImages);
+    let result;
+    if(urlImages.length > 0){
+         result = await announceDAO.insert(announce, urlImages);
+    }else{
+        result = await announceDAO.insert(announce, "no_picture.png");
+    }
     const message = "L'annonce a bien été créé.";
     return res.status(200).send({"Message": message , "Announce": result});
 };
@@ -81,7 +85,12 @@ const update = async (req, res) => {
     // reconstruction de la string de fichier pour le back et supprime la dernière virgule
     files.forEach(el => {if(el){ strFilesName += el.filename + ","}} );
     const indexEnd = strFilesName.lastIndexOf(',');
-    if(indexEnd !== -1){ urlImages = strFilesName.slice(0, indexEnd)}
+    if(indexEnd !== -1){
+        urlImages = strFilesName.slice(0, indexEnd)
+    }
+    if(urlImages === ''){
+        urlImages = "no_picture.png";
+    }
 
     const result = await announceDAO.update(announce, urlImages);
     const message = "L'annonce a bien été mis à jour.";
