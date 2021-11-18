@@ -44,21 +44,22 @@ const insert = async (req, res) => {
 
 const update = async (req, res) => {
 	const { Proposition } = req.body;
-	const result = await propositionDAO.update(Proposition);
+	const update = await propositionDAO.update(Proposition);
+    const result = await getByIdProposition(Proposition.id_announce, Proposition.id_user);
     let message = "";
     let codeValidated = orderController.codeValidatedRandom();
     const dateOrder = new Date();
-    const newOrder = Order.OrderInsert(codeValidated,1, result[0].id_announce, dateOrder);
+    const newOrder = Order.OrderInsert(codeValidated, 1, result.announce.id, dateOrder);
     let order = "";
     let opinion = "";
     console.log(result)
     /*si proposition validé */
-    if(result[0].id_status_proposition === 3) {
+    if(result.status_proposition.id === 3) {
         /*création de la commande*/
         order = await orderDAO.insert(newOrder)
         /*si commande création des avis*/
         if(order){
-            opinion = await opinionController.insertOpinion(Proposition.id_user, result[0].announce.userAnnounce.id, order.id);
+            opinion = await opinionController.insertOpinion(Proposition.id_user, result.announce.userAnnounce.id, order.id);
             message = "Votre commande a été créée.";
         }
         res.status(200).send( {"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
