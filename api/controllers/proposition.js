@@ -65,7 +65,7 @@ const update = async (req, res) => {
         res.status(200).send( {"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
     }else{
          message = "La proposition a bien été modifiée ";
-         res.status(200).send( {"Message": message , "Proposition": result});
+         res.status(200).send( {"Message": message , "Proposition": update});
     }
 };
 
