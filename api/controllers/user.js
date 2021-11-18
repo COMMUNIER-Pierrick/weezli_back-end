@@ -7,8 +7,6 @@ const bcrypt = require("bcryptjs");
 const mail = require("../config/mail");
 const checkDAO = require("../services/database/dao/checkUserDAO");
 const fileDAO = require("../services/database/dao/fileDAO");
-const announceDAO = require("../services/database/dao/announceDAO");
-const paymentDAO = require("../services/database/dao/paymentDAO");
 
 const insert = async (req, res) => {
 
@@ -118,14 +116,6 @@ const updatePayment = async (req, res) => {
 
 }
 
-const updateChoiceUser = async (req, res) => {
-	const {id} = req.params;
-	const { user } = req.body;
-	const updateUser = await userDAO.updateChoiceUser(user, id);
-	const message = "mise à jour de votre formule."
-	res.status(200).send({"Message": message, "User": updateUser})
-}
-
 /*NON Implémanté*/
 const remove = async (req, res) => {
 	/*
@@ -191,7 +181,6 @@ const login = async (req, res) => {
 		let refreshToken = jwt.sign(playoad, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "1y"});
 
 		delete user.password;
-
 		return res
 			.cookie("accessToken", token, {
 				httpOnly: true,
@@ -248,7 +237,6 @@ module.exports = {
 	getById,
 	insert,
 	update,
-	updateChoiceUser,
 	updatePayment,
 	remove,
 	logout,

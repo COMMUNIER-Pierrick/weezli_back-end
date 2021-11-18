@@ -4,7 +4,7 @@ const log = require('../../../log/logger');
 const errorMessage = "Data access error";
 
 const SQL_INSERT = `INSERT INTO check_user SET status_phone = ?, status_mail = ?, status_identity = ?, img_identity = ?, status = ?, confirm_code = ?`;
-const SQL_UPDATE_ACTIVE = `UPDATE  check_user SET status = ? WHERE id = ?`;
+const SQL_UPDATE_ACTIVE = `UPDATE  check_user SET status_mail = ?, status = ? WHERE id = ?`;
 const SQL_UPDATE_CODE = `UPDATE check_user SET confirm_code = ? WHERE id = ?`;
 const SQL_UPDATE = `UPDATE check_user SET img_identity = ? WHERE id = ?`;
 const SELECT_BY_ID = `SELECT * FROM check_user WHERE id = ?`;
@@ -32,7 +32,7 @@ async function updateActive(id){
     let con = null;
     try{
         con = await database.getConnection();
-        await con.execute(SQL_UPDATE_ACTIVE, ['Active', id]);
+        await con.execute(SQL_UPDATE_ACTIVE, [1, 'Active', id]);
         const check = getById(id);
         return check;
     }catch (error) {
