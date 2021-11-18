@@ -26,6 +26,8 @@ app.use("/image", require("./routes/image"));
 app.use("/order", require ("./routes/order"));
 app.use("/proposition", require("./routes/proposition"));
 app.use("/status-proposition", require("./routes/status_proposition"));
+app.use("/opinion", require("./routes/opinion"));
+
 
 
 try{
