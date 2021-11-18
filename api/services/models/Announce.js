@@ -1,5 +1,5 @@
 module.exports = class Announce{
-    constructor(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce, Propositions) {
+    constructor(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce) {
         this.id = id;
         this.packages = packages;
         this.views = views;
@@ -8,18 +8,17 @@ module.exports = class Announce{
         this.imgUrl = imgUrl;
         this.dateCreated = dateCreated;
         this.userAnnounce = userAnnounce;
-        this.Propositions = Propositions;
     }
 
     static AnnounceAll(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce) {
-        return new Announce(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce, null);
+        return new Announce(id,packages,views, idType, price, imgUrl, dateCreated, userAnnounce);
     }
 
     static AnnounceUpdate(id,packages, idType, price, imgUrl, userAnnounce){
-        return new Announce(id,packages, null, idType, price, imgUrl, null, userAnnounce, null);
+        return new Announce(id,packages, null, idType, price, imgUrl, null, userAnnounce);
     }
 
     static AnnounceInsert(packages, idType, price, imgUrl, userAnnounce){
-        return new Announce(null, packages, null, idType, price,imgUrl, null, userAnnounce,null);
+        return new Announce(null, packages, null, idType, price,imgUrl, null, userAnnounce);
     }
 }

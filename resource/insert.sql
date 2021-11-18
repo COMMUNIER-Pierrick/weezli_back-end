@@ -19,14 +19,6 @@ INSERT INTO `status` SET name='En cours';
 INSERT INTO `status` SET name='Livré';
 INSERT INTO `status` SET name='Terminé';
 
-INSERT INTO `choice` SET name='no-formule';
-INSERT INTO `choice` SET name='Formule 1', description='7 jours.', price='3.99', id_payment= 'price_1JlyoNKAPKSmGQtSTk8fBsqc';
-INSERT INTO `choice` SET name='Formule 2', description='1 mois.', price='9.99', id_payment= 'price_1JmD3uKAPKSmGQtSk2yTNI1T';
-INSERT INTO `choice` SET name='Formule 3', description='3 mois.', price='24.99', id_payment= 'price_1JmD5FKAPKSmGQtSSaxTdgme';
-INSERT INTO `choice` SET name='Formule 4', description='6 mois.', price='44.99', id_payment= 'price_1JlyoNKAPKSmGQtSTk8fBsqc';
-INSERT INTO `choice` SET name='Formule 5', description='9 mois.', price='54.99', id_payment= 'price_1JmD3uKAPKSmGQtSk2yTNI1T';
-INSERT INTO `choice` SET name='Formule 6', description='1 ans.', price='60.00', id_payment= 'price_1JmD5FKAPKSmGQtSSaxTdgme';
-
 INSERT INTO `status_proposition` set name='Proposition';
 INSERT INTO `status_proposition` set name='Contre-proposition';
 INSERT INTO `status_proposition` set name='Validé';
@@ -57,15 +49,15 @@ INSERT INTO `check_user` SET status_phone=false, status_mail=false, status_ident
 
 INSERT INTO `users` SET firstname='alain',lastname='terrieur', username='alainterieur', password='1§fdv54ùmsldc354sdvm^$5656m',
                         email='alain@terrieur.com', phone='0707070707', date_of_birthday= '2000-12-10T00:00:00', active=1, url_profile_img='', average_opinion=4.5,
-                        id_payment=1, id_choice=1, id_check=1, choice_date_started = '2021-12-10T00:00:00', choice_date_end= '2021-12-10T00:00:00', id_address = 3;
+                        id_payment=1, id_check=1, choice_date_started = '2021-12-10T00:00:00', choice_date_end= '2021-12-10T00:00:00', id_address = 3;
 
 INSERT INTO `users` SET firstname='sarah',lastname='croche', username='sarahcroche', password='1§fdv54ùmsldc354sdvm^$5656m',
                         email='sarah@croche.com', phone='0606060606', date_of_birthday= '1989-12-10T00:00:00', active=1, url_profile_img='pictureprofile2.png', average_opinion=2.5,
-                        id_payment=2, id_choice=3, id_check=2, choice_date_started = '2021-11-10T00:00:00', choice_date_end= '2021-12-10T00:00:00', id_address= 5;
+                        id_payment=2, id_check=2, choice_date_started = '2021-11-10T00:00:00', choice_date_end= '2021-12-10T00:00:00', id_address= 5;
 
 INSERT INTO `users` SET firstname='marc',lastname='assin', username='marcassin', password='1§fdv54ùmsldc354sdvm^$5656m',
                         email='marc@assin.com', phone='0607070707', date_of_birthday= '1989-12-10T00:00:00', active=1, url_profile_img='pictureprofile3.png', average_opinion=0,
-                        id_payment=3, id_choice=2, id_check=3, choice_date_started = '2021-11-10T00:00:00', choice_date_end= '2022-03-10T00:00:00', id_address= 6;
+                        id_payment=3, id_check=3, choice_date_started = '2021-11-10T00:00:00', choice_date_end= '2022-03-10T00:00:00', id_address= 6;
 
 
 INSERT INTO `rel_package_sizes` SET id_package=1, id_size=2;

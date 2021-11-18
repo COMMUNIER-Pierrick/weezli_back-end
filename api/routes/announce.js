@@ -7,9 +7,9 @@ router.post("/new-announce",  upload.any('fileOne', 'fileTwo', 'fileThree', 'fil
 router.put("/update-announce/:id", upload.any('fileOne', 'fileTwo', 'fileThree', 'fileFour', 'fileFive'), announce.update);
 router.delete("/remove-announce/:id", announce.remove);
 
-router.get("/announces-by-type/:id_type", announce.getByType);
+router.get("/announces-by-type/:id_type/:id_user", announce.getByTypeConnect);
+router.get("/announces-by-type/:id_type", announce.getByTypeDisconnect);
 router.get("/:id", announce.getById)
-router.get("/user-announce-by-type/:idType/:id", announce.getTypeByUser);
 router.get("/all-user/:id", announce.getALLUser);
 router.post("/search", announce.getSearch);
 

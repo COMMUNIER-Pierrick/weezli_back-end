@@ -15,10 +15,7 @@ CREATE TABLE `users`(
     `url_profile_img` VARCHAR(150) NULL,
     `average_opinion` DOUBLE NOT NULL DEFAULT 0,
     `id_payment` INT NOT NULL,
-    `id_choice` INT NOT NULL,
     `id_check` INT NOT NULL,
-    `choice_date_started` DATETIME NULL,
-    `choice_date_end` DATETIME NULL,
     `id_address` INT NOT NULL
 )Engine = InnoDB;
 
@@ -94,13 +91,6 @@ CREATE TABLE `check_user`(
     `confirm_code` VARCHAR(50) NULL UNIQUE
 )Engine = InnoDB;
 
-CREATE TABLE `choice`(
-    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL,
-    `description` TEXT NULL,
-    `price` DOUBLE NULL,
-    `id_payment` VARCHAR(255) NULL
-)Engine = InnoDB;
 
 CREATE TABLE `payment`(
     `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -194,7 +184,6 @@ CREATE TABLE `rel_user_announce`(
 ALTER TABLE `rel_user_announce` ADD PRIMARY KEY (`id_user`,`id_announce`);
 
 ALTER TABLE `users` ADD CONSTRAINT `fk_user_payment` FOREIGN KEY (`id_payment`) REFERENCES `payment`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_choice` FOREIGN KEY (`id_choice`) REFERENCES `choice`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `users` ADD CONSTRAINT `fk_user_address` FOREIGN KEY (`id_address`) REFERENCES `address`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFERENCES `check_user`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION; /* Le on delete no action c'est pour refusé de supprimer le parent donc user*/
 

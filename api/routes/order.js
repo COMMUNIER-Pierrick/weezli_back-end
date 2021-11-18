@@ -8,6 +8,6 @@ router.delete("/remove-order/:id", order.remove);
 
 router.get("/:id", order.getById);
 router.get("/deliveries/:id/:id_status", order.getOrdersByUserAndStatus);
-router.get("/orders/:id/:id_status_proposition", order.getOrdersByUser);
+router.get("/orders/:id", order.getOrdersByUser);
 
 module.exports = router;
