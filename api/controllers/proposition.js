@@ -52,7 +52,6 @@ const update = async (req, res) => {
     const newOrder = Order.OrderInsert(codeValidated, 1, result.announce.id, dateOrder);
     let order = "";
     let opinion = "";
-    console.log(result)
     /*si proposition validé */
     if(result.status_proposition.id === 3) {
         /*création de la commande*/

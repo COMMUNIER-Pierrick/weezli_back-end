@@ -119,7 +119,8 @@ module.exports = {
     getOpinionByOrder,
     getById,
     getOpinionUserByUser,
-    insertOpinion
+    insertOpinion,
+    getByOrder
 };
 
 async function listOpinion(opinions){
@@ -137,6 +138,16 @@ async function getUserByUser(idLivreur, idExpediteur){
         return opinions;
     }else{
         return [];
+    }
+}
+
+async function getByOrder(idOrder){
+    try {
+        const opinions = await opinionDAO.getOpinionByOrder(idOrder);
+        const listOpinions = await listOpinion(opinions);
+        return( {"Opinions": listOpinions} );
+    }catch (error) {
+        log.error("Error getOpinionByOrder controller : " + error);
     }
 }
 

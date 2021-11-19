@@ -1,6 +1,7 @@
 const log = require('../log/logger');
 const Order = require('../services/models/Order');
 const orderDAO = require("../services/database/dao/orderDAO");
+const opinionController = require("./opinion");
 
 /*L'insert sera appeler update de proposition et apperla directement la dao sans passer par le controler*/
 const insert = async (req, res) => {
@@ -29,10 +30,10 @@ const remove = async (req, res) => {
 };
 
 const getById = async (req, res) => {
-
     const {id} = req.params;
     const order = await orderDAO.getById(id);
-    res.status(200).send( {"Order": order} );
+    const opinions = await opinionController.getByOrder(order.id);
+    res.status(200).send( {"Order": order, "Opinions" : opinions} );
 };
 
 const getOrdersByUserAndStatus = async (req, res) => {
