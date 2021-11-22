@@ -20,6 +20,14 @@ const emailVerif = async (req, res) => {
     }
 }
 
+const getById = async (req, res) => {
+
+    const {id} = req.params;
+    const [checkUser] = await checkDAO.getById(id);
+    res.status(200).send( {"Check": checkUser} );
+};
+
 module.exports = {
-    emailVerif
+    emailVerif,
+    getById
 }

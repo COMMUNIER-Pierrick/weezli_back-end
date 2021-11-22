@@ -123,7 +123,7 @@ async function getById(id) {
         const [address1] = await addressDAO.getByPackage(packageId, "depart");
         const [address2] = await addressDAO.getByPackage(packageId, "arrival");
         const [sizes] = await sizeDAO.getByPackage(packageId);
-        const [user] = await userDAO.getUserForAnnounceByAnnounce(id);
+        const user = await userDAO.getUserForAnnounceByAnnounce(id);
         const [transport] = await transportDAO.getById(packages[0].id_transport);
         const newPackage = new Package(packageId, address1, address2, packages[0].datetime_departure, packages[0].datetime_arrival, packages[0].kg_available, packages[0].description_condition, transport, sizes);
         const newAnnounce = Announce.AnnounceAll(announce[0].id, newPackage, announce[0].views, announce[0].id_type, announce[0].price, announce[0].img_url, announce[0].date_created, user);
@@ -184,7 +184,7 @@ async function getByTypeConnect(idType, id_user){
             const [address1] = await addressDAO.getByPackage(packageId, "depart");
             const [address2] = await addressDAO.getByPackage(packageId, "arrival");
             const [sizes] = await sizeDAO.getByPackage(packageId);
-            const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
+            const user = await userDAO.getUserForAnnounceByAnnounce(announceId);
             const [transport] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
             const announce = Announce.AnnounceAll(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
@@ -214,7 +214,7 @@ async function getByTypeDisconnect(idType){
             const [address1] = await addressDAO.getByPackage(packageId, "depart");
             const [address2] = await addressDAO.getByPackage(packageId, "arrival");
             const [sizes] = await sizeDAO.getByPackage(packageId);
-            const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
+            const user = await userDAO.getUserForAnnounceByAnnounce(announceId);
             const [transport] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
             const announce = Announce.AnnounceAll(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
@@ -288,7 +288,7 @@ async function getAllUser(id){
             const [address1] = await addressDAO.getByPackage(packageId, "depart");
             const [address2] = await addressDAO.getByPackage(packageId, "arrival");
             const [sizes] = await sizeDAO.getByPackage(packageId);
-            const [user] = await userDAO.getUserForAnnounceByAnnounce(announceId);
+            const user = await userDAO.getUserForAnnounceByAnnounce(announceId);
             const [transport] = await transportDAO.getById(packages.id_transport);
             const newPackage = new Package(packages.id, address1, address2, packages.datetime_departure, packages.datetime_arrival, packages.kg_available, packages.description_condition, transport, sizes);
             const announce = Announce.AnnounceAll(announces[i].id, newPackage, announces[i].views, announces[i].id_type, announces[i].price, announces[i].img_url, announces[i].date_created, user);
