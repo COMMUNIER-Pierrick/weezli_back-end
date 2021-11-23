@@ -12,6 +12,15 @@ const SQL_UPDATE = `UPDATE orders SET id_status = ? WHERE id =?`;
 
 const SELECT_BY_ID = 'SELECT * FROM orders WHERE id = ?';
 
+const SELECT_ORDER_BY_USER_STATUS_AND_TYPE = `SELECT DISTINCT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code, s.name
+                                         FROM orders o
+                                         INNER JOIN status s ON o.id_status = s.id
+                                         INNER JOIN announce a ON o.id_announce = a.id
+                                         INNER JOIN proposition p ON a.id = p.id_announce
+                                         INNER JOIN rel_user_announce rua on a.id = rua.id_announce
+                                         INNER JOIN users u on rua.id_user = u.id
+                                         WHERE s.id = ? AND ((p.id_user = ? AND a.id_type = ?) OR (u.id = ? AND a.id_type = ?))`;
+
 const SELECT_ORDER_BY_USER_AND_STATUS = `SELECT DISTINCT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code, s.name
                                          FROM orders o
                                          INNER JOIN status s ON o.id_status = s.id
@@ -121,6 +130,27 @@ async function getOrdersByUserAndStatus (id, id_status) {
     }
 }
 
+async function getOrdersByUserStatusAndType (id) {
+    let con = null;
+    try {
+        con = await database.getConnection();
+        const [orders] = await con.execute(SELECT_ORDER_BY_USER_STATUS_AND_TYPE, [1, id, 1, id, 2]);
+        let listOrdersSender = [];
+        for(let i = 0; i < orders.length; i++) {
+            let newOrder = await getById(orders[i].id);
+            listOrdersSender.push({"Order": newOrder});
+        }
+        return listOrdersSender;
+    } catch (error) {
+        log.error("Error orderDAO getOrdersByUserStatusAndType : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
 async function getOrdersByUser(id) {
     let con = null;
     try {
@@ -147,6 +177,7 @@ module.exports = {
     remove,
     updateStatus,
     getById,
+    getOrdersByUserStatusAndType,
     getOrdersByUserAndStatus,
     getOrdersByUser
 };

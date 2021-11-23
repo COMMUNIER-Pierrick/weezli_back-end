@@ -15,7 +15,7 @@ async function insert(){
     let con = null;
     try{
         con = await database.getConnection();
-        const [idCreated] = await con.execute(SQL_INSERT, ['','','','','Pending','']);
+        const [idCreated] = await con.execute(SQL_INSERT, [0, 0, 0,'','Pending','']);
         const id =  idCreated.insertId;
         return id;
     }catch (error) {

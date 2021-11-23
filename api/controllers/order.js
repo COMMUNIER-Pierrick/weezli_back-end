@@ -36,6 +36,13 @@ const getById = async (req, res) => {
     res.status(200).send( {"Order": order, "Opinions" : opinions} );
 };
 
+const getOrdersByUserStatusAndType = async (req, res) => {
+
+    const {id} = req.params;
+    const orders = await orderDAO.getOrdersByUserStatusAndType(id);
+    res.status(200).send( {"Orders": orders} );
+};
+
 const getOrdersByUserAndStatus = async (req, res) => {
 
     const {id, id_status} = req.params;
@@ -55,6 +62,7 @@ module.exports = {
     updateStatus,
     remove,
     getById,
+    getOrdersByUserStatusAndType,
     getOrdersByUserAndStatus,
     getOrdersByUser,
     codeValidatedRandom
