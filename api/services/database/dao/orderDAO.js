@@ -19,7 +19,7 @@ const SELECT_ORDER_BY_USER_STATUS_AND_TYPE = `SELECT DISTINCT o.id, o.code_valid
                                          INNER JOIN proposition p ON a.id = p.id_announce
                                          INNER JOIN rel_user_announce rua on a.id = rua.id_announce
                                          INNER JOIN users u on rua.id_user = u.id
-                                         WHERE (p.id_user = ? OR u.id = ?) AND s.id = ? AND a.id_type = ?`;
+                                         WHERE s.id = ? AND ((p.id_user = ? AND a.id_type = ?) OR (u.id = ? AND a.id_type = ?))`;
 
 const SELECT_ORDER_BY_USER_AND_STATUS = `SELECT DISTINCT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code, s.name
                                          FROM orders o
@@ -130,11 +130,11 @@ async function getOrdersByUserAndStatus (id, id_status) {
     }
 }
 
-async function getOrdersByUserStatusAndType (id, id_status, id_type) {
+async function getOrdersByUserStatusAndType (id) {
     let con = null;
     try {
         con = await database.getConnection();
-        const [orders] = await con.execute(SELECT_ORDER_BY_USER_STATUS_AND_TYPE, [id, id, id_status, id_type]);
+        const [orders] = await con.execute(SELECT_ORDER_BY_USER_STATUS_AND_TYPE, [1, id, 1, id, 2]);
         let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
             let newOrder = await getById(orders[i].id);

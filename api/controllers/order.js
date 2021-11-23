@@ -37,8 +37,8 @@ const getById = async (req, res) => {
 
 const getOrdersByUserStatusAndType = async (req, res) => {
 
-    const {id, id_status, id_type} = req.params;
-    const orders = await orderDAO.getOrdersByUserStatusAndType(id, id_status, id_type);
+    const {id} = req.params;
+    const orders = await orderDAO.getOrdersByUserStatusAndType(id);
     res.status(200).send( {"Orders": orders} );
 };
 
