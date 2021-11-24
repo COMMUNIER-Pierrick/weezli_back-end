@@ -55,6 +55,7 @@ const getOrdersByUser = async (req, res) => {
     res.status(200).send( {"Orders": orders} );
 };
 
+/*pour afficher la liste des opinions de l'utilisateur*/
 const getAllOpinionByUser = async (req, res) => {
     try {
         const {idUser} = req.params;
