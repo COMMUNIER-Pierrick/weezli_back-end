@@ -18,23 +18,11 @@ const getById = async (req, res) => {
     }
 }
 
-const getAllOpinionByUser = async (req, res) => {
-    try {
-        const {idUser} = req.params;
-        const opinions = await opinionDAO.getAllOpinionByUser(idUser);
-        const listOpinions = await listOpinion(opinions);
-        res.status(200).send( {"Opinions": listOpinions} );
-    }catch (error) {
-            log.error("Error getAllOpinionByUser controller : " + error);
-    }
-};
-
 const getOpinionByOrder = async (req, res) => {
     try {
         const {idOrder} = req.params;
-        const opinions = await opinionDAO.getOpinionByOrder(idOrder);
-        const listOpinions = await listOpinion(opinions);
-        res.status(200).send( {"Opinions": listOpinions} );
+        const listOpinion = await getByOrder(idOrder)
+        res.status(200).send(listOpinion);
     }catch (error) {
         log.error("Error getOpinionByOrder controller : " + error);
     }
@@ -115,7 +103,6 @@ module.exports = {
     insert,
     remove,
     update,
-    getAllOpinionByUser,
     getOpinionByOrder,
     getById,
     getOpinionUserByUser,
@@ -126,7 +113,7 @@ module.exports = {
 async function listOpinion(opinions){
     let listOpinion = [];
     for(let i = 0; i < opinions.length; i++){
-        const newOpinion = new Opinion(opinions[i].id,opinions[i].number ,opinions[i].comment, opinions[i].id_user, opinions[i].status);
+        const newOpinion = new Opinion(opinions[i].id, opinions[i].number ,opinions[i].comment, opinions[i].id_user, opinions[i].status, opinions[i].userRelation, opinions[i].id_order, opinions[i].id_types);
         listOpinion.push({"opinion": newOpinion});
     }
     return listOpinion;

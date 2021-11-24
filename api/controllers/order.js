@@ -2,6 +2,8 @@ const log = require('../log/logger');
 const Order = require('../services/models/Order');
 const orderDAO = require("../services/database/dao/orderDAO");
 const opinionController = require("./opinion");
+const opinionDAO = require("../services/database/dao/opinionDAO");
+const Opinion = require("../services/models/Opinion");
 
 /*L'insert sera appeler update de proposition et apperla directement la dao sans passer par le controler*/
 const insert = async (req, res) => {
@@ -32,29 +34,41 @@ const remove = async (req, res) => {
 const getById = async (req, res) => {
     const {id} = req.params;
     const order = await orderDAO.getById(id);
-    const opinions = await opinionController.getByOrder(order.id);
-    res.status(200).send( {"Order": order, "Opinions" : opinions} );
+    res.status(200).send( {"Order": order} );
 };
 
 const getOrdersByUserStatusAndType = async (req, res) => {
-
     const {id} = req.params;
     const orders = await orderDAO.getOrdersByUserStatusAndType(id);
     res.status(200).send( {"Orders": orders} );
 };
 
 const getOrdersByUserAndStatus = async (req, res) => {
-
     const {id, id_status} = req.params;
     const orders = await orderDAO.getOrdersByUserAndStatus(id, id_status);
     res.status(200).send( {"Orders": orders} );
 };
 
 const getOrdersByUser = async (req, res) => {
-
     const {id, id_status_proposition} = req.params;
     const orders = await orderDAO.getOrdersByUser(id, id_status_proposition);
     res.status(200).send( {"Orders": orders} );
+};
+
+const getAllOpinionByUser = async (req, res) => {
+    try {
+        const {idUser} = req.params;
+        const opinions = await opinionDAO.getAllOpinionByUser(idUser);
+        let listOpinion = [];
+        for(let i = 0; i < opinions.length;i++){
+            const order = await orderDAO.getByIdForOpinion(opinions[i].id_order);
+            const newOpinion = new Opinion(opinions[i].id, opinions[i].number ,opinions[i].comment, opinions[i].id_user, opinions[i].status, opinions[i].userRelation, order, opinions[i].id_types);
+            listOpinion.push({"opinion": newOpinion});
+        }
+        res.status(200).send( listOpinion );
+    }catch (error) {
+        log.error("Error getAllOpinionByUser controller : " + error);
+    }
 };
 
 module.exports = {
@@ -65,7 +79,8 @@ module.exports = {
     getOrdersByUserStatusAndType,
     getOrdersByUserAndStatus,
     getOrdersByUser,
-    codeValidatedRandom
+    codeValidatedRandom,
+    getAllOpinionByUser
 };
 
 

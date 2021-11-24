@@ -195,6 +195,10 @@ async function getById(id){
     }
 }
 
+async function getByIdForUser(id){
+    /*uniquement pout l'utilisateur*/
+}
+
 async function getControlUser(email, username){
     let con = null;
     try{

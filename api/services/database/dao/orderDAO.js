@@ -3,6 +3,8 @@ const log = require("../../../log/logger");
 const Order = require("../../models/Order");
 const announceDAO = require("./announceDAO");
 const statusDAO = require("./statusDAO");
+const opinionController = require("../../../controllers/opinion");
+const opinionsDAO = require("./opinionDAO");
 
 const SQL_INSERT = `INSERT INTO orders SET code_validated = ?, id_status = ?, id_announce = ?, date_order = ?`;
 
@@ -92,12 +94,37 @@ async function updateStatus(order){
 
 async function getById(id){
     let con = null;
+    console.log(id)
     try {
         con = await database.getConnection();
         const [order] = await con.execute(SELECT_BY_ID, [id]);
+        console.log(order)
         const announce = await announceDAO.getById(order[0].id_announce);
         const status = await statusDAO.getById(order[0].id_status);
-        const newOrder = new Order(id, order[0].code_validated, status, announce, order[0].date_order, order[0].qr_code);
+        const opinions = await opinionController.getByOrder(order[0].id);
+        const newOrder = new Order(id, order[0].code_validated, status, announce, order[0].date_order, order[0].qr_code, opinions);
+        return newOrder;
+    } catch (error) {
+        log.error("Error orderDAO selectById : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
+/*Récuperation de l'order pour les opinions*/
+async function getByIdForOpinion(id){
+    let con = null;
+    console.log(id)
+    try {
+        con = await database.getConnection();
+        const [order] = await con.execute(SELECT_BY_ID, [id]);
+        console.log(order)
+        const announce = await announceDAO.getById(order[0].id_announce);
+        const status = await statusDAO.getById(order[0].id_status);
+        const newOrder = Order.OrderForOpinion(id, order[0].code_validated, status, announce, order[0].date_order);
         return newOrder;
     } catch (error) {
         log.error("Error orderDAO selectById : " + error);
@@ -138,6 +165,7 @@ async function getOrdersByUserStatusAndType (id) {
         let listOrdersSender = [];
         for(let i = 0; i < orders.length; i++) {
             let newOrder = await getById(orders[i].id);
+
             listOrdersSender.push({"Order": newOrder});
         }
         return listOrdersSender;
@@ -179,7 +207,8 @@ module.exports = {
     getById,
     getOrdersByUserStatusAndType,
     getOrdersByUserAndStatus,
-    getOrdersByUser
+    getOrdersByUser,
+    getByIdForOpinion
 };
 
 

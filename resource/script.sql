@@ -16,7 +16,8 @@ CREATE TABLE `users`(
     `average_opinion` DOUBLE NOT NULL DEFAULT 0,
     `id_payment` INT NOT NULL,
     `id_check` INT NOT NULL,
-    `id_address` INT NOT NULL
+    `id_address` INT NOT NULL,
+    `date_of_entry` DATETIME NOT NULL
 )Engine = InnoDB;
 
 ALTER TABLE `users` ADD UNIQUE (`username`);

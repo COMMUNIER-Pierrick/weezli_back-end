@@ -7,14 +7,18 @@ const SQL_INSERT = `INSERT INTO opinion SET number = ?, comment = ?, id_user = ?
 const SQL_INSERT_RELATION = `INSERT INTO rel_opinion_users SET id_opinion = ?, id_user = ?, id_order = ?, id_types = ?`;
 const SQL_UPDATE = `UPDATE opinion SET number = ?, comment = ?, status = ? WHERE id = ?`;
 const SELECT_BY_ID = `SELECT * FROM opinion WHERE id = ?`;
-const SELECT_ALL_OPINION_BY_USER = `SELECT * FROM opinion WHERE id_user = ?`;
-const SELECT_ALL_OPINION_BY_ORDER = `SELECT * FROM opinion
-                                    INNER JOIN rel_opinion_users rou ON opinion.id = rou.id_opinion
+const SELECT_ALL_OPINION_BY_USER = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as userRelation, rou.id_order, rou.id_types
+                                    FROM opinion o
+                                    INNER JOIN rel_opinion_users rou ON o.id = rou.id_opinion 
+                                    WHERE rou.id_user = ?`;
+const SELECT_ALL_OPINION_BY_ORDER = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as userRelation, rou.id_order, rou.id_types 
+                                    FROM opinion o
+                                    INNER JOIN rel_opinion_users rou ON o.id = rou.id_opinion
                                     WHERE id_order = ?`;
-const SELECT_ALL_OPINION_USER_BY_USER = `SELECT * FROM opinion o
+const SELECT_ALL_OPINION_USER_BY_USER = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as userRelation, rou.id_order, rou.id_types FROM opinion o
                                         INNER JOIN rel_opinion_users rou ON o.id = rou.id_opinion
                                         WHERE (o.id_user = ? AND rou.id_user = ?) OR (o.id_user = ? AND rou.id_user = ?)`;
-const SELECT_BY_ID_WITH_RELATION = `SELECT o.id, o.number, o.comment, o.status, rou.id_opinion, rou.id_user, rou.id_order, rou.id_types
+const SELECT_BY_ID_WITH_RELATION = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as userRelation, rou.id_order, rou.id_types
                                     FROM opinion o
                                     INNER JOIN rel_opinion_users rou on o.id = rou.id_opinion
                                     WHERE o.id = ? AND rou.id_user = ? AND rou.id_order = ?`;
