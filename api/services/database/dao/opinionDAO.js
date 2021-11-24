@@ -149,7 +149,6 @@ async function insertRealtion(idOpinion, idLivreur, idOrder, status){
 }
 
 async function update(newOpinion){
-    console.log(newOpinion);
     let con = null;
     try {
         con = await database.getConnection();

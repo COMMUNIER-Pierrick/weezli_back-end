@@ -94,11 +94,9 @@ async function updateStatus(order){
 
 async function getById(id){
     let con = null;
-    console.log(id)
     try {
         con = await database.getConnection();
         const [order] = await con.execute(SELECT_BY_ID, [id]);
-        console.log(order)
         const announce = await announceDAO.getById(order[0].id_announce);
         const status = await statusDAO.getById(order[0].id_status);
         const opinions = await opinionController.getByOrder(order[0].id);
@@ -117,11 +115,9 @@ async function getById(id){
 /*Récuperation de l'order pour les opinions*/
 async function getByIdForOpinion(id){
     let con = null;
-    console.log(id)
     try {
         con = await database.getConnection();
         const [order] = await con.execute(SELECT_BY_ID, [id]);
-        console.log(order)
         const announce = await announceDAO.getById(order[0].id_announce);
         const status = await statusDAO.getById(order[0].id_status);
         const newOrder = Order.OrderForOpinion(id, order[0].code_validated, status, announce, order[0].date_order);

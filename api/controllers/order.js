@@ -8,7 +8,6 @@ const Opinion = require("../services/models/Opinion");
 /*L'insert sera appeler update de proposition et apperla directement la dao sans passer par le controler*/
 const insert = async (req, res) => {
     const {Order} = req.body;
-    console.log(Order);
     //let codeValidated = codeValidatedRandom()
     const order = Order.OrderInsert(Order.codeValidated, Order.id_status, Order.id_announce, Order.dateOrder);
     const result = await orderDAO.insert(order);
