@@ -50,7 +50,7 @@ const getOrdersByUserAndStatus = async (req, res) => {
 
 const getOrdersByUser = async (req, res) => {
     const {id, id_status_proposition} = req.params;
-    const orders = await orderDAO.getOrdersByUser(id, id_status_proposition);
+    const orders = await orderDAO.getOrdersByUser(id);
     res.status(200).send( {"Orders": orders} );
 };
 

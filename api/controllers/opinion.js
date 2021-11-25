@@ -31,16 +31,18 @@ const getOpinionByOrder = async (req, res) => {
 const getOpinionUserByUser = async (req, res) => {
     try {
         const {idLivreur, idExpediteur} = req.params;
+        console.log(idLivreur);
+        console.log(idExpediteur);
         const opinions = await opinionDAO.getOpinionUserByUser(idLivreur, idExpediteur);
         if(opinions.length > 0){
             const listOpinions = await listOpinion(opinions);
-            res.status(200).send( {"Opinions": listOpinions} );
+            res.status(200).send({"opinion": listOpinions});
         }else{
             res.status(200).send( {"Message": "Aucune relation trouvé", "Opinion": []} );
         }
 
     }catch (error) {
-        log.error("Error getOpinionByOrder controller : " + error);
+        log.error("Error getOpinionUserByUser controller : " + error);
     }
 }
 
@@ -107,13 +109,14 @@ module.exports = {
     getById,
     getOpinionUserByUser,
     insertOpinion,
-    getByOrder
+    getByOrder,
+    getUserByUser
 };
 
 async function listOpinion(opinions){
     let listOpinion = [];
     for(let i = 0; i < opinions.length; i++){
-        const newOpinion = new Opinion(opinions[i].id, opinions[i].number ,opinions[i].comment, opinions[i].id_user, opinions[i].status, opinions[i].userRelation, opinions[i].id_order, opinions[i].id_types);
+        const newOpinion = new Opinion(opinions[i].id, opinions[i].number ,opinions[i].comment, opinions[i].id_user, opinions[i].status, opinions[i].idUserOpinion, opinions[i].id_order, opinions[i].id_types);
         listOpinion.push({"opinion": newOpinion});
     }
     return listOpinion;
@@ -121,8 +124,9 @@ async function listOpinion(opinions){
 
 async function getUserByUser(idLivreur, idExpediteur){
     const opinions = await opinionDAO.getOpinionUserByUser(idLivreur, idExpediteur);
+    const listOpinions = await listOpinion(opinions);
     if(opinions.length > 0){
-        return opinions;
+        return (listOpinions);
     }else{
         return [];
     }
@@ -132,7 +136,7 @@ async function getByOrder(idOrder){
     try {
         const opinions = await opinionDAO.getOpinionByOrder(idOrder);
         const listOpinions = await listOpinion(opinions);
-        return( {"Opinions": listOpinions} );
+        return(listOpinions);
     }catch (error) {
         log.error("Error getOpinionByOrder controller : " + error);
     }

@@ -5,20 +5,20 @@ const RelationOpinionUser = require("../../models/RelationOpinionUser");
 
 const SQL_INSERT = `INSERT INTO opinion SET number = ?, comment = ?, id_user = ?, status = ?`;
 const SQL_INSERT_RELATION = `INSERT INTO rel_opinion_users SET id_opinion = ?, id_user = ?, id_order = ?, id_types = ?`;
-const SQL_UPDATE = `UPDATE opinion SET number = ?, comment = ?, status = ? WHERE id = ?`;
+const SQL_UPDATE = `UPDATE opinion SET number = ?, comment = ?, id_order = ?, status = ? WHERE id = ?`;
 const SELECT_BY_ID = `SELECT * FROM opinion WHERE id = ?`;
-const SELECT_ALL_OPINION_BY_USER = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as userRelation, rou.id_order, rou.id_types
+const SELECT_ALL_OPINION_BY_USER = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as idUserOpinion, rou.id_order, rou.id_types
                                     FROM opinion o
                                     INNER JOIN rel_opinion_users rou ON o.id = rou.id_opinion 
                                     WHERE rou.id_user = ?`;
-const SELECT_ALL_OPINION_BY_ORDER = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as userRelation, rou.id_order, rou.id_types 
+const SELECT_ALL_OPINION_BY_ORDER = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as idUserOpinion, rou.id_order, rou.id_types
                                     FROM opinion o
                                     INNER JOIN rel_opinion_users rou ON o.id = rou.id_opinion
                                     WHERE id_order = ?`;
-const SELECT_ALL_OPINION_USER_BY_USER = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as userRelation, rou.id_order, rou.id_types FROM opinion o
+const SELECT_ALL_OPINION_USER_BY_USER = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as idUserOpinion, rou.id_order, rou.id_types FROM opinion o
                                         INNER JOIN rel_opinion_users rou ON o.id = rou.id_opinion
                                         WHERE (o.id_user = ? AND rou.id_user = ?) OR (o.id_user = ? AND rou.id_user = ?)`;
-const SELECT_BY_ID_WITH_RELATION = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as userRelation, rou.id_order, rou.id_types
+const SELECT_BY_ID_WITH_RELATION = `SELECT o.id, o.number, o.comment,o.id_user, o.status, rou.id_opinion, rou.id_user as idUserOpinion, rou.id_order, rou.id_types
                                     FROM opinion o
                                     INNER JOIN rel_opinion_users rou on o.id = rou.id_opinion
                                     WHERE o.id = ? AND rou.id_user = ? AND rou.id_order = ?`;
@@ -152,11 +152,11 @@ async function update(newOpinion){
     let con = null;
     try {
         con = await database.getConnection();
-        const opinionUpdate = await con.execute(SQL_UPDATE, [newOpinion.number, newOpinion.comment, newOpinion.status, newOpinion.id]);
+        const opinionUpdate = await con.execute(SQL_UPDATE, [newOpinion.number, newOpinion.comment, newOpinion.idOrder, newOpinion.status, newOpinion.id]);
         const opinion = await getById(newOpinion.id);
         return opinion;
     } catch (error) {
-        log.error("Error  : " + error);
+        log.error("Error opinionDAO update  : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {

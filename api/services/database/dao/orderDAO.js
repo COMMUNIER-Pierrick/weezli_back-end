@@ -5,6 +5,7 @@ const announceDAO = require("./announceDAO");
 const statusDAO = require("./statusDAO");
 const opinionController = require("../../../controllers/opinion");
 const opinionsDAO = require("./opinionDAO");
+propositionDAO = require("./propositionDAO");
 
 const SQL_INSERT = `INSERT INTO orders SET code_validated = ?, id_status = ?, id_announce = ?, date_order = ?`;
 
@@ -99,8 +100,9 @@ async function getById(id){
         const [order] = await con.execute(SELECT_BY_ID, [id]);
         const announce = await announceDAO.getById(order[0].id_announce);
         const status = await statusDAO.getById(order[0].id_status);
-        const opinions = await opinionController.getByOrder(order[0].id);
-        const newOrder = new Order(id, order[0].code_validated, status, announce, order[0].date_order, order[0].qr_code, opinions);
+        const proposition = await propositionDAO.getByIdAnnounceAndStatus(announce.id, 3);
+        const opinion = await opinionController.getUserByUser(announce.userAnnounce.id, proposition[0].id_user);
+        const newOrder = new Order(id, order[0].code_validated, status, announce, order[0].date_order, order[0].qr_code, opinion);
         return newOrder;
     } catch (error) {
         log.error("Error orderDAO selectById : " + error);

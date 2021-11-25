@@ -17,6 +17,8 @@ const SELECT_ALL_BY_ID_USER = `SELECT p.id_announce, p.id_user, p.proposition, p
 
 const SELECT_ALL_BY_ID_ANNOUNCE = `SELECT * from proposition WHERE id_announce = ?`;
 
+const SELECT_BY_ID_ANNOUNCE_AND_STATUS = `SELECT * from proposition WHERE id_announce = ? AND id_status_proposition = ?`;
+
 const SELECT_BY_ID_ANNOUNCE_AND_ID_USER = `SELECT * from proposition WHERE id_announce = ? AND id_user = ?`;
 
 const SQL_INSERT = `INSERT INTO proposition SET id_announce = ?, id_user = ?, proposition = ?, id_status_proposition = ?`;
@@ -154,11 +156,28 @@ async function getByIdAnnounceAndUser(id_announce, id_user){
     }
 }
 
+async function getByIdAnnounceAndStatus(id_announce, id_status_proposition){
+    let con = null;
+    try {
+        con = await database.getConnection();
+        const [proposition] = await con.execute(SELECT_BY_ID_ANNOUNCE_AND_STATUS, [id_announce, id_status_proposition]);
+        return proposition;
+    } catch (error) {
+        log.error("Error propositionDAO selectByIdAnnounceAndUser : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
 module.exports = {
     getAll,
     getAllByUser,
     getByIdAnnounce,
     getByIdAnnounceAndUser,
+    getByIdAnnounceAndStatus,
     insert,
     update,
     remove,
