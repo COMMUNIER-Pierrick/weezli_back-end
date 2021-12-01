@@ -101,8 +101,8 @@ async function getById(id){
         const announce = await announceDAO.getById(order[0].id_announce);
         const status = await statusDAO.getById(order[0].id_status);
         const proposition = await propositionDAO.getByIdAnnounceAndStatus(announce.id, 3);
-        const opinion = await opinionController.getUserByUser(announce.userAnnounce.id, proposition[0].id_user);
-        const newOrder = new Order(id, order[0].code_validated, status, announce, order[0].date_order, order[0].qr_code, opinion);
+        const opinions = await opinionController.getUserByUser(announce.userAnnounce.id, proposition[0].id_user);
+        const newOrder = new Order(id, order[0].code_validated, status, announce, order[0].date_order, order[0].qr_code, opinions);
         return newOrder;
     } catch (error) {
         log.error("Error orderDAO selectById : " + error);

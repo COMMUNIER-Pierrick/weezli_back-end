@@ -27,16 +27,18 @@ const insert = async (req, res) => {
     let opinion = "";
 
     /*si proposition validé */
-    if(result.status_proposition.id === 3) {
+    if(result.status_proposition.id == 3) {
         /*création de la commande*/
-        order = await orderDAO.insert(newOrder)
+        order = await orderDAO.insert(newOrder);
         /*si commande création des avis*/
         if(result.announce.idTypes == 1){
-            opinion = await opinionController.insertOpinion(Proposition.id_user, result.announce.userAnnounce.id, order.id);
+            opinion = await opinionController.insertOpinion(Proposition.id_user, result.announce.userAnnounce.id);
+            order = await orderDAO.getById(order.id);
             message = "Votre commande a été créée.";
             res.status(200).send({"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
         }else{
-            opinion = await opinionController.insertOpinion(result.announce.userAnnounce.id, Proposition.id_user, order.id);
+            opinion = await opinionController.insertOpinion(result.announce.userAnnounce.id, Proposition.id_user);
+            order = await orderDAO.getById(order.id);
             message = "Votre commande a été créée.";
             res.status(200).send({"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
         }
@@ -56,20 +58,27 @@ const update = async (req, res) => {
     const newOrder = Order.OrderInsert(codeValidated, 1, result.announce.id, dateOrder);
     let order = "";
     let opinion = "";
+
     /*si proposition validé */
-    if(result.status_proposition.id === 3) {
-        /*création de la commande*/
-        order = await orderDAO.insert(newOrder)
-        /*si commande création des avis*/
-        if(order){
-            opinion = await opinionController.insertOpinion(Proposition.id_user, result.announce.userAnnounce.id, order.id);
-            message = "Votre commande a été créée.";
+        if(result.status_proposition.id == 3) {
+            /*création de la commande*/
+            order = await orderDAO.insert(newOrder);
+            /*si commande création des avis*/
+            if(result.announce.idTypes == 1){
+                opinion = await opinionController.insertOpinion(Proposition.id_user, result.announce.userAnnounce.id);
+                order = await orderDAO.getById(order.id);
+                message = "Votre commande a été créée.";
+                res.status(200).send({"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
+            }else{
+                opinion = await opinionController.insertOpinion(result.announce.userAnnounce.id, Proposition.id_user);
+                order = await orderDAO.getById(order.id);
+                message = "Votre commande a été créée.";
+                res.status(200).send({"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
+            }
+        }else{
+            message = "La proposition a bien été créée.";
+            res.status(200).send({"Message": message, "Proposition": result});
         }
-        res.status(200).send( {"Message": message , "Proposition": result, "Order" : order});
-    }else{
-         message = "La proposition a bien été modifiée ";
-         res.status(200).send( {"Message": message , "Proposition": update});
-    }
 };
 
 const remove = async (req, res) => {
@@ -125,7 +134,7 @@ const getByIdAnnounceAndUser = async (req, res) => {
     const proposition = await propositionDAO.getByIdAnnounceAndUser(id_announce, id_user);
     let announce = await announceDAO.getById(proposition[0].id_announce);
     let statusProposition = await statusPropositionDAO.getById(proposition[0].id_status_proposition);
-    const newProposition = new Proposition(announce, proposition[0].id_user, proposition[0].proposition, statusProposition);
+    const newProposition = new PropositionModel(announce, proposition[0].id_user, proposition[0].proposition, statusProposition);
     res.status(200).send({"proposition": newProposition});
 };
 
@@ -136,7 +145,7 @@ const getByIdAnnounceAndStatus = async (req, res) => {
     const proposition = await propositionDAO.getByIdAnnounceAndStatus(id_announce, id_status_proposition);
     let announce = await announceDAO.getById(proposition[0].id_announce);
     let statusProposition = await statusPropositionDAO.getById(proposition[0].id_status_proposition);
-    const newProposition = new Proposition(announce, proposition[0].id_user, proposition[0].proposition, statusProposition);
+    const newProposition = new PropositionModel(announce, proposition[0].id_user, proposition[0].proposition, statusProposition);
     res.status(200).send({"proposition": newProposition});
 };
 

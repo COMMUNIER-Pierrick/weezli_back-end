@@ -5,7 +5,6 @@ const router = express.Router();
 
 router.get("/:id", opinion.getById);
 router.get("/get-all-opinion-user/:idUser", order.getAllOpinionByUser);
-router.get("/get-opinion-order/:idOrder", opinion.getOpinionByOrder);
 router.get("/get-opinion-user-by-user/:idLivreur/:idExpediteur", opinion.getOpinionUserByUser);
 router.post("/insert-opinion", opinion.insert);
 router.put("/update-opinion", opinion.update);
