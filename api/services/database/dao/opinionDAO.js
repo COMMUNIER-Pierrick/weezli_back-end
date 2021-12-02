@@ -11,7 +11,12 @@ const SELECT_BY_ID = `SELECT * FROM opinion WHERE id = ?`;
 const SELECT_ALL_OPINION_BY_USER = `SELECT o.id, o.number, o.comment, o.id_user, o.status, rou.id_opinion, rou.id_user as idUserOpinion, rou.id_types
                                     FROM opinion o
                                     INNER JOIN rel_opinion_users rou ON o.id = rou.id_opinion 
-                                    WHERE rou.id_user_opinion = ?`;
+                                    WHERE rou.id_user = ?`;
+
+const SELECT_ALL_OPINION_RECEIVED_BY_USER = `SELECT o.id, o.number, o.comment, o.id_user, o.status, rou.id_opinion, rou.id_user as idUserOpinion, rou.id_types
+                                    FROM opinion o
+                                    INNER JOIN rel_opinion_users rou ON o.id = rou.id_opinion
+                                    WHERE o.id_user = ?`;
 
 const SELECT_ALL_OPINION_USER_BY_USER = `SELECT o.id, o.number, o.comment, o.id_user, o.status, rou.id_opinion, rou.id_user as idUserOpinion, rou.id_types FROM opinion o
                                         INNER JOIN rel_opinion_users rou ON o.id = rou.id_opinion
@@ -41,13 +46,10 @@ async function getById(id){
 
 async function getByIdWithRelation(id, idUser){
     let con = null;
-    console.log(id);
-    console.log(idUser);
     try {
         con = await database.getConnection();
         const [o] = await con.execute(SELECT_BY_ID_WITH_RELATION, [id, idUser]);
         if( o.length !== 0){
-            console.log(o[0]);
             return o;
         }else{
             const opinion = new Opinion(o[0].id, o[0].number, o[0].comment, o[0].id_user, o[0].status);
@@ -72,6 +74,22 @@ async function getAllOpinionByUser(idUser){
         return listOpinion;
     } catch (error) {
         log.error("Error getAllOpinionByUser : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
+async function getAllOpinionReceivedByUser(idUser){
+    let con = null;
+    try {
+        con = await database.getConnection();
+        const [listOpinion] = await con.execute(SELECT_ALL_OPINION_RECEIVED_BY_USER, [idUser]);
+        return listOpinion;
+    } catch (error) {
+        log.error("Error getAllOpinionReceivedByUser : " + error);
         throw errorMessage;
     } finally {
         if (con !== null) {
@@ -173,6 +191,7 @@ module.exports = {
     remove,
     update,
     getAllOpinionByUser,
+    getAllOpinionReceivedByUser,
     getById,
     getOpinionUserByUser,
     insertRealtion,

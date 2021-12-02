@@ -1,6 +1,10 @@
 const Opinion = require("../services/models/Opinion");
 const opinionDAO = require("../services/database/dao/opinionDAO");
+const userDAO = require("../services/database/dao/userDAO");
 const log = require("../log/logger");
+const User = require("../services/models/User");
+const userController = require("./user");
+const opinionController = require("./opinion");
 
 /**
  *
@@ -52,12 +56,15 @@ const update = async (req, res) => {
         const id = opinion.id
         const number = opinion.number;
         const comment = opinion.comment;
+        const idUser = opinion.idUser;
         const opinionBDD = await opinionDAO.getByIdWithRelation(opinion.id, opinion.idUser);
 
         if(opinionBDD.length !== 0){
             const newOpinion = Opinion.OpinionUpdate(id, number, comment, 'Active');
             const opinion = await opinionDAO.update(newOpinion);
-            res.status(200).send({"Opinion": opinion});
+            const user = await userDAO.getById(idUser);
+            await updateAverageOpinion(user, number);
+            res.status(200).send({"Opinion": opinion, "User": user});
         }else{
             res.status(400).send({"Message": "une erreur c'est produite"});
         }
@@ -92,6 +99,30 @@ const remove = async (req, res) => {
     }
 }
 
+/*pour afficher la liste des opinions poster par de l'utilisateur*/
+const getAllOpinionByUser = async (req, res) => {
+    try {
+        const {idUser} = req.params;
+        const opinions = await opinionDAO.getAllOpinionByUser(idUser);
+        const listOpinion = await opinionController.listOpinion(opinions);
+        res.status(200).send( {"Opinions": listOpinion} );
+    }catch (error) {
+        log.error("Error getAllOpinionByUser controller : " + error);
+    }
+};
+
+/*pour afficher la liste des opinions poster par de l'utilisateur*/
+const getAllOpinionReceivedByUser = async (req, res) => {
+    try {
+        const {idUser} = req.params;
+        const opinions = await opinionDAO.getAllOpinionReceivedByUser(idUser);
+        const listOpinions = await listOpinion(opinions);
+        res.status(200).send( {"Opinions": listOpinions} );
+    }catch (error) {
+        log.error("Error getAllOpinionReceivedByUser controller : " + error);
+    }
+};
+
 module.exports = {
     insert,
     remove,
@@ -100,6 +131,9 @@ module.exports = {
     getOpinionUserByUser,
     insertOpinion,
     getUserByUser,
+    listOpinion,
+    getAllOpinionByUser,
+    getAllOpinionReceivedByUser
 };
 
 async function listOpinion(opinions){
@@ -138,5 +172,26 @@ async function insertOpinion(idLivreur, idExpediteur){
         const listOpinions = await getUserByUser(idLivreur, idExpediteur)
         const opinions = await listOpinion(listOpinions);
         return opinions;
+    }
+}
+
+async function updateAverageOpinion(user, note) {
+
+    const newNote = note;
+    const listOpinions = await opinionDAO.getAllOpinionByUser(user.id);
+
+    if(listOpinions.length == 1){
+        user.average_opinion = newNote;
+        const updateUser = await userDAO.updateAverageOpinion(user);
+    }else{
+    console.log("hellor");
+        let moyenneOpinion;
+        let totalOpinion = 0;
+        for(let i = 0; i < listOpinions.length; i++){
+            totalOpinion += listOpinions[i].number;
+        }
+        moyenneOpinion = (totalOpinion / listOpinions.length);
+        user.average_opinion = moyenneOpinion;
+        const updateUser = await userDAO.updateAverageOpinion(user);
     }
 }

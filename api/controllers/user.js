@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 const mail = require("../config/mail");
 const checkDAO = require("../services/database/dao/checkUserDAO");
 const fileDAO = require("../services/database/dao/fileDAO");
+const opinionDAO = require("../services/database/dao/opinionDAO");
 
 const insert = async (req, res) => {
 
@@ -111,6 +112,7 @@ const update = async (req, res) => {
 		throw error;
 	}
 };
+
 
 const updatePayment = async (req, res) => {
 
@@ -240,7 +242,7 @@ module.exports = {
 	updatePayment,
 	remove,
 	logout,
-	refresh
+	refresh,
 };
 
 function compareDate(dateOfBirthday){

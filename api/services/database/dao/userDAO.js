@@ -14,6 +14,7 @@ const SQL_INSERT = `INSERT INTO users SET firstname = ?, lastname = ?, username 
 const SQL_REMOVE_RELATION = `DELETE FROM rel_user_announce WHERE id_announce = ? AND id_user = ?`
 const SQL_REMOVE_USER = `DELETE FROM users WHERE id = ?`;
 const SQL_UPDATE_PROFILE = `UPDATE users SET firstname = ?, lastname = ?, email = ?, phone = ?, url_profile_img = ? WHERE id = ?`;
+const SQL_UPDATE_AVERAGE_OPINION = `UPDATE users SET average_opinion = ? WHERE id = ?`;
 const SELECT_BY_ID = `SELECT * FROM users WHERE id = ? `;
 const SELECT_CONTROL_IDENTIFIER = `SELECT id, email, username FROM users WHERE email = ? OR username = ?`;
 const SELECT_ID = `SELECT id FROM users WHERE email = ?`;
@@ -159,6 +160,24 @@ async function update(User,filename, filecheck, id){
     }
 }
 
+async function updateAverageOpinion(user){
+
+    let con = null;
+    try{
+        con = await database.getConnection();
+        await con.execute(SQL_UPDATE_AVERAGE_OPINION, [user.average_opinion, user.id]);
+        const newUser = await getById(user.id);
+        return newUser;
+    }catch (error) {
+        log.error("Error userDAO updateAverageOpinion : " + error);
+        throw errorMessage;
+    } finally {
+        if (con !== null) {
+            con.end();
+        }
+    }
+}
+
 async function updatePayment(){
     let con = null;
     try{
@@ -225,6 +244,7 @@ module.exports = {
     getByLogin,
     removeRelationAnnounce,
     getControlUser,
+    updateAverageOpinion
 };
 
 /*
