@@ -265,7 +265,6 @@ module.exports = {
             "city" : "Nantes",
             "country": "France"
         }
-
     }
 }
 * */

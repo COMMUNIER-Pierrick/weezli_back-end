@@ -17,7 +17,7 @@ module.exports = class User{
     };
 
     static UserUpdate(firstname, lastname, email, phone, check, address){
-        return new User(null, firstname, lastname, null, null, email, phone, null, null, null, null,null, check, address);
+        return new User(null, firstname, lastname, null, null, email, phone, null, null, null, null, null, check, address);
     };
 
     static UserInsert(firstname, lastname, username, password, email, dateOfBirthday, address){
