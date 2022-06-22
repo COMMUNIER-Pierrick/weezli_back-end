@@ -28,8 +28,6 @@ app.use("/proposition", require("./routes/proposition"));
 app.use("/status-proposition", require("./routes/status_proposition"));
 app.use("/opinion", require("./routes/opinion"));
 
-
-
 try{
     http.listen(port, () => {
         console.info("Server listening on port : " + port);
