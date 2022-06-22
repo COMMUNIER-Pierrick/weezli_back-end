@@ -10,43 +10,50 @@ const statusPropositionDAO = require("../services/database/dao/status_propositio
 const userDAO = require("../services/database/dao/userDAO");
 const opinionController = require("./opinion");
 
-
 const insert = async (req, res) => {
-    // Création de la proposition
+    // Récupération des données dans la requête.
     const {Proposition} = req.body;
+    // Création, insertion et récupération de notre proposition.
     const newProposition = new PropositionModel(Proposition.id_announce, Proposition.id_user, Proposition.proposition, Proposition.status_proposition.id);
     await propositionDAO.insert(newProposition);
     const result = await getByIdProposition(newProposition.announce, newProposition.user);
 
-    // Configuration pour la création d'une commande
+    // Configuration des différentes données pour la création d'une commande.
     let message = "";
     let codeValidated = orderController.codeValidatedRandom();
     const dateOrder = new Date();
+    // Création de l'objet order.
     const newOrder = Order.OrderInsert(codeValidated, 1, result.announce.id, dateOrder);
     let order = "";
     let opinion = "";
 
-    /*si proposition validé */
+    // Si la proposition est validé (accord trouver sur le prix de la commission).
     if(result.status_proposition.id == 3) {
-        /*création de la commande*/
+        /* Insertion de la commande */
         order = await orderDAO.insert(newOrder);
-        /*si commande création des avis*/
+        /* Une fois la commande créer, nous inserons les avis qui lie les deux utilisateur qui seront à completer si
+        c'est la premières fois qui sont tous les deux en relation ou on récupèrera leur dernier avis émis entre eux
+        qu'ils pourront modifier. Selon le type d'annonce, nous modifions l'ordre des données dans l'opinionController. */
         if(result.announce.idTypes == 1){
             opinion = await opinionController.insertOpinion(Proposition.id_user, result.announce.userAnnounce.id);
             order = await orderDAO.getById(order.id);
+            // Nous renvoyons les différents élément nécéssaire au front si tous c'est bien dérouler.
             message = "Votre commande a été créée.";
             res.status(200).send({"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
         }else{
             opinion = await opinionController.insertOpinion(result.announce.userAnnounce.id, Proposition.id_user);
             order = await orderDAO.getById(order.id);
+             // Nous renvoyons les différents élément nécéssaire au front si tous c'est bien dérouler.
             message = "Votre commande a été créée.";
             res.status(200).send({"Message": message , "Proposition": result, "Order" : order, "Opinion": opinion});
         }
+    // Sinon si la proposition n'est pas validé (pas d'accord sur le prix de départ de la commission).
     }else{
+        // Nous renvoyons la proposition et le message si l'insertion a fonctionné.
         message = "La proposition a bien été créée.";
         res.status(200).send({"Message": message, "Proposition": result});
     }
-   }
+}
 
 const update = async (req, res) => {
 	const { Proposition } = req.body;

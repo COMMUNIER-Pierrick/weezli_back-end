@@ -2,6 +2,7 @@ const database = require("../tools/database");
 const log = require("../../../log/logger");
 
 const SQL_INSERT = `INSERT INTO address SET id_info = ?, number = ?, street = ?, additional_address = ?, zipcode = ?, city = ?, country = ?`;
+
 const SQL_DELETE = `DELETE FROM address WHERE id = ?`;
 const SQL_UPDATE = `UPDATE address SET number = ?, street = ?, additional_address = ?, zipcode = ?, city = ?, country = ? WHERE id = ?`;
 const SQL_INSERT_RELATION = `INSERT INTO rel_package_address SET id_package = ?, id_address = ?`;
@@ -23,7 +24,8 @@ async function insert(Address){
     let con = null;
     try{
         con = await database.getConnection();
-        const [idCreated] = await con.execute(SQL_INSERT, [ Address.idInfo, Address.number,Address.street, Address.additionalAddress, Address.zipCode, Address.city, Address.country]);
+        const [idCreated] = await con.execute(SQL_INSERT, [ Address.idInfo, Address.number,
+        Address.street, Address.additionalAddress, Address.zipCode, Address.city, Address.country]);
         const id = idCreated.insertId;
         const [result] = await getByIdWithInfo(id)
         return result;

@@ -13,7 +13,7 @@ const SQL_DELETE = `DELETE FROM orders WHERE id = ?`
 
 const SQL_UPDATE = `UPDATE orders SET id_status = ? WHERE id =?`;
 
-const SELECT_BY_ID = 'SELECT * FROM orders WHERE id = ?';
+const SELECT_BY_ID = `SELECT * FROM orders WHERE id = ?`;
 
 const SELECT_ORDER_BY_USER_STATUS_AND_TYPE = `SELECT DISTINCT o.id, o.code_validated, o.id_status, o.id_announce, o.date_order, o.qr_code, s.name
                                          FROM orders o

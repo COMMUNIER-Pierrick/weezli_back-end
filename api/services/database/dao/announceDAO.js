@@ -45,29 +45,31 @@ const errorMessage = "Data access error";
 async function insert(announce, filesName){
     let con = null;
     let files = '';
+    // Si il y a des images, la valeur pour files (=img_url) sera le nom des images séparés par une virgurle, sinon la case sera vide
     if(filesName){ files = filesName;}
     try{
         con = await database.getConnection();
-        /* Addresse de départ */
+        // Addresse de départ et récupération de l'id de l'adresse insérée
         const AddressDeparture = await addressDAO.insert(announce.packages.addressDeparture);
         const idDepart = AddressDeparture.id;
-        /* Addresse  d'arrivée */
+        // Addresse  d'arrivée et récupération de l'id de l'adresse insérée
         const AddressArrival = await addressDAO.insert(announce.packages.addressArrival);
         const idArrival = AddressArrival.id;
-        /* Insertion du package */
+        // Insertion du package et récupération de l'id du package insérée
         const Package = await packageDAO.insert(announce.packages);
         const idPack = Package.id;
-        /* Insertion relation address */
+        // Insertion de la relation entre adresse et package (via une table intermédiaire)
         await addressDAO.insertRelation(idPack, idDepart);
         await addressDAO.insertRelation(idPack, idArrival);
-        /* Insertion relation size */
+        // Insertion de la relation entre size et package (via une table intermédiaire)
         const sizes = announce.packages.sizes;
         sizes.forEach(el => sizeDAO.insertRelation(idPack, el.size.id));
-        /* Insertion announce */
+        // Exécution de la requête en utilisant les id ou attributs récupérés et récupération de l'id de l'announce créer
         const [idCreated] = await con.execute(SQL_INSERT, [idPack, announce.idType, announce.price, files]);
         const id = idCreated.insertId;
-        /* Insertion relation user annonce */
+        // Insertion de la relation entre user et annonce (via une table intermédiaire)
         await userDAO.insertRelation(id, announce.userAnnounce.id);
+        // Récupération de l'onnounce via l'id et on la retourne
         const results = await getById(id);
         return results;
 

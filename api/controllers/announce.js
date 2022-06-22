@@ -21,21 +21,35 @@ const insert = async (req, res) => {
     let strFilesName = '';
     let urlImages = '';
     let announceParse = JSON.parse(req.body.Announce);
-    const announce = Announce.AnnounceInsert(announceParse.packages, announceParse.idType, announceParse.price, announceParse.imgUrl, announceParse.userAnnounce);
+    const announce = Announce.AnnounceInsert(announceParse.packages, announceParse.idType,
+    announceParse.price, announceParse.imgUrl, announceParse.userAnnounce);
 
-    //const announce = Announce.AnnounceInsert(req.body.Announce.packages, req.body.Announce.idType, req.body.Announce.price, req.body.Announce.transact, req.body.Announce.imgUrl, req.body.Announce.userAnnounce);
-    req.files.forEach(el => el.fieldname === 'fileOne' ? fileOne = el : el.fieldname === 'fileTwo' ? fileTwo = el : el.fieldname === 'fileThree' ? fileThree = el : el.fieldname === 'fileFour' ? fileFour = el : fileFive = el);
+    /* Pour chaque file que nous récupérons dans la requ^éte, nous testons de quel fichier il s'agit via
+    le fieldname et créons la variable en fonction. */
+    req.files.forEach(el => el.fieldname === 'fileOne' ? fileOne = el : el.fieldname === 'fileTwo' ?
+    fileTwo = el : el.fieldname === 'fileThree' ? fileThree = el : el.fieldname === 'fileFour' ? fileFour = el : fileFive = el);
 
+    /* Nous créons ensuite un tableau contenant nos variables créées, qui restent a '' si aucune
+    correspondance a été trouvée dans le filename. */
     const files = [fileOne, fileTwo, fileThree, fileFour, fileFive];
+    /* Nous faisons ensuite une boucle en uploadant le fichier dans le dossier uplaod et en ajoutant
+    son nom à la string strFilesName. */
     files.forEach(el => {if(el){fileDAO.insert(fileOne.filename); strFilesName += el.filename + ","}} );
+    // A la fin de la boucle, nous récupérons le dernier index inséré.
     const indexEnd = strFilesName.lastIndexOf(',');
+    /* Nous testons s'il y a bien quelque chose (s'il n'y a rien, lastIndexOf retourne -1). Si c'est le cas,
+    nous récupérons la string strFilesName et le découpons de 0 au dernier index, pour avoir urlImages.
+    Sinon, l'urlImages reste à ''. */
     if(indexEnd !== -1){ urlImages = strFilesName.slice(0, indexEnd)}
+    /* Nous vérifions ensuite la taille de urlImages. Si la taille n'est pas supérieure à 0,
+     alors on attribut comme paramêtre pour l'insertion une image par défaut. */
     let result;
     if(urlImages.length > 0){
          result = await announceDAO.insert(announce, urlImages);
     }else{
         result = await announceDAO.insert(announce, "no_picture.png");
     }
+    // Nous renvoyons l'nnonce et le message au front si l'insertion a fonctionné.
     const message = "L'annonce a bien été créé.";
     return res.status(200).send({"Message": message , "Announce": result});
 };
