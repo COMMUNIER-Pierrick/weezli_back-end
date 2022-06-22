@@ -67,6 +67,8 @@ CREATE TABLE `size`(
     `filename` VARCHAR(250) NULL UNIQUE
 )Engine = InnoDB;
 
+CREATE DATABASE `weezli_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 CREATE TABLE `proposition`(
     `id_announce` int NOT NULL,
     `id_user` int NOT NULL,
@@ -76,6 +78,13 @@ CREATE TABLE `proposition`(
 )Engine = InnoDB;
 
 ALTER TABLE `proposition` ADD PRIMARY KEY (`id_announce`,`id_user`);
+
+ALTER TABLE `proposition` ADD CONSTRAINT `fk_proposition_id_announce` FOREIGN KEY (`id_announce`)
+REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `proposition` ADD CONSTRAINT `fk_proposition_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `proposition` ADD CONSTRAINT `fk_status_proposition_id_user` FOREIGN KEY (`id_status_proposition`)
+REFERENCES `status_proposition`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 CREATE TABLE `status_proposition`(
     `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -184,42 +193,69 @@ CREATE TABLE `rel_user_announce`(
 
 ALTER TABLE `rel_user_announce` ADD PRIMARY KEY (`id_user`,`id_announce`);
 
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_payment` FOREIGN KEY (`id_payment`) REFERENCES `payment`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_address` FOREIGN KEY (`id_address`) REFERENCES `address`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFERENCES `check_user`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION; /* Le on delete no action c'est pour refusé de supprimer le parent donc user*/
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_payment` FOREIGN KEY (`id_payment`) REFERENCES `payment`(`id`) ON DELETE
+NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_address` FOREIGN KEY (`id_address`) REFERENCES `address`(`id`) ON DELETE
+NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `users` ADD CONSTRAINT `fk_user_check` FOREIGN KEY (`id_check`) REFERENCES `check_user`(`id`) ON DELETE
+NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_package` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_type` FOREIGN KEY (`id_type`) REFERENCES `types`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_package` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `announce` ADD CONSTRAINT `fk_announce_id_type` FOREIGN KEY (`id_type`) REFERENCES `types`(`id`) ON DELETE
+NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `messages` ADD CONSTRAINT `fk_message_id_author` FOREIGN KEY (`id_author`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `messages` ADD CONSTRAINT `fk_messages_id_channel` FOREIGN KEY (`id_channel`) REFERENCES  `channels`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `messages` ADD CONSTRAINT `fk_message_id_author` FOREIGN KEY (`id_author`) REFERENCES `users`(`id`)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `messages` ADD CONSTRAINT `fk_messages_id_channel` FOREIGN KEY (`id_channel`) REFERENCES  `channels`(`id`)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `rel_user_channels` ADD CONSTRAINT `fk_rel_user_channels_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `rel_user_channels` ADD CONSTRAINT `fk_rel_user_channels_id_channel` FOREIGN KEY (`id_channel`) REFERENCES `channels`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `rel_user_channels` ADD CONSTRAINT `fk_rel_user_channels_id_user` FOREIGN KEY (`id_user`)
+REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_user_channels` ADD CONSTRAINT `fk_rel_user_channels_id_channel` FOREIGN KEY (`id_channel`)
+REFERENCES `channels`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `opinion` ADD CONSTRAINT `fk_opinion_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `opinion` ADD CONSTRAINT `fk_opinion_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE
+NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_opinion` FOREIGN KEY (`id_opinion`) REFERENCES `opinion`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_order` FOREIGN KEY (`id_order`) REFERENCES `orders`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_types` FOREIGN KEY (`id_types`) REFERENCES `types`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_opinion` FOREIGN KEY (`id_opinion`)
+REFERENCES `opinion`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_user` FOREIGN KEY (`id_user`)
+REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_order` FOREIGN KEY (`id_order`)
+REFERENCES `orders`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_opinion_users` ADD CONSTRAINT `fk_rel_opinion_user_id_types` FOREIGN KEY (`id_types`)
+REFERENCES `types`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `rel_package_sizes` ADD CONSTRAINT `fk_rel_sender_size_id_sender` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `rel_package_sizes` ADD CONSTRAINT `fk_rel_sender_size_id_size` FOREIGN KEY (`id_size`) REFERENCES `size`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_package_sizes` ADD CONSTRAINT `fk_rel_sender_size_id_sender` FOREIGN KEY (`id_package`)
+REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_package_sizes` ADD CONSTRAINT `fk_rel_sender_size_id_size` FOREIGN KEY (`id_size`)
+REFERENCES `size`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `rel_package_address` ADD CONSTRAINT `fk_rel_package_address_id_package` FOREIGN KEY (`id_package`) REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `rel_package_address` ADD CONSTRAINT `fk_rel_package_address_id_address` FOREIGN KEY (`id_address`) REFERENCES `address`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_package_address` ADD CONSTRAINT `fk_rel_package_address_id_package` FOREIGN KEY (`id_package`)
+REFERENCES `package`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_package_address` ADD CONSTRAINT `fk_rel_package_address_id_address` FOREIGN KEY (`id_address`)
+REFERENCES `address`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `address` ADD CONSTRAINT `fk_address_info` FOREIGN KEY (`id_info`) REFERENCES `info`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `address` ADD CONSTRAINT `fk_address_info` FOREIGN KEY (`id_info`) REFERENCES `info`(`id`) ON DELETE
+NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `package` ADD CONSTRAINT `fk_package_transport` FOREIGN KEY (`id_transport`) REFERENCES `transport`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `package` ADD CONSTRAINT `fk_package_transport` FOREIGN KEY (`id_transport`) REFERENCES `transport`(`id`)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_status` FOREIGN KEY (`id_status`)  REFERENCES `status`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_status` FOREIGN KEY (`id_status`)  REFERENCES `status`(`id`)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `orders` ADD CONSTRAINT `fk_orders_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_announce` FOREIGN KEY (`id_announce`)
+REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `rel_user_announce` ADD CONSTRAINT `fk_rel_user_announce_id_user` FOREIGN KEY (`id_user`)
+REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `proposition` ADD CONSTRAINT `fk_proposition_id_announce` FOREIGN KEY (`id_announce`) REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `proposition` ADD CONSTRAINT `fk_proposition_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `proposition` ADD CONSTRAINT `fk_status_proposition_id_user` FOREIGN KEY (`id_status_proposition`) REFERENCES `status_proposition`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `proposition` ADD CONSTRAINT `fk_proposition_id_announce` FOREIGN KEY (`id_announce`)
+REFERENCES `announce`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `proposition` ADD CONSTRAINT `fk_proposition_id_user` FOREIGN KEY (`id_user`) REFERENCES `users`(`id`)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `proposition` ADD CONSTRAINT `fk_status_proposition_id_user` FOREIGN KEY (`id_status_proposition`)
+REFERENCES `status_proposition`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;

@@ -1,4 +1,4 @@
-# Baloogo
+# Weezli
 
 ## Installation et configuration
 
@@ -13,7 +13,7 @@ Création des tables:
 
 ## Description
 
-Baloogo est une application mettant en relation une personne **A** qui prend un vol et veut vendre *x poids* de son 
+Weezli est une application mettant en relation une personne **A** qui prend un vol et veut vendre *x poids* de son 
 bagage et une personne **B** qui veut acheter *x poids* de bagage de **A**.
 L'application organise aussi la remise du colis par **A** à la personne **C** à qui le colis est destiné.
 
@@ -36,7 +36,7 @@ FRONT_URL=<br>
 BACK_URL=
 
 ## FIGMAS
-https://www.figma.com/file/TXyf2UF2fatYPIOdfgVLPW/wizzly?node-id=0%3A1
+https://www.figma.com/file/1oZC4cIhixK6XxEWYEKrEz/weezly
 
 ## STRIPE SAVE CARD 
 https://stripe.com/docs/payments/save-during-payment
